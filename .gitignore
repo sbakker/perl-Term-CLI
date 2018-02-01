@@ -1,0 +1,13 @@
+MYMETA.yml
+MYMETA.json
+Makefile
+Makefile.old
+MANIFEST.bak
+blib/
+cover_db/
+debian/files
+debian/*.debhelper.log
+debian/*.substvars
+debian/*/
+m6-check-login-accounts-*.tar.gz
+pm_to_blib
