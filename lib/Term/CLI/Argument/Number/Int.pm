@@ -30,7 +30,7 @@ use namespace::clean;
 extends 'Term::CLI::Argument::Number';
 
 sub coerce_value {
-    return POSIX::strol($_[1]);
+    return POSIX::strtol($_[1]);
 }
 
 }

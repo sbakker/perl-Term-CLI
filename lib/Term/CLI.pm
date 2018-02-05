@@ -42,22 +42,12 @@ use Types::Standard qw(
 use Moo;
 use namespace::clean;
 
+with('Term::CLI::Role::CommandSet');
+
 has name => (
     is => 'ro',
     isa => Str,
     default => sub { $FindBin::Script }
-);
-
-has commands => (
-    is => 'rw',
-    isa => Maybe[ArrayRef[InstanceOf['Term::CLI::Command']]],
-    predicate => 1
-);
-
-has callback => (
-    is => 'rw',
-    isa => Maybe[CodeRef],
-    predicate => 1
 );
 
 has prompt => (
@@ -82,6 +72,7 @@ sub _is_escaped {
     );
 }
 
+
 sub BUILD {
     my ($self, $args) = @_;
 
@@ -94,17 +85,6 @@ sub BUILD {
     $term->Attribs->{char_is_quoted_p} = sub { $self->_is_escaped(@_) };
 }
 
-sub command_names {
-    my $self = shift;
-    return if !$self->has_commands;
-    return sort { $a cmp $b } map { $_->name } @{$self->commands};
-}
-
-sub find_command {
-    my ($self, $command_name) = @_;
-    return undef if !$self->has_commands;
-    return first { $_->name eq $command_name } @{$self->commands};
-}
 
 sub complete_line {
     my ($self, $text, $line, $start) = @_;
@@ -152,12 +132,39 @@ sub complete_line {
     }
 }
 
+
 sub readline {
     my $self = shift @_;
 
-    my $input = $self->term->readline($self->prompt) or return;
+    my $input = $self->term->readline($self->prompt);
+
+    return if !defined $input;
 
     return ($input, shellwords($input));
+}
+
+
+sub execute {
+    my ($self, @cmd) = @_;
+
+    my %args = (
+        command_path => [$self],
+        arguments => \@cmd,
+        error => '',
+        options => {}
+    );
+
+    if (my $cmd = $self->find_command($cmd[0])) {
+        %args = $cmd->execute(%args,
+            arguments => [@cmd[1..$#cmd]]
+        );
+    }
+    else {
+        $args{error} = "unknown command '$cmd[0]'";
+        $args{status} = -1;
+    }
+
+    return $self->try_callback(%args);
 }
 
 }
@@ -170,31 +177,52 @@ __END__
 
 =head1 NAME
 
-Term::CLI::Command - Class for (sub-)commands in Term::CLI
+Term::CLI - CLI interpreter based on Term::ReadLine
 
 =head1 SYNOPSIS
 
+ use Term::CLI;
  use Term::CLI::Command;
  use Term::CLI::Argument::Filename;
  use Data::Dumper;
 
- my $arg = Term::CLI::Command->new(
-    name => 'command',
-    options => [ 'verbose!' ],
-    arguments => [
-        Term::CLI::Argument::Filename->new(name => 'src'),
-        Term::CLI::Argument::Filename->new(name => 'dst'),
-    ],
+ my $cli = Term::CLI->new(
+    name => 'myapp',
+    prompt => 'myapp> ',
     callback => sub {
-        my ($self, $args, $opts) = @_;
-        print Data::Dumper->Dump([$args, $opts], [qw(args opts)]);
+        my ($self, %args) = @_;
+        print Data::Dumper->Dump([\%args], ['args']);
+        return %args;
     }
+    commands => [
+        Term::CLI::Command->new(
+            name => 'copy',
+            options => [ 'verbose!' ],
+            arguments => [
+                Term::CLI::Argument::Filename->new(name => 'src'),
+                Term::CLI::Argument::Filename->new(name => 'dst'),
+            ],
+            callback => sub {
+                my ($self, %args) = @_;
+                print Data::Dumper->Dump([\%args], ['args']);
+                return (%args, status => 0);
+            }
+        )
+    ],
  );
+
+ while (1) {
+    my ($input, @input) = $cli->readline;
+    last if !defined $input;
+    next if $input =~ /^\s*(?:#.*)?$/;
+    $cli->execute(@input);
+ }
 
 =head1 DESCRIPTION
 
 Class for arguments in L<Term::CLI>(3p).
-Inherits from L<M6::CLI::Element>(3p).
+Inherits from the L<M6::CLI::Role::CommandSet>(3p)
+role.
 
 =head1 CONSTRUCTORS
 
@@ -209,12 +237,10 @@ Valid attributes:
 
 =over
 
-=item B<callback> =E<gt> I<CODEREF>
+=item B<callback> =E<gt> I<CodeRef>
 
 Reference to a subroutine that should be called when the command
 is executed, or C<undef>.
-
-Mutually exclusive with B<arguments>.
 
 =item B<commands> =E<gt> I<ARRAYREF>
 
@@ -238,78 +264,53 @@ to the application name with C<E<gt>> and a space appended.
 
 =back
 
-=head1 ACCESSORS
+=head1 INHERITED METHODS
 
-This class inherits all the attributes of L<Term::CLI::Element>(3p).
-In addition, it adds the following:
+This class inherits all the attributes and accessors of
+L<Term::CLI::Role::CommandSet>(3p), most notably:
+
+=head2 Accessors
 
 =over
 
 =item B<has_callback>
 X<has_callback>
 
+See
+L<has_callback in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/has_callback>.
+
 =item B<has_commands>
 X<has_commands>
 
-Predicate functions that return whether or not the associated
-attribute has been set.
+See
+L<has_commands in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/has_commands>.
 
-=item B<callback> ( [ I<CODEREF> ] )
+=item B<commands> ( [ I<ArrayRef> ] )
+X<commands>
+
+See
+L<commands in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/commands>.
+
+I<ArrayRef> with C<Term::CLI::Command> object instances.
+
+=item B<callback> ( [ I<CodeRef> ] )
 X<callback>
 
-I<CODEREF> to be called when the command is executed. The callback
-is called as:
-
-   CLI_REF->callback->(CLI_REF,
-        args => HASHREF,
-        opts => HASHREF,
-        cmd_line => ARRAYREF,
-        cmd_index => INTEGER
-   );
-
-Where:
-
-=over
-
-=item I<CLI_REF>
-
-Reference to the current C<Term::CLI> object.
-
-=item C<args>
-
-Reference to a hash containing all the (named) arguments.
-Each value is the L<value|Term::CLI::Argument/value> of
-a L<Term::CLI::Argument> object.
-
-=item C<opts>
-
-Reference to a hash containing all command line options.
-Compatible with the options hash as set by L<Getopt::Long>(3p).
-
-=item C<cmd_line>
-
-Reference to an array containing the command line, split into
-words. The splitting is done with L<Text::ParseWords>'s
-L<shellwords()|Text::ParseWords/shellwords>.
-
-=item C<cmd_index>
-
-Non-negative integer indicating where in C<cmd_line> the
-current command was found.
+See
+L<callback in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/callback>.
 
 =back
 
-=item B<commands> ( [ I<ARRAYREF> ] )
-X<commands>
+=head1 METHODS
 
-I<ARRAYREF> with L<Term::CLI::Command> object instances.
+=over
 
 =item B<name>
 X<name>
 
 Return the application name.
 
-=item B<prompt> ( [ I<STRING> ] )
+=item B<prompt> ( [ I<Str> ] )
 X<prompt>
 
 Get or set the command line prompt to display to the user.
@@ -342,10 +343,10 @@ X<command_names>
 
 Return a list of command names, sorted alphabetically.
 
-=item B<find_command> ( I<CMD> )
+=item B<find_command> ( I<Str> )
 X<find_command>
 
-Check whether I<CMD> is a command in this C<Term::CLI> object.
+Check whether I<Str> is a command in this C<Term::CLI> object.
 If so, return the appropriate L<Term::CLI::Command> object;
 otherwise, return C<undef>.
 
@@ -359,18 +360,110 @@ are prefixed with C<->.
 =item B<readline>
 X<readline>
 
-Read a line 
+Read a line from the input connected to L<term|/term>, using
+the L<Term::ReadLine> interface.
+
+Returns a list of strings. The first element is the literal
+line read from the input (minus any line terminator). The
+other elements are the elements after splitting the line
+into words. The splitting is done with L<Text::ParseWords>'s
+L<shellwords()|Text::ParseWords/shellwords>.
+
+Returns an empty value if end of file has been reached (e.g.
+the user hitting I<Ctrl-D>).
+
+Example:
+
+    my ($line, @line) = $cli->readline;
+
+    exit if !defined $line;
+
+=item B<execute> ( I<Str>, ... )
+X<execute>
+
+Parse and execute the command line consisting of I<Str>s
+(see the return value of L<readline|/readline> above).
+
+Example:
+
+    while (1) {
+        my ($line, @line) = $cli->readline;
+
+        exit if !defined $line;
+
+        $cli->execute(@line);
+    }
+
+The command line is parsed depth-first, and for every
+L<Term::CLI::Command>(3p) encountered, that object's
+callback function is executed.
+
+=over
+
+=item *
+
+Suppose that the C<file> command has a C<show> sub-command that takes
+an optional C<--verbose> option and a single file argument.
+
+=item *
+
+Suppose the input is:
+
+    file show --verbose foo.txt
+
+=item *
+
+Then the parse tree looks like this:
+
+    (cli-root)
+        |
+        +--> Command 'file'
+                |
+                +--> Command 'show'
+                        |
+                        +--> Option '--verbose'
+                        |
+                        +--> Argument 'foo.txt'
+
+=item *
+
+Then the callbacks will be called in the following order:
+
+=over
+
+=item 1.
+
+Callback for 'show'
+
+=item 2.
+
+Callback for 'file'
+
+=item 3.
+
+Callback for C<Term::CLI> object.
+
+=back
+
+The return value from each callback (a hash in list form) is fed into the
+next callback function in the chain. This allows for adding custom data to
+the return hash that will be fed back up the parse tree (and eventually to
+the caller).
+
+=back
 
 =back
 
 =head1 SEE ALSO
 
-L<Term::CLI::Argument>(3p),
-L<Term::CLI::Element>(3p),
-L<Term::CLI>(3p),
-L<Text::ParseWords>(3p),
 L<FindBin>(3p),
-L<Getopt::Long>(3p).
+L<Getopt::Long>(3p),
+L<Term::CLI>(3p),
+L<Term::CLI::Argument>(3p),
+L<Term::CLI::Command>(3p),
+L<Term::CLI::Role::CommandSet>(3p),
+L<Text::ParseWords>(3p),
+L<Types::Standard>(3p).
 
 =head1 AUTHOR
 
@@ -386,5 +479,28 @@ it under the same terms as Perl itself. See "perldoc perlartistic."
 This software is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+=begin __PODCOVERAGE
+
+=head1 THIS SECTION SHOULD BE HIDDEN
+
+This section is meant for methods that should not be considered
+for coverage. This typically includes things like BUILD and DEMOLISH from
+Moo/Moose. It is possible to skip these when using the Pod::Coverage class
+(using C<also_private>), but this is not an option when running C<cover>
+from the command line.
+
+The simplest trick is to add a hidden section with an item list containing
+these methods.
+
+=over
+
+=item BUILD
+
+=item DEMOLISH
+
+=back
+
+=end __PODCOVERAGE
 
 =cut

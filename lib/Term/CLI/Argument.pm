@@ -26,9 +26,15 @@ our $VERSION = '1.00';
 
 use Modern::Perl;
 use Moo;
+
+use Types::Standard qw( Int );
+
 use namespace::clean;
 
 extends 'Term::CLI::Element';
+
+has min_occur => ( is => 'rw', isa => Int, default => sub{1});
+has max_occur => ( is => 'rw', isa => Int, default => sub{1});
 
 sub type {
     my $self = shift;

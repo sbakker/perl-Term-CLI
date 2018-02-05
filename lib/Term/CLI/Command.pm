@@ -25,16 +25,16 @@ package Term::CLI::Command {
 our $VERSION = '1.00';
 
 use Modern::Perl;
-use List::Util qw( first );
+use List::Util qw( first min );
 use Carp qw( croak );
 use Getopt::Long qw( GetOptionsFromArray );
 use Data::Dumper;
 
 use Types::Standard qw(
-    ArrayRef 
+    ArrayRef
     CodeRef
     InstanceOf
-    Maybe 
+    Maybe
     Str
 );
 
@@ -42,6 +42,8 @@ use Moo;
 use namespace::clean;
 
 extends 'Term::CLI::Element';
+
+with ('Term::CLI::Role::CommandSet');
 
 has options => (
     is => 'rw',
@@ -52,18 +54,6 @@ has options => (
 has arguments => (
     is => 'rw',
     isa => Maybe[ArrayRef[InstanceOf['Term::CLI::Argument']]],
-    predicate => 1
-);
-
-has commands => (
-    is => 'rw',
-    isa => Maybe[ArrayRef[InstanceOf['Term::CLI::Command']]],
-    predicate => 1
-);
-
-has callback => (
-    is => 'rw',
-    isa => Maybe[CodeRef],
     predicate => 1
 );
 
@@ -83,6 +73,12 @@ before 'commands' => sub {
     }
 };
 
+sub BUILD {
+    my ($self, $args) = @_;
+    croak "arguments and commands are mutually exclusive"
+        if $self->has_arguments and $self->has_commands;
+}
+
 sub option_names {
     my $self = shift;
     my $opt_specs = $self->options or return ();
@@ -95,42 +91,38 @@ sub option_names {
     return @names;
 }
 
-sub command_names {
+sub argument_names {
     my $self = shift;
-    return if !$self->has_commands;
-    return sort { $a cmp $b } map { $_->name } @{$self->commands};
-}
-
-sub find_command {
-    my ($self, $command_name) = @_;
-    return undef if !$self->has_commands;
-    return first { $_->name eq $command_name } @{$self->commands};
+    return if !$self->has_arguments;
+    return map { $_->name } @{$self->arguments};
 }
 
 sub complete_line {
     my ($self, @words) = @_;
 
-    my $partial = $words[$#words];
+    my $partial = $words[$#words] // '';
 
     if ($self->has_options) {
 
         Getopt::Long::Configure(qw(bundling require_order pass_through));
+
         my $opt_specs = $self->options;
+
         my %parsed_opts;
+
+        my $has_terminator = first { $_ eq '--' } @words[0..$#words-1];
+
         eval { GetOptionsFromArray(\@words, \%parsed_opts, @$opt_specs) };
 
-        if (@words && $words[0] eq '--') {
-            shift @words;
-        }
-        if (@words == 0 && $partial =~ /^-/) {
+        if (!$has_terminator && @words <= 1 && $partial =~ /^-/) {
             # We have to complete a command-line option.
             return grep { rindex($_, $partial, 0) == 0 } $self->option_names;
         }
     }
-    
+
     if ($self->has_commands) {
         if (@words <= 1) {
-            return $self->command_names;
+            return grep { rindex($_, $partial, 0) == 0 } $self->command_names;
         }
         elsif (my $cmd = $self->find_command($words[0])) {
             return $cmd->complete_line(@words[1..$#words]);
@@ -148,6 +140,127 @@ sub complete_line {
     }
     return ();
 }
+
+
+sub execute {
+    my ($self, %args) = @_;
+
+    my $options = $args{options};
+    my @command_path = (@{$args{command_path}}, $self);
+
+    push @{$args{command_path}}, $self;
+
+    if ($self->has_options) {
+        my $opt_specs = $self->options;
+
+        Getopt::Long::Configure(qw(bundling require_order no_pass_through));
+
+        my $error = '';
+        my $ok = do {
+            local( $SIG{__WARN__} ) = sub { chomp($error = join('', @_)) };
+            GetOptionsFromArray($args{arguments}, $args{options}, @$opt_specs);
+        };
+
+        if (!$ok) {
+            return $self->try_callback(
+                %args,
+                status => -1,
+                error => $error,
+            );
+        }
+    }
+
+    if ($self->has_commands) {
+        return $self->try_callback( $self->_execute_command(%args) );
+    }
+    else {
+        return $self->try_callback( $self->_check_arguments(%args) );
+    }
+}
+
+
+sub _check_arguments {
+    my ($self, %args) = @_;
+
+    my @arguments = @{$args{arguments}};
+
+    my @arg_spec = $self->has_arguments ? @{$self->arguments} : ();
+
+    if (@arg_spec == 0 && @arguments > 0) {
+        return (%args, status => -1, error => 'no arguments allowed');
+    }
+
+    my $argno = 0;
+    my @parsed_args;
+    for my $arg_spec (@arg_spec) {
+        if (@arguments < $arg_spec->min_occur) {
+            my $error = "arg#".($argno+1).": need ";
+            if ($arg_spec->max_occur == $arg_spec->min_occur) {
+                $error .= $arg_spec->min_occur . ' '
+                        . $arg_spec->name . ' argument';
+                $error .= 's' if $arg_spec->max_occur > 1;
+            }
+            elsif ($arg_spec->max_occur > 1) {
+                $error .= 'between ' . $arg_spec->min_occur
+                        . ' and ' . $arg_spec->max_occur
+                        . $arg_spec->name . ' arguments';
+            }
+            else {
+                $error .= 'at least '
+                        . $arg_spec->min_occur . 'argument';
+                $error .= 's' if $arg_spec->min_occur > 1;
+            }
+            return (%args, status => -1, error => $error);
+        }
+
+        my $args_to_check = min($arg_spec->max_occur, scalar @arguments);
+        my @args_to_check = splice @arguments, 0, $args_to_check;
+        for my $arg (@args_to_check) {
+            $argno++;
+            my $arg = shift @args_to_check;
+            my $arg_value = $arg_spec->validate($arg);
+            if (!defined $arg_value) {
+                return (%args, status => -1,
+                    error => "arg#$argno, '$arg': " . $arg_spec->error
+                             . " for " . $arg_spec->name
+                );
+            }
+            push @parsed_args, $arg_value;
+        }
+    }
+
+    # At this point, we have processed all our arg_spec.  The only way there
+    # are any elements left in @arguments is for the last arg_spec to have
+    # a limited number of allowed values.
+    if (@arguments) {
+        my $last_spec = $arg_spec[$#arg_spec];
+        return (%args, status => -1,
+            error => "arg#$argno, ".$last_spec->name.": too many arguments"
+        );
+    }
+    return (%args, status => 0, error => '', arguments => \@parsed_args);
+}
+
+
+sub _execute_command {
+    my ($self, %args) = @_;
+
+    my @arguments = @{$args{arguments}};
+
+    my $cmd_name = shift @arguments;
+    my $cmd = $self->find_command($cmd_name);
+
+    if (!$cmd) {
+        return (%args, status => 0, error => "unknown command '$cmd_name'");
+    }
+
+    return $cmd->execute(
+        command_path => $args{command_path},
+        arguments => \@arguments,
+        options => $args{options},
+    );
+}
+
 
 }
 
@@ -167,23 +280,25 @@ Term::CLI::Command - Class for (sub-)commands in Term::CLI
  use Term::CLI::Argument::Filename;
  use Data::Dumper;
 
- my $arg = Term::CLI::Command->new(
-    name => 'command',
+ my $copy_cmd = Term::CLI::Command->new(
+    name => 'copy',
     options => [ 'verbose!' ],
     arguments => [
         Term::CLI::Argument::Filename->new(name => 'src'),
         Term::CLI::Argument::Filename->new(name => 'dst'),
     ],
     callback => sub {
-        my ($self, $args, $opts) = @_;
-        print Data::Dumper->Dump([$args, $opts], [qw(args opts)]);
+        my ($self, %args) = @_;
+        print Data::Dumper->Dump([\%args], ['args']);
+        return (%args, status => 0);
     }
  );
 
 =head1 DESCRIPTION
 
 Class for arguments in L<Term::CLI>(3p).
-Inherits from L<M6::CLI::Element>(3p).
+Inherits from L<M6::CLI::Element>(3p) and
+L<M6::CLI::Role::CommandSet>(3p).
 
 =head1 CONSTRUCTORS
 
@@ -192,7 +307,7 @@ Inherits from L<M6::CLI::Element>(3p).
 =item B<new> ( B<name> =E<gt> I<VARNAME> ... )
 X<new>
 
-Create a new Term::CLI::Argument object and return a reference to it.
+Create a new Term::CLI::Command object and return a reference to it.
 
 The B<name> attribute is required.
 
@@ -200,12 +315,7 @@ Other attributes are:
 
 =over
 
-=item B<options> =E<gt> I<ARRAYREF>
-
-Reference to an array containing command options in
-L<Getopt::Long>(3p) style, or C<undef>.
-
-=item B<arguments> =E<gt> I<ARRAYREF>
+=item B<arguments> =E<gt> I<ArrayRef>
 
 Reference to an array containing L<Term::CLI::Argument>(3p) object
 instances that describe the parameters that the command takes,
@@ -213,7 +323,12 @@ or C<undef>.
 
 Mutually exclusive with B<commands>.
 
-=item B<commands> =E<gt> I<ARRAYREF>
+=item B<callback> =E<gt> I<CodeRef>
+
+Reference to a subroutine that should be called when the command
+is executed, or C<undef>.
+
+=item B<commands> =E<gt> I<ArrayRef>
 
 Reference to an array containing C<Term::CLI::Command> object
 instances that describe the sub-commands that the command takes,
@@ -221,32 +336,76 @@ or C<undef>.
 
 Mutually exclusive with B<arguments>.
 
-=item B<callback> =E<gt> I<CODEREF>
+=item B<options> =E<gt> I<ArrayRef>
 
-Reference to a subroutine that should be called when the command
-is executed, or C<undef>.
-
-Mutually exclusive with B<arguments>.
+Reference to an array containing command options in
+L<Getopt::Long>(3p) style, or C<undef>.
 
 =back
 
 =back
 
-=head1 ACCESSORS
+=head1 INHERITED METHODS
 
 This class inherits all the attributes and accessors of
-L<Term::CLI::Element>(3p). In addition, it adds the following:
+L<Term::CLI::Element>(3p) and L<Term::CLI::Role::CommandSet>(3p), most notably:
+
+=head2 Accessors
+
+=over
+
+=item B<has_callback>
+X<has_callback>
+
+See
+L<has_callback in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/has_callback>.
+
+=item B<has_commands>
+X<has_commands>
+
+See
+L<has_commands in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/has_commands>.
+
+=item B<commands> ( [ I<ArrayRef> ] )
+X<commands>
+
+See
+L<commands in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/commands>.
+
+I<ArrayRef> with C<Term::CLI::Command> object instances.
+
+=item B<callback> ( [ I<CodeRef> ] )
+X<callback>
+
+See
+L<callback in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/callback>.
+
+=back
+
+=head2 Other
+
+=item B<command_names>
+X<command_names>
+
+Return the list of (sub-)command names, sorted alphabetically.
+
+=item B<find_command> ( I<CMD> )
+X<find_command>
+
+Check whether I<CMD> is a sub-command of this command. If so,
+return the appropriate C<Term::CLI::Command> reference; otherwise,
+return C<undef>.
+
+=back
+
+=head1 METHODS
+
+=head2 Accessors
 
 =over
 
 =item B<has_arguments>
 X<has_arguments>
-
-=item B<has_callback>
-X<has_callback>
-
-=item B<has_commands>
-X<has_commands>
 
 =item B<has_options>
 X<has_options>
@@ -254,67 +413,19 @@ X<has_options>
 Predicate functions that return whether or not the associated
 attribute has been set.
 
-=item B<options> ( [ I<ARRAYREF> ] )
+=item B<options> ( [ I<ArrayRef> ] )
 X<options>
 
-I<ARRAYREF> with command-line options in L<Getopt::Long>(3p) format.
+I<ArrayRef> with command-line options in L<Getopt::Long>(3p) format.
 
-=item B<arguments> ( [ I<ARRAYREF> ] )
+=item B<arguments> ( [ I<ArrayRef> ] )
 X<arguments>
 
-I<ARRAYREF> with L<Term::CLI::Argument>(3p) object instances.
-
-=item B<commands> ( [ I<ARRAYREF> ] )
-X<commands>
-
-I<ARRAYREF> with C<Term::CLI::Command> object instances.
-
-=item B<callback> ( [ I<CODEREF> ] )
-X<callback>
-
-I<CODEREF> to be called when the command is executed. The code
-is called as:
-
-   COMMAND_REF->callback->(COMMAND_REF,
-        args => ARRAYREF,
-        opts => HASHREF,
-        cmd_line => ARRAYREF,
-        cmd_index => INTEGER
-   );
-
-Where:
-
-=over
-
-=item I<COMMAND_REF>
-
-Reference to the current C<Term::CLI::Command> object.
-
-=item C<args>
-
-Reference to an array containing all the non-option arguments.
-
-=item C<opts>
-
-Reference to a hash containing all command line options.
-Compatible with the options hash as set by L<Getopt::Long>(3p).
-
-=item C<cmd_line>
-
-Reference to an array containing the command line, split into
-words. The splitting is done with L<Text::ParseWords>'s
-L<shellwords()|Text::ParseWords/shellwords>.
-
-=item C<cmd_index>
-
-Non-negative integer indicating where in C<cmd_line> the
-current command was found.
+I<ArrayRef> with L<Term::CLI::Argument>(3p) object instances.
 
 =back
 
-=back
-
-=head1 METHODS
+=head2 Others
 
 =over
 
@@ -329,17 +440,10 @@ The method can complete options, sub-commands, and arguments.
 Completions of commands and arguments is delegated to the appropriate
 L<Term::CLI::Command> and L<Term::CLI::Argument> instances, resp.
 
-=item B<command_names>
-X<command_names>
+=item B<argument_names>
+X<argument_names>
 
-Return the list of (sub-)command names, sorted alphabetically.
-
-=item B<find_command> ( I<CMD> )
-X<find_command>
-
-Check whether I<CMD> is a sub-command of this command. If so,
-return the appropriate C<Term::CLI::Command> reference; otherwise,
-return C<undef>.
+Return the list of argument names, in the original order.
 
 =item B<option_names>
 X<option_names>
@@ -360,8 +464,8 @@ Example:
 
 L<Term::CLI::Argument>(3p),
 L<Term::CLI::Element>(3p),
+L<Term::CLI::Role::CommandSet>(3p),
 L<Term::CLI>(3p),
-L<Text::ParseWords>(3p),
 L<Getopt::Long>(3p).
 
 =head1 AUTHOR
@@ -378,5 +482,28 @@ it under the same terms as Perl itself. See "perldoc perlartistic."
 This software is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+=begin __PODCOVERAGE
+
+=head1 THIS SECTION SHOULD BE HIDDEN
+
+This section is meant for methods that should not be considered
+for coverage. This typically includes things like BUILD and DEMOLISH from
+Moo/Moose. It is possible to skip these when using the Pod::Coverage class
+(using C<also_private>), but this is not an option when running C<cover>
+from the command line.
+
+The simplest trick is to add a hidden section with an item list containing
+these methods.
+
+=over
+
+=item BUILD
+
+=item DEMOLISH
+
+=back
+
+=end __PODCOVERAGE
 
 =cut

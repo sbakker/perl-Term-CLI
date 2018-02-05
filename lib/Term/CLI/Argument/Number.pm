@@ -28,9 +28,9 @@ use namespace::clean;
 
 extends 'Term::CLI::Argument';
 
-has min => ( is => 'ro', predicate => 1 );
-has max => ( is => 'ro', predicate => 1 );
-has inclusive => ( is => 'ro', default => sub {1} );
+has min => ( is => 'rw', predicate => 1 );
+has max => ( is => 'rw', predicate => 1 );
+has inclusive => ( is => 'rw', default => sub {1} );
 
 sub coerce_value {
     die "coerce_value() has not been overloaded";
@@ -41,7 +41,6 @@ sub validate {
 
     if (!defined $value || length($value) == 0) {
         return $self->set_error('not a valid number');
-        return;
     }
 
     my ($num, $unparsed) = $self->coerce_value($value);
@@ -139,13 +138,15 @@ following are defined:
 
 =over
 
-=item B<min>
+=item B<min> ( I<NUMBER> )
 
-=item B<max>
+=item B<max> ( I<NUMBER> )
 
-=item B<inclusive>
+Lower and upper boundaries, resp.
 
-Read-only attributes, set at construction time (see L<new|/new> above.
+=item B<inclusive> ( I<BOOL> )
+
+Boolean indicating whether the boundaries are inclusive.
 
 =item B<has_min>
 

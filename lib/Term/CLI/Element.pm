@@ -85,7 +85,9 @@ The B<name> attribute is required.
 
 =back
 
-=head1 ACCESSORS
+=head1 METHODS
+
+=head2 Accessors
 
 =over
 
@@ -104,7 +106,7 @@ The active L<Term::CLI::ReadLine> object.
 
 =back
 
-=head1 METHODS
+=head2 Other
 
 =over
 
