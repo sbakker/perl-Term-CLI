@@ -3,15 +3,25 @@
 use 5.014_001;
 use Modern::Perl;
 
-package Term_CLI_Element_test;
+our $ELT_NAME = 'test_elt';
+
+sub Main() {
+    Term_CLI_Element_test->SKIP_CLASS(
+        ($::ENV{SKIP_ELEMENT})
+            ? "disabled in environment"
+            : 0
+    );
+    Term_CLI_Element_test->runtests();
+}
+
+package Term_CLI_Element_test {
 
 use parent qw( Test::Class );
 
 use Test::More;
 use FindBin;
-use Term::CLI::Argument;
-
-my $ELT_NAME = 'test_elt';
+use Term::CLI::Element;
+use Term::CLI::ReadLine;
 
 # Untaint the PATH.
 $::ENV{PATH} = '/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin';
@@ -30,12 +40,36 @@ sub check_attributes: Test(1) {
     is( $elt->name, $ELT_NAME, "name attribute is $ELT_NAME" );
 }
 
-sub check_error: Test(2) {
+sub check_term: Test(4) {
+    my $self = shift;
+    my $elt = $self->{arg};
+
+    ok (! defined $elt->term, "term() returns undef initially");
+
+    my $t = Term::CLI::ReadLine->new('elt_tester');
+    isa_ok( $t, 'Term::CLI::ReadLine',
+        'M6::CLI::ReadLine->new returns object' );
+    is ($elt->term, $t, "term() returns consistently");
+
+    is( $t->ReadLine, 'Term::ReadLine::Gnu',
+        'M6::CLI::ReadLine selects GNU ReadLine' );
+}
+
+sub check_error: Test(8) {
     my $self = shift;
     my $elt = $self->{arg};
 
     ok( ! defined $elt->set_error('ERROR'), 'set_error returns undef' );
     is( $elt->error, 'ERROR', "error is ERROR");
+
+    ok( ! defined $elt->set_error(''), "set_error('') returns undef" );
+    is( $elt->error, '', "set_error('') -> error is ''");
+
+    ok( ! defined $elt->set_error(), 'set_error returns undef' );
+    is( $elt->error, '', "set_error() -> error is ''");
+
+    ok( ! defined $elt->set_error(undef), 'set_error returns undef' );
+    is( $elt->error, '', "set_error(undef) -> error is ''");
 }
 
 sub check_complete: Test(1) {
@@ -45,19 +79,6 @@ sub check_complete: Test(1) {
     ok( ! defined $elt->complete('FOO'), 'no completions for "FOO"' );
 }
 
-#sub get_contract_info_without_results: Test(2) {
-    #my $self = shift;
-    #my $my = $self->{my};
-    #my $info = $my->get_contract_info(contract_handle => 'xamsnoc');
-    #is( $info, undef, 'result is <undef>' );
-    #like($my->error, qr/no contracts found/i, 'error diagnostic');
-#}
+}
 
-package main;
-
-Term_CLI_Element_test->SKIP_CLASS(
-    ($::ENV{SKIP_ELEMENT})
-        ? "disabled in environment"
-        : 0
-);
-Term_CLI_Element_test->runtests();
+Main();

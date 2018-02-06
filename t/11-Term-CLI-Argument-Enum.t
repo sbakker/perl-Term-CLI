@@ -4,15 +4,14 @@ use 5.014_001;
 use strict;
 use Modern::Perl;
 
-our $ARG_NAME= 'test_enum';
-our @ENUM_VALUES = qw( one two three );
-
-Term_CLI_Argument_Enum_test->SKIP_CLASS(
-    ($::ENV{SKIP_ARGUMENT})
-        ? "disabled in environment"
-        : 0
-);
-Term_CLI_Argument_Enum_test->runtests();
+sub Main {
+    Term_CLI_Argument_Enum_test->SKIP_CLASS(
+        ($::ENV{SKIP_ARGUMENT})
+            ? "disabled in environment"
+            : 0
+    );
+    Term_CLI_Argument_Enum_test->runtests();
+}
 
 package Term_CLI_Argument_Enum_test {
 
@@ -22,6 +21,9 @@ use Test::More;
 use Test::Exception;
 use FindBin;
 use Term::CLI::Argument::Enum;
+
+my $ARG_NAME= 'test_enum';
+my @ENUM_VALUES = qw( one two three );
 
 # Untaint the PATH.
 $::ENV{PATH} = '/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin';
@@ -42,7 +44,7 @@ sub check_constructor: Test(1) {
 
     throws_ok
         { Term::CLI::Argument::Enum->new( name => $ARG_NAME) }
-        qr/./,
+        qr/Missing required arguments: value_list/,
         'error on missing value_list';
 }
 
@@ -53,12 +55,18 @@ sub check_attributes: Test(2) {
     is( $arg->type, 'Enum', "type attribute is Enum" );
 }
 
-sub check_complete: Test(1) {
+sub check_complete: Test(3) {
     my $self = shift;
     my $arg = $self->{arg};
 
+    is_deeply( [$arg->complete('')], \@ENUM_VALUES,
+        "complete returns (@ENUM_VALUES) for ''");
+
     is_deeply( [$arg->complete('t')], [qw(two three)],
-        "complete returns (two, three) for 't'");
+        "complete returns (two three) for 't'");
+
+    is_deeply( [$arg->complete('X')], [],
+        "complete returns () for 'X'");
 }
 
 sub check_validate: Test(8) {
@@ -92,3 +100,5 @@ sub check_validate: Test(8) {
 }
 
 }
+
+Main();

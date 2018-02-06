@@ -3,9 +3,18 @@
 use 5.014_001;
 use Modern::Perl;
 
-package Term_CLI_Argument_test;
+sub Main() {
+    Term_CLI_Argument_test->SKIP_CLASS(
+        ($::ENV{SKIP_ARGUMENT})
+            ? "disabled in environment"
+            : 0
+    );
+    Term_CLI_Argument_test->runtests();
+}
 
-use parent qw( Test::Class ) {
+package Term_CLI_Argument_test {
+
+use parent qw( Test::Class );
 
 use Test::More;
 use FindBin;
@@ -31,7 +40,7 @@ sub check_attributes: Test(2) {
     is( $arg->type, 'GENERIC', "type attribute is GENERIC" );
 }
 
-sub check_validate: Test(6) {
+sub check_validate: Test(8) {
     my $self = shift;
     my $arg = $self->{arg};
 
@@ -48,25 +57,19 @@ sub check_validate: Test(6) {
 
     $arg->set_error('SOMETHING');
 
+    ok( !$arg->validate(), "() does not validate");
+
+    is ( $arg->error, 'value cannot be empty',
+        "error on () value is set correctly" );
+
+    $arg->set_error('SOMETHING');
+
     ok( $arg->validate('thing'), "'thing' validates");
 
     is ( $arg->error, '',
         "error is cleared on successful validation" );
 }
 
-#sub get_contract_info_without_results: Test(2) {
-    #my $self = shift;
-    #my $my = $self->{my};
-    #my $info = $my->get_contract_info(contract_handle => 'xamsnoc');
-    #is( $info, undef, 'result is <undef>' );
-    #like($my->error, qr/no contracts found/i, 'error diagnostic');
-#}
-
 }
 
-Term_CLI_Argument_test->SKIP_CLASS(
-    ($::ENV{SKIP_ARGUMENT})
-        ? "disabled in environment"
-        : 0
-);
-Term_CLI_Argument_test->runtests();
+Main();
