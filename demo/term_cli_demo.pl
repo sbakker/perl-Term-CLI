@@ -8,7 +8,7 @@ use Data::Dumper;
 use Term::CLI;
 use Term::CLI::Command;
 use Term::CLI::Argument::Filename;
-use Term::CLI::Argument::Number::Int;
+use Term::CLI::Argument::Number::Float;
 use Term::CLI::Argument::Enum;
 
 my $copy_cmd = Term::CLI::Command->new(
@@ -49,8 +49,8 @@ my $sleep_cmd = Term::CLI::Command->new(
     name => 'sleep',
     options => ['verbose|v', 'debug|d'],
     arguments => [
-        Term::CLI::Argument::Number::Int->new(
-            name => 'time', min => 1, inclusive => 1
+        Term::CLI::Argument::Number::Float->new(
+            name => 'time', min => 0, inclusive => 0
         ),
     ]
 );
@@ -72,7 +72,33 @@ my $cli = Term::CLI->new(
     prompt => $FindBin::Script.'> ',
     commands => [
         $file_cmd, $sleep_cmd, $make_cmd,
-    ]
+    ],
+    callback => sub {
+        my $self = shift;
+        my %args = @_;
+
+        my $command_path = $args{command_path};
+        say "path:", map { " ".$_->name } @$command_path;
+
+        if ($args{status} < 0) {
+            say "status: ".$args{status};
+            say "error: <$args{error}>";
+            $self->prompt("ERR[$args{status}]> ");
+        }
+        elsif ($args{status} == 0) {
+            $self->prompt('OK> ');
+        }
+        else {
+            $self->prompt("ERR[$args{status}]> ");
+        }
+
+        say "options: ";
+        while (my ($k, $v) = each %{$args{options}}) {
+            say "   --$k => $v";
+        }
+        say "arguments:", map {" '$_'"} @{$args{arguments}};
+        return %args;
+    }
 );
 
 while (1) {
@@ -81,4 +107,5 @@ while (1) {
 
     next if $input =~ /^\s*(?:#.*)?$/;
     say "input:", map { " <$_>" } @input;
+    $cli->execute(@input);
 }
