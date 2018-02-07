@@ -247,11 +247,16 @@ sub _execute_command {
 
     my @arguments = @{$args{arguments}};
 
+    if (! @arguments) {
+        return (%args, status => -1, error => "missing sub-command");
+    }
+
     my $cmd_name = shift @arguments;
+
     my $cmd = $self->find_command($cmd_name);
 
     if (!$cmd) {
-        return (%args, status => 0, error => "unknown command '$cmd_name'");
+        return (%args, status => -1, error => "unknown sub-command '$cmd_name'");
     }
 
     return $cmd->execute(
