@@ -22,7 +22,7 @@ package Term::CLI::Version;
 
 use Modern::Perl;
 
-our $VERSION = '1.11';
+our $VERSION = '0.01';
 
 sub import {
     my $class = shift;
@@ -93,7 +93,7 @@ of the I<$VERSION> variable, rather than an alias.
 
     $Term::CLI::VERSION = '666';
 
-    say $Term::CLI::Version->version; # Will still print 1.09
+    say $Term::CLI::Foo::Version; # Will still print 1.09
 
 =head1 SEE ALSO
 
