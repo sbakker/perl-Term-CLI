@@ -12,18 +12,10 @@ use strict;
 use warnings;
 use ExtUtils::MakeMaker;
 
-my $module_name = 'Term::CLI';
-
-# Read the package version from Changelog, assuming it
-# is in Debian format.
-my ($module_version) = `head -1 Changelog 2>/dev/null`
-    =~ m{
-        \(
-        (\d+ (?:\.\d+)) .*?
-        \)
-    }x;
-
-$module_version //= '0.01';
+my $module_name  = 'Term::CLI';
+my $version_from = 'lib/Term/CLI/Version.pm';
+my $changelog    = 'debian/changelog';
+my $dfl_version  = '0.001';
 
 ## List of scripts in "bin" directory.
 ## Only if necessary...
@@ -32,8 +24,8 @@ $module_version //= '0.01';
 
 WriteMakefile(
     NAME         => $module_name,
-    VERSION      => $module_version,
-    AUTHOR       => 'First Last <First.Last@ams-ix.net>',
+    find_version(),
+    AUTHOR       => 'Steven Bakker <sb@monkey-mind.net>',
 
     PREREQ_FATAL => 0, # Change to 1 if you really need our prereqs.
     
@@ -65,3 +57,21 @@ WriteMakefile(
         'File::Temp'          => '0.2304',
     },
 );
+
+sub find_version {
+    my @version;
+
+    if (-f $changelog) {
+        # Read the package version from debian/changelog
+        my ($module_version) = `head -1 $changelog 2>/dev/null`
+            =~ m{
+                \(
+                (\d+ (?:\.\d+)) .*?
+                \)
+            }x;
+        return (VERSION => $module_version) if $module_version;
+    }
+
+    return (VERSION_FROM => $version_from) if -f $version_from;
+    return $dfl_version;
+}
