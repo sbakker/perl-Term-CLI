@@ -1,4 +1,5 @@
 *.swp
+*.tar.gz
 MYMETA.yml
 MYMETA.json
 Makefile
