@@ -110,11 +110,9 @@ sub _default_split {
 #
 sub _is_escaped {
     my ($self,$line, $index) = @_;
-    return (
-        $index > 0 &&
-        substr($line, $index-1, 1) eq '\\' &&
-        !$self->_is_escaped($line, $index-1)
-    );
+    return 0 if $index <= 0;
+    return 0 if substr($line, $index-1, 1) ne '\\';
+    return !$self->_is_escaped($line, $index-1);
 }
 
 
@@ -180,7 +178,7 @@ sub complete_line {
     }
     else {
         my $delim = $self->word_delimiters;
-        return map { s/[$delim]/\\$1/gr } @list;
+        return map { s/([$delim])/\\$1/gr } @list;
     }
 }
 
