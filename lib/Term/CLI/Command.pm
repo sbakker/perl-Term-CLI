@@ -4,7 +4,7 @@
 #
 #  Description:  Class for (sub-)commands in Term::CLI
 #
-#       Author:  Steven Bakker (SB), <Steven.Bakker@ams-ix.net>
+#       Author:  Steven Bakker (SB), <sb@monkey-mind.net>
 #      Created:  30/01/18
 #
 #   Copyright (c) 2018 Steven Bakker; All rights reserved.
@@ -468,6 +468,25 @@ Example:
     $cmd->options( [ 'verbose|v+', 'debug|d', 'help|h|?' ] );
     say join(' ', $cmd->option_names);
     # output: --debug --help --verbose -? -d -h -v
+
+=item B<execute> ( I<ARGS> )
+
+This method is called by L<Term::CLI::execute|Term::CLI/execute>. It
+should not be called directly.
+
+It accepts the same list of parameters as the 
+L<command callback|Term::CLI::Role::CommandSet/callback>
+function (see
+L<Term::CLI::Role::CommandSet>), and returns the same structure.
+
+The C<arguments> I<ArrayRef> should contain the words on the command line
+that have not been parsed yet.
+
+Depending on whether the object has sub-commands or arguments, the rest of
+the line is parsed (possibly handing off to another sub-command), and the
+results are passed to the
+L<command's callback|Term::CLI::Role::CommandSet/callback>
+function.
 
 =back
 
