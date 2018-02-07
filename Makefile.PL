@@ -7,6 +7,7 @@
 #
 
 use 5.014_001;
+
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
@@ -45,6 +46,7 @@ WriteMakefile(
         'List::Util'          => '1.4202',
         'Modern::Perl'        => '1.20170117',
         'Moo'                 => '2.002005',
+        'Moo::Role'           => '2.002005',
         'POSIX'               => '1.65',
         'Term::ReadLine'      => '1.15',
         'Term::ReadLine::Gnu' => '1.35',
@@ -53,11 +55,13 @@ WriteMakefile(
         'namespace::clean'    => '0.27',
         'parent'              => '0.234',
     },
+
     BUILD_REQUIRES      => {
         # Include output from "perldepend --cpan t/*"
-        'FindBin'             => '1.51',
         'Test::Class'         => '0.50',
+        'Test::Compile'       => 'v1.3.0',
         'Test::Exception'     => '0.43',
         'Test::More'          => '1.302103',
+        'File::Temp'          => '0.2304',
     },
 );
