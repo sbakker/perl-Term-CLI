@@ -79,6 +79,7 @@ my $set_cmd = Term::CLI::Command->new(
             ],
             callback => sub {
                 my ($self, %args) = @_;
+                return %args if $args{status} < 0;
                 my $args = $args{arguments};
                 my $delimiters = $args->[0];
                 my $path = $args{command_path};
@@ -93,6 +94,7 @@ my $set_cmd = Term::CLI::Command->new(
             ],
             callback => sub {
                 my ($self, %args) = @_;
+                return %args if $args{status} < 0;
                 my $args = $args{arguments};
                 my $quote_chars = $args->[0];
                 my $path = $args{command_path};
