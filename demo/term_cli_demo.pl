@@ -12,6 +12,28 @@ use Term::CLI::Argument::Number::Float;
 use Term::CLI::Argument::Enum;
 use Term::CLI::Argument::String;
 
+my $test_1_cmd = Term::CLI::Command->new(
+    name => 'test_1',
+    arguments => [
+        Term::CLI::Argument::Enum->new(name => 'arg',
+            value_list => [qw( one two three )],
+            min_occur => 0,
+            max_occur => 2
+        ),
+    ]
+);
+
+my $test_2_cmd = Term::CLI::Command->new(
+    name => 'test_2',
+    arguments => [
+        Term::CLI::Argument::Enum->new(name => 'arg',
+            value_list => [qw( one two three four )],
+            min_occur => 1,
+            max_occur => 0
+        ),
+    ]
+);
+
 my $copy_cmd = Term::CLI::Command->new(
     name => 'cp',
     options => ['verbose|v', 'debug|d', 'interactive|i', 'force|f'],
@@ -110,6 +132,7 @@ my $cli = Term::CLI->new(
     prompt => $FindBin::Script.'> ',
     commands => [
         $file_cmd, $sleep_cmd, $make_cmd, $set_cmd,
+        $test_1_cmd, $test_2_cmd
     ],
     callback => sub {
         my $self = shift;
