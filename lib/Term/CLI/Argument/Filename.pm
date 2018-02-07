@@ -4,7 +4,7 @@
 #
 #  Description:  Class for file name arguments in Term::CLI
 #
-#       Author:  Steven Bakker (SB), <Steven.Bakker@ams-ix.net>
+#       Author:  Steven Bakker (SB), <sb@monkey-mind.net>
 #      Created:  23/01/18
 #
 #   Copyright (c) 2018 Steven Bakker; All rights reserved.

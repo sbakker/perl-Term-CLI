@@ -4,7 +4,7 @@
 #
 #  Description:  Class for CLI parsing
 #
-#       Author:  Steven Bakker (SB), <Steven.Bakker@ams-ix.net>
+#       Author:  Steven Bakker (SB), <sb@monkey-mind.net>
 #      Created:  31/01/18
 #
 #   Copyright (c) 2018 Steven Bakker; All rights reserved.
@@ -23,7 +23,9 @@ use 5.014_001;
 package Term::CLI {
 
 use Modern::Perl;
+
 use Term::CLI::Version qw( $VERSION );
+
 use List::Util qw( first );
 use Text::ParseWords qw( parse_line );
 use Carp qw( croak );

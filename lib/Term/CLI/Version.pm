@@ -4,7 +4,7 @@
 #         File:  Version.pm
 #
 #        Notes:  Global version for all Term::CLI modules.
-#       Author:  Steven Bakker (SB), <Steven.Bakker@ams-ix.net>
+#       Author:  Steven Bakker (SB), <sb@monkey-mind.net>
 #      Created:  07/Feb/2018
 #
 #   Copyright (c) 2018 Steven Bakker; All rights reserved.

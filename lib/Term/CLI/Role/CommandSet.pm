@@ -4,7 +4,7 @@
 #
 #  Description:  Class for sets of (sub-)commands in Term::CLI
 #
-#       Author:  Steven Bakker (SB), <Steven.Bakker@ams-ix.net>
+#       Author:  Steven Bakker (SB), <sb@monkey-mind.net>
 #      Created:  05/02/18
 #
 #   Copyright (c) 2018 Steven Bakker; All rights reserved.
