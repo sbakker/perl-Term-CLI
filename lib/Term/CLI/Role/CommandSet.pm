@@ -120,21 +120,6 @@ a set of L<Term::CLI::Command>(3p) objects.
 
 This role is used by L<Term::CLI>(3p) and L<Term::CLI::Command>(3p).
 
-=head1 CONSTRUCTORS
-
-=over
-
-=item B<new> ( B<name> =E<gt> I<VARNAME> ... )
-X<new>
-
-Create a new Term::CLI::Argument object and return a reference to it.
-
-The B<name> attribute is required.
-
-Other attributes are:
-
-=over
-
 =head1 ATTRIBUTES
 
 This role defines two additional attributes:
@@ -151,8 +136,6 @@ or C<undef>.
 
 Reference to a subroutine that should be called when the command
 is executed, or C<undef>.
-
-=back
 
 =back
 
@@ -252,6 +235,10 @@ of object references:
         ...
     ]
 
+The first item in the C<command_path> list is always the top-level
+L<Term::CLI> object, while the last is always the same as the
+I<OBJ_REF> parameter.
+
 =back
 
 The callback is expected to return a hash (list) containing at least the
@@ -264,12 +251,8 @@ should always check the C<status> before doing anything.
 =item B<commands> ( [ I<ArrayRef> ] )
 X<commands>
 
-I<ArrayRef> with C<Term::CLI::Command> object instances.
-
-=item B<try_callback> ( I<ARGS> )
-
-Wrapper function that will call the object's C<callback> function if it
-has been set, otherwise simply returns its arguments.
+Get or set the I<ArrayRef> with C<Term::CLI::Command>
+object instances.
 
 =back
 
@@ -289,12 +272,11 @@ Check whether I<Str> is a command in this C<Term::CLI> object.
 If so, return the appropriate L<Term::CLI::Command> object;
 otherwise, return C<undef>.
 
-=item B<try_callback> ( I<Str> )
-X<find_command>
+=item B<try_callback> ( I<ARGS> )
+X<try_callback>
 
-Check whether I<Str> is a command in this C<Term::CLI> object.
-If so, return the appropriate L<Term::CLI::Command> object;
-otherwise, return C<undef>.
+Wrapper function that will call the object's C<callback> function if it
+has been set, otherwise simply returns its arguments.
 
 =back
 
