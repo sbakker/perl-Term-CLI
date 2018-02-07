@@ -180,6 +180,7 @@ is called as:
         error        => Str,
         options      => HashRef,
         arguments    => ArrayRef[Value],
+        command_line => Str,
         command_path => ArrayRef[InstanceOf['Term::CLI::Command']],
    );
 
@@ -234,6 +235,11 @@ Each value is a scalar value, possibly converted by
 its corresponding L<Term::CLI::Argument>'s
 L<validate|Term::CLI::Argument/validate> method (e.g. C<3e-1> may have
 been converted to C<0.3>).
+
+=item C<command_line>
+
+The complete command line as given to the
+L<Term::CLI::execute|Term::CLI/execute> method.  
 
 =item C<command_path>
 
