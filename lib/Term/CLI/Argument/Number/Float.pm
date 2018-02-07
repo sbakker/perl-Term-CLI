@@ -23,6 +23,7 @@ use 5.014_001;
 package Term::CLI::Argument::Number::Float {
 
 use Modern::Perl;
+use Term::CLI::Version qw( $VERSION );
 use POSIX qw( );
 use Moo;
 use namespace::clean;

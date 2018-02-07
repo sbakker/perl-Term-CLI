@@ -22,9 +22,8 @@ use 5.014_001;
 
 package Term::CLI::Element {
 
-our $VERSION = '1.00';
-
 use Modern::Perl;
+use Term::CLI::Version qw( $VERSION );
 use Term::CLI::ReadLine;
 
 use Moo;

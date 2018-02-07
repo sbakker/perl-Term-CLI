@@ -24,6 +24,7 @@ package Term::CLI::Argument::Enum {
 
 use Modern::Perl;
 use List::Util qw( first );
+use Term::CLI::Version qw( $VERSION );
 
 use Moo;
 use namespace::clean;

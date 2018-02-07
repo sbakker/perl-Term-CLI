@@ -23,6 +23,7 @@ use 5.014_001;
 package Term::CLI::ReadLine {
 
 use Modern::Perl;
+use Term::CLI::Version qw( $VERSION );
 
 use parent qw( Term::ReadLine );
 

@@ -25,6 +25,7 @@ package Term::CLI::Argument {
 our $VERSION = '1.00';
 
 use Modern::Perl;
+use Term::CLI::Version qw( $VERSION );
 use Moo;
 
 use Types::Standard qw( Int );

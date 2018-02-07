@@ -23,6 +23,7 @@ use 5.014_001;
 package Term::CLI::Argument::String {
 
 use Modern::Perl;
+use Term::CLI::Version qw( $VERSION );
 use Moo;
 use namespace::clean;
 
