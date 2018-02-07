@@ -10,6 +10,7 @@ use Term::CLI::Command;
 use Term::CLI::Argument::Filename;
 use Term::CLI::Argument::Number::Float;
 use Term::CLI::Argument::Enum;
+use Term::CLI::Argument::String;
 
 my $copy_cmd = Term::CLI::Command->new(
     name => 'cp',
@@ -68,10 +69,45 @@ my $make_cmd = Term::CLI::Command->new(
     ]
 );
 
+my $set_cmd = Term::CLI::Command->new(
+    name => 'set',
+    commands => [
+        Term::CLI::Command->new(
+            name => 'delimiter',
+            arguments => [
+                Term::CLI::Argument::String->new(name => 'delimiter')
+            ],
+            callback => sub {
+                my ($self, %args) = @_;
+                my $args = $args{arguments};
+                my $delimiters = $args->[0];
+                my $path = $args{command_path};
+                $path->[0]->word_delimiters($delimiters);
+                return %args;
+            }
+        ),
+        Term::CLI::Command->new(
+            name => 'quote',
+            arguments => [
+                Term::CLI::Argument::String->new(name => 'quote')
+            ],
+            callback => sub {
+                my ($self, %args) = @_;
+                my $args = $args{arguments};
+                my $quote_chars = $args->[0];
+                my $path = $args{command_path};
+                $path->[0]->quote_characters($quote_chars);
+                return %args;
+            }
+        ),
+    ]
+);
+
+
 my $cli = Term::CLI->new(
     prompt => $FindBin::Script.'> ',
     commands => [
-        $file_cmd, $sleep_cmd, $make_cmd,
+        $file_cmd, $sleep_cmd, $make_cmd, $set_cmd,
     ],
     callback => sub {
         my $self = shift;
@@ -81,9 +117,10 @@ my $cli = Term::CLI->new(
         say "path:", map { " ".$_->name } @$command_path;
 
         if ($args{status} < 0) {
-            say "status: ".$args{status};
-            say "error: <$args{error}>";
+            say "** ERROR: $args{error}";
+            say "(status: $args{status})";
             $self->prompt("ERR[$args{status}]> ");
+            return %args;
         }
         elsif ($args{status} == 0) {
             $self->prompt('OK> ');
@@ -101,11 +138,6 @@ my $cli = Term::CLI->new(
     }
 );
 
-while (1) {
-    my ($input, @input) = $cli->readline;
-    last if !defined $input;
-
-    next if $input =~ /^\s*(?:#.*)?$/;
-    say "input:", map { " <$_>" } @input;
-    $cli->execute(@input);
+while (my $input = $cli->readline(skip => qr/^\s*(?:#.*)?$/)) {
+    $cli->execute($input);
 }
