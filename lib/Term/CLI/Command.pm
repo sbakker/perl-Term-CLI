@@ -203,21 +203,24 @@ sub _check_arguments {
             elsif ($arg_spec->max_occur > 1) {
                 $error .= 'between ' . $arg_spec->min_occur
                         . ' and ' . $arg_spec->max_occur
-                        . $arg_spec->name . ' arguments';
+                        . ' ' . $arg_spec->name . ' arguments';
             }
             else {
-                $error .= 'at least '
-                        . $arg_spec->min_occur . 'argument';
+                $error .= 'at least ' . $arg_spec->min_occur
+                        . ' ' . $arg_spec->name . ' argument';
                 $error .= 's' if $arg_spec->min_occur > 1;
             }
             return (%args, status => -1, error => $error);
         }
 
-        my $args_to_check = min($arg_spec->max_occur, scalar @arguments);
+        my $args_to_check
+            = $arg_spec->max_occur > 0
+                ? min($arg_spec->max_occur, scalar @arguments)
+                : scalar @arguments;
+
         my @args_to_check = splice @arguments, 0, $args_to_check;
         for my $arg (@args_to_check) {
             $argno++;
-            my $arg = shift @args_to_check;
             my $arg_value = $arg_spec->validate($arg);
             if (!defined $arg_value) {
                 return (%args, status => -1,
@@ -388,6 +391,8 @@ L<callback in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/callback>.
 =back
 
 =head2 Other
+
+=over
 
 =item B<command_names>
 X<command_names>
