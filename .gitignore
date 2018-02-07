@@ -1,3 +1,4 @@
+*.swp
 MYMETA.yml
 MYMETA.json
 Makefile
