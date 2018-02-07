@@ -26,7 +26,7 @@ our $VERSION = '1.00';
 
 use Modern::Perl;
 use List::Util qw( first );
-use Text::ParseWords qw( shellwords );
+use Text::ParseWords qw( parse_line );
 use Carp qw( croak );
 use Term::CLI::ReadLine;
 use FindBin;
@@ -56,7 +56,52 @@ has prompt => (
     default => sub { '~> ' }
 );
 
+has split_function => (
+    is => 'rw',
+    isa => CodeRef,
+    default => sub { \&_default_split }
+);
+
+has word_delimiters  => ( is => 'rw', isa => Str, default => sub {" \n\t"} );
+has quote_characters => ( is => 'rw', isa => Str, default => sub {q("')} );
+
 sub term { return Term::CLI::ReadLine->term }
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    my $term = Term::CLI::ReadLine->new($self->name)->term;
+    $term->Attribs->{completion_function} = sub { $self->complete_line(@_) };
+    $term->Attribs->{char_is_quoted_p} = sub { $self->_is_escaped(@_) };
+
+    $self->_set_completion_attribs;
+}
+
+# ($error, @words) = $self->_default_split($text);
+#
+# Default function to split a string into words.
+# Similar to "shellwords()", except that we use
+# "parse_line" to support custom delimiters.
+#
+# Unfortunately, there's no way to specify custom
+# quote characters.
+#
+sub _default_split {
+    my ($self, $text) = @_;
+
+    if ($text =~ /\S/) {
+        my $delim = $self->word_delimiters;
+        $text =~ s/^[$delim]+//;
+        my @words = parse_line(qr{[$delim]+}, 0, $text);
+        pop @words if @words and not defined $words[-1];
+        my $error = @words ? '' : 'Unbalanced quotes in input';
+        return ($error, @words);
+    }
+    else {
+        return ('');
+    }
+}
+
 
 # BOOL = CLI->_is_escaped($line, $index);
 #
@@ -73,25 +118,35 @@ sub _is_escaped {
 }
 
 
-sub BUILD {
-    my ($self, $args) = @_;
+sub _set_completion_attribs {
+    my $self = shift;
+    my $term = $self->term;
 
-    my $term = Term::CLI::ReadLine->new($self->name)->term;
-    $term->Attribs->{completion_function} = sub { $self->complete_line(@_) };
-    $term->Attribs->{completer_quote_characters} = q{"'};
+    # Default: '"
+    $term->Attribs->{completer_quote_characters} = $self->quote_characters;
 
-    # Default: \n\t\\ "'`@$><=;|&{(
-    $term->Attribs->{completer_word_break_characters} = "\t\n ";
-    $term->Attribs->{char_is_quoted_p} = sub { $self->_is_escaped(@_) };
+    # Default: \n\t\\"'`@$><=;|&{( and <space>
+    $term->Attribs->{completer_word_break_characters} = $self->word_delimiters;
+
+    # Default: <space>
+    $term->Attribs->{completion_append_character}
+        = substr($self->word_delimiters, 0, 1);
 }
 
+
+sub _split_line {
+    my ($self, $text) = @_;
+    return $self->split_function->($self, $text);
+}
 
 sub complete_line {
     my ($self, $text, $line, $start) = @_;
 
-    my $attribs = $self->term->Attribs;
+    $self->_set_completion_attribs;
 
-    my $quote_char = $attribs->{completion_quote_character} =~ s/\000//gr;
+    my $quote_char
+        = $self->term->Attribs->{completion_quote_character} =~ s/\000//gr;
+
     my @words;
 
     if ($start > 0) {
@@ -100,16 +155,14 @@ sub complete_line {
             # The quote character will precede the $start of $text.
             # Make sure we do not include it in the text to break
             # into words...
-            @words = shellwords(substr($line, 0, $start-1));
+            (my $err, @words) = $self->_split_line(substr($line, 0, $start-1));
         }
         else {
-            @words = shellwords(substr($line, 0, $start));
+            (my $err, @words) = $self->_split_line(substr($line, 0, $start));
         }
     }
-    push @words, $text;
 
-    #say STDERR "complete_line: text=<$text>; line=<$line>; start=<$start>";
-    #say STDERR "complete_line: words: ", map {" <$_>"} @words;
+    push @words, $text;
 
     my @list;
     if ($self->has_commands) {
@@ -121,38 +174,47 @@ sub complete_line {
         }
     }
 
-    #$self->term->forced_update_display;
-
     # Escape spaces in reply if necessary.
 	if (length $quote_char) {
         return @list;
     }
     else {
-        return map { s/(\s)/\\$1/gr } @list;
+        my $delim = $self->word_delimiters;
+        return map { s/[$delim]/\\$1/gr } @list;
     }
 }
 
 
 sub readline {
     my $self = shift @_;
+    my %attr = ( skip => undef, @_ );
 
-    my $input = $self->term->readline($self->prompt);
+    $self->_set_completion_attribs;
 
-    return if !defined $input;
-
-    return ($input, shellwords($input));
+    while (defined (my $input = $self->term->readline($self->prompt))) {
+        next if defined($attr{skip}) && $input =~ /$attr{skip}/;
+        return $input;
+    }
+    return;
 }
 
 
 sub execute {
-    my ($self, @cmd) = @_;
+    my ($self, $cmd) = @_;
+
+    my ($error, @cmd) = $self->_split_line($cmd);
 
     my %args = (
+        status => 0,
+        command_line => $cmd,
         command_path => [$self],
         arguments => \@cmd,
         error => '',
         options => {}
     );
+
+    return $self->try_callback(%args, status => -1, error => $error)
+        if length $error;
 
     if (my $cmd = $self->find_command($cmd[0])) {
         %args = $cmd->execute(%args,
@@ -211,10 +273,13 @@ Term::CLI - CLI interpreter based on Term::ReadLine
     ],
  );
 
- while (1) {
-    my ($input, @input) = $cli->readline;
-    last if !defined $input;
-    next if $input =~ /^\s*(?:#.*)?$/;
+ $cli->word_delimiters(';,');
+ # $cli will now recognise things like: 'copy;--verbose;a,b'
+
+ $cli->word_delimiters(" \t\n");
+ # $cli will now recognise things like: 'copy --verbose a b'
+
+ while ( my $input = $cli->readline(skip => qr/^\s*(?:#.*)?$/) ) {
     $cli->execute(@input);
  }
 
@@ -303,6 +368,8 @@ L<callback in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/callback>.
 
 =head1 METHODS
 
+=head2 Accessors
+
 =over
 
 =item B<name>
@@ -320,9 +387,51 @@ X<term>
 
 Return a reference to the underlying L<Term::CLI::ReadLine> object.
 
+=item B<quote_characters> ( [ I<Str> ] )
+X<quote_characters>
+
+Get or set the characters that should considered quote characters
+for the completion and parsing/execution routines.
+
+Default is C<'">, that is a single quote or a double quote.
+
+It's possible to change this, but this will interfere with the default
+splitting function, so if you do want custom quote characters, you should
+also override the L<split_function|/split_function>.
+
+=item B<split_function> ( [ I<CodeRef> ] )
+
+Get or set the function that is used to split a (partial) command
+line into words. The default function uses
+L<Text::ParseWords::parse_line|Text::ParseWords/parse_line>.
+Note that this implies that it can take into account custom delimiters,
+but I<not custom quote characters>.
+
+The I<CodeRef> is called as:
+
+    ( ERROR, [ WORD, ... ] ) = CodeRef->( CLI_OBJ, TEXT )
+
+The function should return a list of at least one element, an
+I<ERROR> string. Subsequent elements are the words resulting
+from the split.
+
+I<ERROR> string should be empty (not C<undef>!) if splitting
+was successful, otherwise it should contain a relevant error
+message.
+
+=item B<word_delimiters> ( [ I<Str> ] )
+
+Get or set the characters that are considered word delimiters
+in the completion and parsing/execution routines.
+
+Default is C< \t\n>, that is I<space>, I<tab>, and I<newline>.
+
+The first character in the string is also the character that is
+appended to a completed word at the command line prompt.
+
 =back
 
-=head1 METHODS
+=head2 Other
 
 =over
 
@@ -357,46 +466,70 @@ Return a list of all command line options for this command.
 Long options are prefixed with C<-->, and one-letter options
 are prefixed with C<->.
 
-=item B<readline>
+=item B<readline> ( [ I<ATTR> =E<gt> I<VAL>, ... ] )
 X<readline>
 
 Read a line from the input connected to L<term|/term>, using
 the L<Term::ReadLine> interface.
 
-Returns a list of strings. The first element is the literal
-line read from the input (minus any line terminator). The
-other elements are the elements after splitting the line
-into words. The splitting is done with L<Text::ParseWords>'s
-L<shellwords()|Text::ParseWords/shellwords>.
-
-Returns an empty value if end of file has been reached (e.g.
+By default, it returns the line read from the input, or
+an empty value if end of file has been reached (e.g.
 the user hitting I<Ctrl-D>).
 
-Example:
+The following I<ATTR> are recognised:
 
-    my ($line, @line) = $cli->readline;
+=over
 
+=item B<skip> =<E<gt> I<RegEx>
+
+Skip lines that match the I<RegEx> parameter. A common
+call is:
+
+    $text = CLI->readline( skip => qr{^\s+(?:#.*)$} );
+
+This will skip empty lines, lines containing whitespace, and
+comments.
+
+=back
+
+Examples:
+
+    # Just read the next input line.
+    $line = $cli->readline;
     exit if !defined $line;
 
-=item B<execute> ( I<Str>, ... )
+    # Skip empty lines and comments.
+    $line = $cli->readline( skip => qr{^\s*(?:#.*)?$} );
+    exit if !defined $line;
+
+=item B<execute> ( I<Str>, [ I<ArrayRef[Str]> ] )
 X<execute>
 
 Parse and execute the command line consisting of I<Str>s
 (see the return value of L<readline|/readline> above).
 
+The first I<Str> should be the original command line string.
+
+By default, C<execute> will split the command line into words using
+L<Text::ParseWords::parse_line|Text::ParseWords/parse_line>, and then
+parse and execute the result accordingly.
+If L<parse_line|Text::ParseWords/parse_line> fails, then a parse error
+is generated.
+
+For specifying a custom word splitting method, see
+L<split_function|/split_function>.
+
 Example:
 
-    while (1) {
-        my ($line, @line) = $cli->readline;
-
-        exit if !defined $line;
-
-        $cli->execute(@line);
+    while (my $line = $cli->readline(skip => qr/^\s*(?:#.*)?$/)) {
+        $cli->execute($line);
     }
 
 The command line is parsed depth-first, and for every
 L<Term::CLI::Command>(3p) encountered, that object's
-callback function is executed.
+L<callback|Term::CLI::Role::CommandSet/callback> function
+is executed (see
+L<callback in Term::CLI::Role::Command|Term::CLI::Role::CommandSet/callback>).
 
 =over
 
@@ -445,10 +578,10 @@ Callback for C<Term::CLI> object.
 
 =back
 
-The return value from each callback (a hash in list form) is fed into the
-next callback function in the chain. This allows for adding custom data to
-the return hash that will be fed back up the parse tree (and eventually to
-the caller).
+The return value from each L<callback|Term::CLI::Role::CommandSet/callback>
+(a hash in list form) is fed into the next callback function in the
+chain. This allows for adding custom data to the return hash that will
+be fed back up the parse tree (and eventually to the caller).
 
 =back
 
