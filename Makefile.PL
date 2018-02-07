@@ -23,9 +23,10 @@ my $dfl_version  = '0.001';
 # );
 
 WriteMakefile(
-    NAME         => $module_name,
     find_version(),
-    AUTHOR       => 'Steven Bakker <sb@monkey-mind.net>',
+    NAME          => $module_name,
+    AUTHOR        => 'Steven Bakker <sb@monkey-mind.net>',
+    ABSTRACT_FROM => 'lib/Term/CLI.pm',
 
     PREREQ_FATAL => 0, # Change to 1 if you really need our prereqs.
     
