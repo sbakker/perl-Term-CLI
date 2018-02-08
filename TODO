@@ -1,0 +1,13 @@
+Thu Feb  8 10:52:29 CET 2018
+
+Need to build in "help":
+
+ * Term::CLI::Command and Term::CLI objects accept a "help" text attribute.
+
+ * Term::CLI will recognise the "help" command if it is not already defined
+   as a command. "help foo bar" can be translated as "foo bar help".
+
+ * Term::CLI::Command will recognise the "help" sub-command if it is not
+   already defined as a sub-command.
+
+ * Help text may be displayed through a suitable pager.
