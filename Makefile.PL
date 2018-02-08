@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Copyright (c) Steven Bakker - All rights reserved.
+# Copyright (c) Steven Bakker
 #
 # See the "Copying" file that came with this package
 # to see the licensing terms.

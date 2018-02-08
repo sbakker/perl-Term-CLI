@@ -7,7 +7,7 @@
 #       Author:  Steven Bakker (SB), <sb@monkey-mind.net>
 #      Created:  22/01/18
 #
-#   Copyright (c) 2018 Steven Bakker; All rights reserved.
+#   Copyright (c) 2018 Steven Bakker
 #
 #   This module is free software; you can redistribute it and/or modify
 #   it under the same terms as Perl itself. See "perldoc perlartistic."
@@ -194,7 +194,7 @@ Steven Bakker E<lt>sb@monkey-mind.netE<gt>, 2018.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2018 Steven Bakker; All rights reserved.
+Copyright (c) 2018 Steven Bakker
 
 This module is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. See "perldoc perlartistic."
