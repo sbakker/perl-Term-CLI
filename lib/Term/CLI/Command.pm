@@ -131,10 +131,15 @@ sub complete_line {
     }
     elsif ($self->has_arguments) {
         my @args = @{$self->arguments};
+        my $n = 0;
         while (@words > 1) {
-            shift @args;
-            shift @words;
             last if @args == 0;
+            shift @words;
+            $n++;
+            if ($args[0]->max_occur && $n >= $args[0]->max_occur) {
+                shift @args;
+                $n = 0;
+            }
         }
 
         return @args ? $args[0]->complete($words[0]) : ();
