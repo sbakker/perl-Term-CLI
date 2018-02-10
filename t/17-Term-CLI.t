@@ -174,6 +174,7 @@ sub startup : Test(startup => 2) {
     my $cli = Term::CLI->new(
         prompt => 'test> ',
         commands => [@commands],
+        callback => undef,
     );
     isa_ok( $cli, 'Term::CLI', 'Term::CLI->new' );
 
