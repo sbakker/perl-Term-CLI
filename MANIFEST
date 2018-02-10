@@ -15,6 +15,7 @@ lib/Term/CLI/Argument/String.pm
 lib/Term/CLI/Command.pm
 lib/Term/CLI/Element.pm
 lib/Term/CLI/ReadLine.pm
+lib/Term/CLI/Role/Base.pm
 lib/Term/CLI/Role/CommandSet.pm
 t/00-compile.t
 t/01-pod-coverage.t

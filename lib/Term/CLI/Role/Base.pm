@@ -1,11 +1,11 @@
 #===============================================================================
 #
-#       Module:  Term::CLI::Element
+#       Module:  Term::CLI::Role::Base
 #
-#  Description:  Generic parent class for elements in Term::CLI
+#  Description:  Generic roel for Term::CLI classes
 #
 #       Author:  Steven Bakker (SB), <sb@monkey-mind.net>
-#      Created:  22/01/18
+#      Created:  10/02/18
 #
 #   Copyright (c) 2018 Steven Bakker
 #
@@ -20,22 +20,28 @@
 
 use 5.014_001;
 
-package Term::CLI::Element {
+package Term::CLI::Role::Base {
 
 use Modern::Perl;
 use Term::CLI::Version qw( $VERSION );
 use Term::CLI::ReadLine;
 
-use Types::Standard qw( Str );
+use Moo::Role;
 
-use Moo;
-use namespace::clean;
+has error   => ( is => 'rwp', default => sub {''} );
 
-with 'Term::CLI::Role::Base';
+sub term { return Term::CLI::ReadLine->term }
 
-has name    => ( is => 'ro', isa => Str, required => 1 );
-
-sub complete { return () }
+sub set_error {
+    my ($self, @value) = @_;
+    if (!@value or !defined $value[0]) {
+        $self->_set_error('');
+    }
+    else {
+        $self->_set_error(join('', @value));
+    }
+    return;
+}
 
 }
 
@@ -47,35 +53,23 @@ __END__
 
 =head1 NAME
 
-Term::CLI::Element - generic parent class for elements in Term::CLI
+Term::CLI::Role::Base - generic role Term::CLI classes
 
 =head1 SYNOPSIS
 
- use Term::CLI::Element;
+ package Term::CLI::Something {
 
- my $arg = Term::CLI::Element->new(name => 'varname');
+    use Moo;
+
+    with('Term::CLI::Role::Base');
+
+    ...
+ };
 
 =head1 DESCRIPTION
 
-Generic parent class for elements in L<Term::CLI>(3p). This is used
-by L<Term::CLI::Command>(3p) and L<Term::CLI::Argument>(3p) to provide
-basic, shared functionality.
-
-It loads the L<Term::CLI::Role::Base>(3p) role to provide the
-C<error>, C<term>, and C<set_error> methods.
-
-=head1 CONSTRUCTORS
-
-=over
-
-=item B<new> ( B<name> =E<gt> I<VARNAME> ... )
-X<new>
-
-Create a new Term::CLI::Element object and return a reference to it.
-
-The B<name> attribute is required.
-
-=back
+Generic role for L<Term::CLI>(3p) classes. This role provides some
+basic functions and attributes that all classes share.
 
 =head1 METHODS
 
@@ -83,10 +77,13 @@ The B<name> attribute is required.
 
 =over
 
-=item B<name> (I<STRING>, read-only)
+=item B<error> (I<STRING>, read-only)
 
-Element name. Can be any string, but must be specified at construction
-time.
+Contains a diagnostic message in case of errors.
+
+=item B<term> (read-only)
+
+The active L<Term::CLI::ReadLine> object.
 
 =back
 
@@ -94,19 +91,16 @@ time.
 
 =over
 
-=item B<complete> ( I<STR> )
+=item B<set_error> ( I<STRING>, ... )
 
-Return a list of strings that are possible completions for I<value>.
-By default, this method returns an empty list.
-
-Sub-classes should probably override this.
+Set the L<error|/error>() attribute to the concatenation of all I<STRING> parameters
+and return a "failure" (C<undef> or the empty list, depending on call context).
 
 =back
 
 =head1 SEE ALSO
 
-L<Term::CLI::Argument>(3p),
-L<Term::CLI::Command>(3p),
+L<Term::CLI::Element>(3p),
 L<Term::CLI::ReadLine>(3p),
 L<Term::CLI>(3p).
 

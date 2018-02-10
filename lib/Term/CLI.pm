@@ -54,6 +54,7 @@ use Types::Standard qw(
 use Moo;
 use namespace::clean;
 
+with('Term::CLI::Role::Base');
 with('Term::CLI::Role::CommandSet');
 
 has name => (
@@ -81,8 +82,6 @@ has skip => (
 
 has word_delimiters  => ( is => 'rw', isa => Str, default => sub {" \n\t"} );
 has quote_characters => ( is => 'rw', isa => Str, default => sub {q("')} );
-
-sub term { return Term::CLI::ReadLine->term }
 
 sub BUILD {
     my ($self, $args) = @_;
@@ -254,13 +253,14 @@ sub execute {
         $args{error} = "missing command";
         $args{status} = -1;
     }
-    elsif (my $cmd = $self->find_command($cmd[0])) {
-        %args = $cmd->execute(%args,
+
+    if (my $cmd_ref = $self->find_command($cmd[0])) {
+        %args = $cmd_ref->execute(%args,
             arguments => [@cmd[1..$#cmd]]
         );
     }
     else {
-        $args{error} = "unknown command '$cmd[0]'";
+        $args{error} = $self->error;
         $args{status} = -1;
     }
 
@@ -404,6 +404,24 @@ L<callback in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/callback>.
 
 =back
 
+=head2 Others
+
+=over
+
+=item B<find_command> ( I<Str> )
+X<find_command>
+
+See
+L<find_command in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/find_command>.
+
+=item B<find_matches> ( I<Str> )
+X<find_matches>
+
+See
+L<find_matches in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/find_matches>.
+
+=back
+
 =head1 METHODS
 
 =head2 Accessors
@@ -469,7 +487,7 @@ appended to a completed word at the command line prompt.
 
 =back
 
-=head2 Other
+=head2 Others
 
 =over
 
@@ -484,18 +502,6 @@ far, I<START> is the position in the line where I<TEXT> starts.
 The function will split the line in words and delegate the
 completion to the first L<Term::CLI::Command> sub-command,
 see L<Term::CLI::Command|Term::CLI::Command/complete_line>.
-
-=item B<command_names>
-X<command_names>
-
-Return a list of command names, sorted alphabetically.
-
-=item B<find_command> ( I<Str> )
-X<find_command>
-
-Check whether I<Str> is a command in this C<Term::CLI> object.
-If so, return the appropriate L<Term::CLI::Command> object;
-otherwise, return C<undef>.
 
 =item B<option_names>
 X<option_names>
