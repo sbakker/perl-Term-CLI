@@ -69,7 +69,7 @@ sub check_complete: Test(3) {
         "complete returns () for 'X'");
 }
 
-sub check_validate: Test(8) {
+sub check_validate: Test(10) {
     my $self = shift;
     my $arg = $self->{arg};
 
@@ -89,6 +89,10 @@ sub check_validate: Test(8) {
     ok( !$arg->validate('thing'), "'thing' does not validate");
     is ( $arg->error, 'not a valid value',
         "error on '' value is set correctly" );
+
+    ok( !$arg->validate('t'), "'t' is ambiguous");
+    like ( $arg->error, qr/^ambiguous value \(matches: .*\)$/,
+        "error on ambiguous value is set correctly" );
 
     $arg->set_error('SOMETHING');
 
