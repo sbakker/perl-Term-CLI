@@ -59,7 +59,7 @@ sub command_names {
 
 sub find_matches {
     my ($self, $partial) = @_;
-    return undef if !$self->has_commands;
+    return () if !$self->has_commands;
     my @found = grep { rindex($_->name, $partial, 0) == 0 } @{$self->commands};
     return @found;
 }
