@@ -50,6 +50,7 @@ sub validate {
         return $found[0];
     }
     else {
+        @found = sort @found;
         return $self->set_error("ambiguous value (matches: @found)");
     }
 }
