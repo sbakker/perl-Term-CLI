@@ -57,17 +57,37 @@ sub command_names {
     return sort { $a cmp $b } map { $_->name } @{$self->commands};
 }
 
-sub find_command {
+sub find_matches {
     my ($self, $partial) = @_;
     return undef if !$self->has_commands;
     my @found = grep { rindex($_->name, $partial, 0) == 0 } @{$self->commands};
-    return @found == 1 ? $found[0] : undef;
+    return @found;
+}
+
+sub find_command {
+    my ($self, $partial) = @_;
+    my @matches = $self->find_matches($partial);
+
+    if (@matches == 1) {
+        return $matches[0];
+    }
+    elsif (@matches == 0) {
+        return $self->set_error("unknown command '$partial'");
+    }
+    else {
+        return $self->set_error(
+            "ambiguous command '$partial'"
+                . " (matches: "
+                . join(' ', sort map {$_->name} @matches)
+                . ")"
+        );
+    }
 }
 
 sub try_callback {
     my ($self, %args) = @_;
 
-    if ($self->has_callback) {
+    if ($self->has_callback && defined $self->callback) {
         return $self->callback->($self, %args);
     }
     else {
@@ -103,7 +123,8 @@ Term::CLI::Role::CommandSet - Role for (sub-)commands in Term::CLI
  $cmd->callback->( %args ) if $cmd->has_callback;
 
  if ( $cmd->has_commands ) {
-    die "$cmd_name not found" unless $cmd->find_command( $cmd_name );
+    my $cmd_ref = $cmd->find_command( $cmd_name );
+    die $cmd->error unless $cmd_ref;
  }
 
  say "command names:", join(', ', $cmd->command_names);
@@ -264,12 +285,24 @@ X<command_names>
 
 Return the list of (sub-)command names, sorted alphabetically.
 
+=item B<find_matches> ( I<Str> )
+X<find_matches>
+
+Return a list of all commands in this object that match the I<Str>
+prefix.
+
 =item B<find_command> ( I<Str> )
 X<find_command>
 
-Check whether I<Str> is a command in this C<Term::CLI> object.
-If so, return the appropriate L<Term::CLI::Command> object;
-otherwise, return C<undef>.
+Check whether I<Str> uniquely matches a command in this C<Term::CLI>
+object. Returns a reference to the appropriate
+L<Term::CLI::Command> object if successful; otherwise, it 
+sets the objects C<error> field and returns C<undef>.
+
+Example:
+
+    my $sub_cmd = $cmd->find_command($prefix);
+    die $cmd->error unless $sub_cmd;
 
 =item B<try_callback> ( I<ARGS> )
 X<try_callback>
