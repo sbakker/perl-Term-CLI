@@ -42,11 +42,15 @@ sub validate {
 
     $self->SUPER::validate($value) or return;
 
-    if (first { $_ eq $value } @{$self->value_list}) {
-        return $value;
+    my @found = grep { rindex($_, $value, 0) == 0 } @{$self->value_list};
+    if (@found == 0) {
+        return $self->set_error("not a valid value");
+    }
+    elsif (@found == 1) {
+        return $found[0];
     }
     else {
-        return $self->set_error("not a valid value");
+        return $self->set_error("ambiguous value (matches: @found)");
     }
 }
 
