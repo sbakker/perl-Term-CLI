@@ -391,7 +391,7 @@ L<callback in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/callback>.
 
 =back
 
-=head2 Other
+=head2 Others
 
 =over
 
