@@ -32,11 +32,22 @@ use Carp qw( croak );
 use Term::CLI::ReadLine;
 use FindBin;
 
+# Load all Term::CLI classes so the user doesn't have to.
+
+use Term::CLI::Argument::Enum;
+use Term::CLI::Argument::Filename;
+use Term::CLI::Argument::Number;
+use Term::CLI::Argument::Number::Float;
+use Term::CLI::Argument::Number::Int;
+use Term::CLI::Argument::String;
+use Term::CLI::Command;
+
 use Types::Standard qw(
     ArrayRef
     CodeRef
     InstanceOf
     Maybe
+    RegexpRef
     Str
 );
 
@@ -63,6 +74,11 @@ has split_function => (
     default => sub { \&_default_split }
 );
 
+has skip => (
+    is => 'rw',
+    isa => RegexpRef,
+);
+
 has word_delimiters  => ( is => 'rw', isa => Str, default => sub {" \n\t"} );
 has quote_characters => ( is => 'rw', isa => Str, default => sub {q("')} );
 
@@ -76,7 +92,27 @@ sub BUILD {
     $term->Attribs->{char_is_quoted_p} = sub { $self->_is_escaped(@_) };
 
     $self->_set_completion_attribs;
+
+    if (! exists $args->{callback} ) {
+        $self->callback(\&_default_callback);
+    }
 }
+
+
+# %args = $self->_default_callback(%args);
+#
+# Default top-level callback if none is given.
+# Simply check the status and print an error
+# message if status < 0.
+sub _default_callback {
+    my ($self, %args) = @_;
+
+    if ($args{status} < 0) {
+        say STDERR "ERROR: ", $args{error};
+    }
+    return %args;
+}
+
 
 # ($error, @words) = $self->_default_split($text);
 #
@@ -186,12 +222,11 @@ sub complete_line {
 
 sub readline {
     my $self = shift @_;
-    my %attr = ( skip => undef, @_ );
 
     $self->_set_completion_attribs;
 
     while (defined (my $input = $self->term->readline($self->prompt))) {
-        next if defined($attr{skip}) && $input =~ /$attr{skip}/;
+        next if defined $self->skip && $input =~ $self->skip;
         return $input;
     }
     return;
@@ -215,7 +250,11 @@ sub execute {
     return $self->try_callback(%args, status => -1, error => $error)
         if length $error;
 
-    if (my $cmd = $self->find_command($cmd[0])) {
+    if (@cmd == 0) {
+        $args{error} = "missing command";
+        $args{status} = -1;
+    }
+    elsif (my $cmd = $self->find_command($cmd[0])) {
         %args = $cmd->execute(%args,
             arguments => [@cmd[1..$#cmd]]
         );
