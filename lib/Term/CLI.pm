@@ -253,8 +253,7 @@ sub execute {
         $args{error} = "missing command";
         $args{status} = -1;
     }
-
-    if (my $cmd_ref = $self->find_command($cmd[0])) {
+    elsif (my $cmd_ref = $self->find_command($cmd[0])) {
         %args = $cmd_ref->execute(%args,
             arguments => [@cmd[1..$#cmd]]
         );
