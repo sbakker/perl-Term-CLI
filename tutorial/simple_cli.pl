@@ -40,7 +40,6 @@ execute_exit('exit', 0);
 
     sub execute_ls {
         my ($cmd, @args) = @_;
-        say "-- $cmd: listing files";
         system('ls', @args);
     }
 
