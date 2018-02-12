@@ -239,6 +239,8 @@ sub _set_signal_handlers {
         $SIG{$sig} = sub { return 1 };
     }
 
+    # Handle TSTP, by resending the signal if necessary. If we don't
+    # do this, a keyboard suspend looks weird.
     # In case we get suspended, make sure we redraw the CLI on wake up.
     $SIG{CONT} = sub {
         if (ref $old_sig{CONT}) {
@@ -246,6 +248,7 @@ sub _set_signal_handlers {
         }
         $self->term->forced_update_display();
     };
+
     return %old_sig;
 }
 
@@ -682,8 +685,8 @@ If the application has not set its own handlers, the L<readline|/readline>
 method will set signal handlers for the C<INT> and C<QUIT> signals in such
 a way that they do not cause the application to terminate.
 
-It also makes sure that after a keyboard suspend (C<SIGTSTP>) and
-subsequent continue (C<SIGCONT>), the command prompt is redrawn:
+It also makes sure that after a keyboard suspend (C<TSTP>) and
+subsequent continue (C<CONT>), the command prompt is redrawn:
 
     bash$ perl tutorial/term_cli.pl
     > foo
