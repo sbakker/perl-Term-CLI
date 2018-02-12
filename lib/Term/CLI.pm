@@ -95,6 +95,14 @@ sub BUILD {
     if (! exists $args->{callback} ) {
         $self->callback(\&_default_callback);
     }
+
+    # Set the signal hook to abort the current input line.
+    $term->Attribs->{signal_event_hook} = sub {
+        $term->crlf();
+        $term->Attribs->{line_buffer} = '';
+        $term->forced_update_display();
+        return 1;
+    };
 }
 
 
@@ -218,17 +226,46 @@ sub complete_line {
     }
 }
 
+sub _set_signal_handlers {
+    my $self = shift;
+
+    my %old_sig = %SIG;
+
+    # Install sig handler(s), if they haven't been installed yet.
+    for my $sig (qw( INT QUIT )) {
+        next if defined $SIG{$sig} && $SIG{$sig} !~ /^(?:DEFAULT|IGNORE)$/;
+        # Just set the signal handler to do nothing. Note that this
+        # is not the same as 'IGNORE'!
+        $SIG{$sig} = sub { return 1 };
+    }
+
+    # In case we get suspended, make sure we redraw the CLI on wake up.
+    $SIG{CONT} = sub {
+        if (ref $old_sig{CONT}) {
+            $old_sig{CONT}->(@_);
+        }
+        $self->term->forced_update_display();
+    };
+    return %old_sig;
+}
 
 sub readline {
-    my $self = shift @_;
+    my ($self, %args) = @_;
+
+    my $prompt = $args{prompt} // $self->prompt;
+    my $skip   = exists $args{skip} ? $args{skip} : $self->skip;
 
     $self->_set_completion_attribs;
+    my %old_sig = $self->_set_signal_handlers;
 
-    while (defined (my $input = $self->term->readline($self->prompt))) {
-        next if defined $self->skip && $input =~ $self->skip;
-        return $input;
+    my $input;
+    while (defined ($input = $self->term->readline($prompt))) {
+        next if defined $skip && $input =~ $skip;
+        last;
     }
-    return;
+
+    %SIG = %old_sig; # Restore signal handlers.
+    return $input;
 }
 
 
@@ -525,6 +562,8 @@ The following I<ATTR> are recognised:
 
 =item B<skip> =<E<gt> I<RegEx>
 
+Override the object's L<skip|/skip> attribute.
+
 Skip lines that match the I<RegEx> parameter. A common
 call is:
 
@@ -532,6 +571,10 @@ call is:
 
 This will skip empty lines, lines containing whitespace, and
 comments.
+
+=item B<prompt> =<E<gt> I<Str>
+
+Override the prompt given by the L<prompt|/prompt> method.
 
 =back
 
@@ -629,6 +672,26 @@ be fed back up the parse tree (and eventually to the caller).
 =back
 
 =back
+
+=head1 SIGNAL HANDLING
+
+In case of C<INT>, C<HUP>, C<TERM>, or C<TSTP> signals, the current input
+line is always discarded.
+
+If the application has not set its own handlers, the L<readline|/readline>
+method will set signal handlers for the C<INT> and C<QUIT> signals in such
+a way that they do not cause the application to terminate.
+
+It also makes sure that after a keyboard suspend (C<SIGTSTP>) and
+subsequent continue (C<SIGCONT>), the command prompt is redrawn:
+
+    bash$ perl tutorial/term_cli.pl
+    > foo
+    > ^Z
+    [1]+  Stopped                 perl tutorial/term_cli.pl
+    bash$ fg
+    perl tutorial/term_cli.pl
+    > _
 
 =head1 SEE ALSO
 
