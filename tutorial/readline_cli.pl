@@ -3,6 +3,22 @@ use Text::ParseWords qw( shellwords );
 use Term::ReadLine;
 
 my $term = Term::ReadLine->new('bssh');
+
+$SIG{INT} = $SIG{QUIT} = sub { 1; };
+
+$SIG{CONT} = sub {
+    $term->forced_update_display();
+};
+
+$term->Attribs->{signal_event_hook} = sub {
+    $term->crlf();
+    $term->Attribs->{line_buffer} = '';
+    $term->forced_update_display();
+    return 1;
+};
+
+$term->Attribs->{catch_signals} = 1;
+
 while (defined(my $cmd_line = $term->readline('bssh> '))) {
     evaluate_input($cmd_line);
 }
