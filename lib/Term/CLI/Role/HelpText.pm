@@ -71,6 +71,7 @@ sub get_options_summary {
     }
 
     my @options;
+    my $short_opts_no_arg = '';
     if (my $opt_specs = $self->options) {
         for my $spec (@$opt_specs) {
             my $long_arg = my $short_arg = '';
@@ -84,13 +85,21 @@ sub get_options_summary {
             }
             for my $optname (split(qr/\|/, $spec =~ s/^([^!+=:]+).*/$1/r)) {
                 if (length $optname == 1 and $with_options & 0x01) {
-                    push @options, "[B<-$optname>$short_arg]";
+                    if (length $short_arg == 0) {
+                        $short_opts_no_arg .= $optname;
+                    }
+                    else {
+                        push @options, "[B<-$optname>$short_arg]";
+                    }
                 }
                 elsif ($with_options & 0x02) {
                     push @options, "[B<--$optname>$long_arg]";
                 }
             }
         }
+    }
+    if (length $short_opts_no_arg) {
+        push @options, "[B<-$short_opts_no_arg>]";
     }
     return join(' ', @options);
 }
