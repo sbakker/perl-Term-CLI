@@ -51,6 +51,13 @@ has _commands => (
     writer    => '_set_commands',
     init_arg  => 'commands',
     isa       => Maybe[ArrayRef[InstanceOf['Term::CLI::Command']]],
+    trigger   => 1,
+    coerce    => sub {
+        # Copy the array, so the reference we store becomes
+        # "internal", preventing accidental modification
+        # from the outside.
+        return [@{$_[0]}]
+    },
 );
 
 has callback => (
@@ -59,18 +66,17 @@ has callback => (
     predicate => 1
 );
 
-
-around '_set_commands' => sub {
-    my ($orig, $self, $arg) = @_;
+# $self->_set_commands($ref) => $self->_trigger__commands($ref);
+#
+# Trigger to run whenever the object's _commands array ref is set.
+#
+sub _trigger__commands {
+    my ($self, $arg) = @_;
     if ($arg) {
-        # Copy the array, so the reference we store becomes "internal",
-        # preventing accidental modification from the outside.
-        $arg = [@$arg];
         for my $cmd (@$arg) {
             $cmd->_set_parent($self);
         }
     }
-    $self->$orig($arg);
 };
 
 
