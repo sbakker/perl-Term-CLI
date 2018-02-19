@@ -41,6 +41,7 @@ WriteMakefile(
         'Moo'                 => '2.002005',
         'Moo::Role'           => '2.002005',
         'POSIX'               => '1.65',
+        'Pod::Text::Termcap'  => '2.06',
         'Term::ReadLine'      => '1.15',
         'Term::ReadLine::Gnu' => '1.35',
         'Text::ParseWords'    => '3.30',
