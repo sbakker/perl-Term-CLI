@@ -33,36 +33,96 @@ use Types::Standard qw(
     ArrayRef
     CodeRef
     InstanceOf
+    ConsumerOf
     Maybe
 );
 
 use Moo::Role;
 use namespace::clean;
 
-has commands => (
-    is => 'rw',
-    isa => Maybe[ArrayRef[InstanceOf['Term::CLI::Command']]],
-    predicate => 1
+has parent => (
+    is       => 'rwp',
+    weak_ref => 1,
+    isa      => ConsumerOf['Term::CLI::Role::CommandSet'],
+);
+
+has _commands => (
+    is        => 'rw',
+    writer    => '_set_commands',
+    init_arg  => 'commands',
+    isa       => Maybe[ArrayRef[InstanceOf['Term::CLI::Command']]],
 );
 
 has callback => (
-    is => 'rw',
-    isa => Maybe[CodeRef],
+    is        => 'rw',
+    isa       => Maybe[CodeRef],
     predicate => 1
 );
 
+
+around '_set_commands' => sub {
+    my ($orig, $self, $arg) = @_;
+    if ($arg) {
+        # Copy the array, so the reference we store becomes "internal",
+        # preventing accidental modification from the outside.
+        $arg = [@$arg];
+        for my $cmd (@$arg) {
+            $cmd->_set_parent($self);
+        }
+    }
+    $self->$orig($arg);
+};
+
+
+sub commands {
+    return @{$_[0]->_commands // []};
+}
+
+
+sub has_commands {
+    my $self = shift;
+    return ($self->_commands and scalar @{$self->_commands} > 0);
+}
+
+
+sub add_command {
+    my ($self, @commands) = @_;
+    
+    if (!$self->_commands) {
+        $self->_set_commands([]);
+    }
+
+    for my $cmd (@commands) {
+        push @{$self->_commands}, $cmd;
+        $cmd->_set_parent($self);
+    }
+    return $self;
+}
+
+
 sub command_names {
     my $self = shift;
-    return if !$self->has_commands;
-    return sort { $a cmp $b } map { $_->name } @{$self->commands};
+    return sort { $a cmp $b } map { $_->name } $self->commands;
 }
+
 
 sub find_matches {
     my ($self, $partial) = @_;
     return () if !$self->has_commands;
-    my @found = grep { rindex($_->name, $partial, 0) == 0 } @{$self->commands};
+    my @found = grep { rindex($_->name, $partial, 0) == 0 } $self->commands;
     return @found;
 }
+
+
+sub root_node {
+    my $curr_node = shift;
+
+    while (my $parent = $curr_node->parent) {
+        $curr_node = $parent;
+    }
+    return $curr_node;
+}
+
 
 sub find_command {
     my ($self, $partial) = @_;
@@ -83,6 +143,7 @@ sub find_command {
         );
     }
 }
+
 
 sub try_callback {
     my ($self, %args) = @_;
