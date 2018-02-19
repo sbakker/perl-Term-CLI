@@ -41,6 +41,7 @@ use Term::CLI::Argument::Number::Float;
 use Term::CLI::Argument::Number::Int;
 use Term::CLI::Argument::String;
 use Term::CLI::Command;
+use Term::CLI::Command::Help;
 
 use Types::Standard qw(
     ArrayRef
@@ -80,8 +81,10 @@ has skip => (
     isa => RegexpRef,
 );
 
+
 has word_delimiters  => ( is => 'rw', isa => Str, default => sub {" \n\t"} );
 has quote_characters => ( is => 'rw', isa => Str, default => sub {q("')} );
+
 
 sub BUILD {
     my ($self, $args) = @_;
@@ -160,6 +163,11 @@ sub _is_escaped {
 }
 
 
+# CLI->_set_completion_attribs();
+#
+# Set some attributes in the Term::ReadLine object related to
+# custom completion.
+#
 sub _set_completion_attribs {
     my $self = shift;
     my $term = $self->term;
@@ -176,11 +184,18 @@ sub _set_completion_attribs {
 }
 
 
+# CLI->_split_line( $text );
+#
+# Attempt to split $text into words. Use a custom split function if
+# necessary.
+#
 sub _split_line {
     my ($self, $text) = @_;
     return $self->split_function->($self, $text);
 }
 
+
+# See POD X<complete_line>
 sub complete_line {
     my ($self, $text, $line, $start) = @_;
 
@@ -217,7 +232,7 @@ sub complete_line {
     }
 
     # Escape spaces in reply if necessary.
-	if (length $quote_char) {
+    if (length $quote_char) {
         return @list;
     }
     else {
@@ -226,6 +241,12 @@ sub complete_line {
     }
 }
 
+
+# %old_sig = CLI->_set_signal_handlers();
+#
+# Set signal handlers to ensure proper terminal/CLI handling in the
+# face of certain keyboard signals (^C ^\ ^Z).
+#
 sub _set_signal_handlers {
     my $self = shift;
 
@@ -252,6 +273,7 @@ sub _set_signal_handlers {
     return %old_sig;
 }
 
+# See POD X<readline>
 sub readline {
     my ($self, %args) = @_;
 
@@ -278,12 +300,13 @@ sub execute {
     my ($error, @cmd) = $self->_split_line($cmd);
 
     my %args = (
-        status => 0,
+        status       => 0,
+        error        => '',
         command_line => $cmd,
         command_path => [$self],
-        arguments => \@cmd,
-        error => '',
-        options => {}
+        unparsed     => \@cmd,
+        options      => {},
+        arguments    => [],
     );
 
     return $self->try_callback(%args, status => -1, error => $error)
@@ -295,7 +318,7 @@ sub execute {
     }
     elsif (my $cmd_ref = $self->find_command($cmd[0])) {
         %args = $cmd_ref->execute(%args,
-            arguments => [@cmd[1..$#cmd]]
+            unparsed => [@cmd[1..$#cmd]]
         );
     }
     else {
