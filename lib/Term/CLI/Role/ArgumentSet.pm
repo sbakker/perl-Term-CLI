@@ -41,17 +41,13 @@ has _arguments => (
     writer    => '_set_arguments',
     init_arg  => 'arguments',
     isa       => Maybe[ArrayRef[InstanceOf['Term::CLI::Argument']]],
+    coerce    => sub {
+        # Copy the array, so the reference we store becomes
+        # "internal", preventing accidental modification
+        # from the outside.
+        return [@{$_[0]}]
+    },
 );
-
-around '_set_arguments' => sub {
-    my ($orig, $self, $arg) = @_;
-    if ($arg) {
-        # Copy the array, so the reference we store becomes "internal",
-        # preventing accidental modification from the outside.
-        $arg = [@$arg];
-    }
-    $self->$orig($arg);
-};
 
 
 sub arguments {
