@@ -41,6 +41,18 @@ sub new {
 
 sub term { return $Term }
 
+sub term_width {
+    my $self = shift;
+    my ($rows, $cols) = $self->term->get_screen_size();
+    return $cols;
+}
+
+sub term_height {
+    my $self = shift;
+    my ($rows, $cols) = $self->term->get_screen_size();
+    return $rows;
+}
+
 }
 
 1;
@@ -98,7 +110,24 @@ reset this internal reference.
 
 =head1 METHODS
 
-See L<Term::ReadLine>(3p) and L<Term::ReadLine::Gnu>(3p).
+See L<Term::ReadLine>(3p) and L<Term::ReadLine::Gnu>(3p) for the
+inherited methods.
+
+=over
+
+=item B<term_width>
+X<term_width>
+
+Return the width of the terminal in characters, as given by
+L<Term::ReadLine>.
+
+=item B<term_height>
+X<term_height>
+
+Return the height of the terminal in characters, as given by
+L<Term::ReadLine>.
+
+=back
 
 =head1 CLASS METHODS
 
