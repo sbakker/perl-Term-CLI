@@ -44,41 +44,17 @@ use namespace::clean;
 
 extends 'Term::CLI::Element';
 
-with ('Term::CLI::Role::CommandSet');
-
 has options => (
     is => 'rw',
     isa => Maybe[ArrayRef[Str]],
     predicate => 1
 );
 
-has arguments => (
-    is => 'rw',
-    isa => Maybe[ArrayRef[InstanceOf['Term::CLI::Argument']]],
-    predicate => 1
-);
 
-before arguments => sub {
-    my $self = shift;
-    if (@_ && $_[0]) {
-        croak "arguments and commands are mutually exclusive"
-            if $self->has_commands;
-    }
-};
+with ('Term::CLI::Role::CommandSet');
+with ('Term::CLI::Role::ArgumentSet');
+with ('Term::CLI::Role::HelpText');
 
-before 'commands' => sub {
-    my $self = shift;
-    if (@_ && $_[0]) {
-        croak "arguments and commands are mutually exclusive"
-            if $self->has_arguments;
-    }
-};
-
-sub BUILD {
-    my ($self, $args) = @_;
-    croak "arguments and commands are mutually exclusive"
-        if $self->has_arguments and $self->has_commands;
-}
 
 sub option_names {
     my $self = shift;
@@ -92,11 +68,6 @@ sub option_names {
     return @names;
 }
 
-sub argument_names {
-    my $self = shift;
-    return if !$self->has_arguments;
-    return map { $_->name } @{$self->arguments};
-}
 
 sub complete_line {
     my ($self, @words) = @_;
@@ -121,16 +92,8 @@ sub complete_line {
         }
     }
 
-    if ($self->has_commands) {
-        if (@words <= 1) {
-            return grep { rindex($_, $partial, 0) == 0 } $self->command_names;
-        }
-        elsif (my $cmd = $self->find_command($words[0])) {
-            return $cmd->complete_line(@words[1..$#words]);
-        }
-    }
-    elsif ($self->has_arguments) {
-        my @args = @{$self->arguments};
+    if ($self->has_arguments) {
+        my @args = $self->arguments;
         my $n = 0;
         while (@words > 1) {
             last if @args == 0;
@@ -142,8 +105,20 @@ sub complete_line {
             }
         }
 
-        return @args ? $args[0]->complete($words[0]) : ();
+        if (@args) {
+            return $args[0]->complete($words[0]);
+        }
     }
+
+    if ($self->has_commands) {
+        if (@words <= 1) {
+            return grep { rindex($_, $partial, 0) == 0 } $self->command_names;
+        }
+        elsif (my $cmd = $self->find_command($words[0])) {
+            return $cmd->complete_line(@words[1..$#words]);
+        }
+    }
+
     return ();
 }
 
@@ -151,8 +126,15 @@ sub complete_line {
 sub execute {
     my ($self, %args) = @_;
 
-    my $options = $args{options};
-    my @command_path = (@{$args{command_path}}, $self);
+    $args{status} //= 0;
+    $args{error}  //= '';
+
+    # Dereference and copy arguments/unparsed/options to prevent
+    # unwanted side-effects.
+    $args{arguments}    = [@{$args{arguments}}];
+    $args{unparsed}     = [@{$args{unparsed}}];
+    $args{options}      = {%{$args{options}}};
+    $args{command_path} = [@{$args{command_path}}];
 
     push @{$args{command_path}}, $self;
 
@@ -164,23 +146,70 @@ sub execute {
         my $error = '';
         my $ok = do {
             local( $SIG{__WARN__} ) = sub { chomp($error = join('', @_)) };
-            GetOptionsFromArray($args{arguments}, $args{options}, @$opt_specs);
+            GetOptionsFromArray($args{unparsed}, $args{options}, @$opt_specs);
         };
 
         if (!$ok) {
-            return $self->try_callback(
-                %args,
-                status => -1,
-                error => $error,
-            );
+            $args{status} = -1;
+            $args{error} = $error;
         }
     }
 
-    if ($self->has_commands) {
-        return $self->try_callback( $self->_execute_command(%args) );
+    if ($args{status} >= 0 and $self->has_arguments) {
+        %args = $self->_check_arguments(%args);
+    }
+    if ($args{status} >= 0 and $self->has_commands) {
+        %args = $self->_execute_command(%args);
+    }
+    return $self->try_callback( %args );
+}
+
+
+sub _need_arg_text {
+    my ($self, $arg_spec) = @_;
+
+    if ($arg_spec->min_occur <= 0) {
+        if ($arg_spec->max_occur > 0) {
+            return sprintf("at most %d '%s' argument%s allowed",
+                $arg_spec->max_occur,
+                $arg_spec->name,
+                $arg_spec->max_occur == 1 ? '' : 's',
+            );
+        }
+        else {
+            return sprintf("'%s' argument is optional", $arg_spec->name);
+        }
+    }
+    elsif ($arg_spec->max_occur == $arg_spec->min_occur) {
+        if ($arg_spec->min_occur == 1) {
+            return sprintf("missing '%s' argument", $arg_spec->name);
+        }
+        else {
+            return sprintf("need %d '%s' arguments",
+                $arg_spec->min_occur, $arg_spec->name,
+            );
+        }
+    }
+    elsif ($arg_spec->max_occur - $arg_spec->min_occur == 1) {
+        return sprintf("need %d or %d '%s' arguments",
+            $arg_spec->min_occur,
+            $arg_spec->max_occur,
+            $arg_spec->name,
+        );
+    }
+    elsif ($arg_spec->max_occur > 1) {
+        return sprintf("need between %d and %d '%s' arguments",
+            $arg_spec->min_occur,
+            $arg_spec->max_occur,
+            $arg_spec->name,
+        );
     }
     else {
-        return $self->try_callback( $self->_check_arguments(%args) );
+        return sprintf("need at least %d '%s' argument%s",
+            $arg_spec->min_occur,
+            $arg_spec->name,
+            $arg_spec->min_occur == 1 ? '' : 's'
+        );
     }
 }
 
@@ -188,91 +217,99 @@ sub execute {
 sub _check_arguments {
     my ($self, %args) = @_;
 
-    my @arguments = @{$args{arguments}};
+    my $unparsed = $args{unparsed};
 
-    my @arg_spec = $self->has_arguments ? @{$self->arguments} : ();
+    my @arg_spec = $self->arguments;
 
-    if (@arg_spec == 0 && @arguments > 0) {
-        return (%args, status => -1, error => 'no arguments allowed');
+    if (@arg_spec == 0 and @$unparsed > 0) {
+        if (!$self->has_commands) {
+            $args{status} = -1;
+            $args{error} = 'no arguments allowed';
+        }
+        return %args;
     }
 
     my $argno = 0;
     my @parsed_args;
     for my $arg_spec (@arg_spec) {
-        if (@arguments < $arg_spec->min_occur) {
-            my $error = "arg#".($argno+1).": need ";
-            if ($arg_spec->max_occur == $arg_spec->min_occur) {
-                $error .= $arg_spec->min_occur . ' '
-                        . $arg_spec->name . ' argument';
-                $error .= 's' if $arg_spec->max_occur > 1;
-            }
-            elsif ($arg_spec->max_occur > 1) {
-                $error .= 'between ' . $arg_spec->min_occur
-                        . ' and ' . $arg_spec->max_occur
-                        . ' ' . $arg_spec->name . ' arguments';
-            }
-            else {
-                $error .= 'at least ' . $arg_spec->min_occur
-                        . ' ' . $arg_spec->name . ' argument';
-                $error .= 's' if $arg_spec->min_occur > 1;
-            }
-            return (%args, status => -1, error => $error);
+        if (@$unparsed < $arg_spec->min_occur) {
+            return (%args,
+                status => -1,
+                error => $self->_need_arg_text($arg_spec)
+            );
         }
 
         my $args_to_check
             = $arg_spec->max_occur > 0
-                ? min($arg_spec->max_occur, scalar @arguments)
-                : scalar @arguments;
+                ? min($arg_spec->max_occur, scalar @$unparsed)
+                : scalar @$unparsed;
 
-        my @args_to_check = splice @arguments, 0, $args_to_check;
-        for my $arg (@args_to_check) {
+        for my $i (1..$args_to_check) {
+            my $arg = $unparsed->[0];
             $argno++;
             my $arg_value = $arg_spec->validate($arg);
             if (!defined $arg_value) {
-                return (%args, status => -1,
+                return (%args,
+                    status => -1,
                     error => "arg#$argno, '$arg': " . $arg_spec->error
-                             . " for " . $arg_spec->name
+                           . " for '" . $arg_spec->name . "'"
                 );
             }
-            push @parsed_args, $arg_value;
+            push @{$args{arguments}}, $arg_value;
+            shift @$unparsed;
         }
     }
 
     # At this point, we have processed all our arg_spec.  The only way there
     # are any elements left in @arguments is for the last arg_spec to have
-    # a limited number of allowed values.
-    if (@arguments) {
+    # a max_occur that is exceeded. If the command has no sub-commands that
+    # is surely an error. If it does have sub-commands, we'll leave it to
+    # be parsed further.
+    if (@$unparsed > 0 and !$self->has_commands) {
         my $last_spec = $arg_spec[$#arg_spec];
         return (%args, status => -1,
-            error => "arg#$argno, ".$last_spec->name.": too many arguments"
+            error => sprintf("too many '%s' arguments (max. %d)",
+                $last_spec->name,
+                $last_spec->max_occur,
+            ),
         );
     }
-    return (%args, status => 0, error => '', arguments => \@parsed_args);
+    return %args;
 }
 
 
 sub _execute_command {
     my ($self, %args) = @_;
 
-    my @arguments = @{$args{arguments}};
+    my $unparsed = $args{unparsed};
 
-    if (! @arguments) {
+    if (@$unparsed == 0) {
+        if (scalar $self->commands == 1) {
+            my ($cmd) = $self->commands;
+            return (%args, status => -1,
+                error => "incomplete command: missing '".$cmd->name."'"
+            );
+        }
         return (%args, status => -1, error => "missing sub-command");
     }
 
-    my $cmd_name = shift @arguments;
+    my $cmd_name = $unparsed->[0];
 
     my $cmd = $self->find_command($cmd_name);
 
     if (!$cmd) {
+        if (scalar $self->commands == 1) {
+            ($cmd) = $self->commands;
+            return (%args, status => -1,
+                error => "expected '".$cmd->name
+                        ."' instead of '$cmd_name'"
+            );
+        }
         return (%args, status => -1, error => "unknown sub-command '$cmd_name'");
     }
 
-    return $cmd->execute(
-        command_path => $args{command_path},
-        arguments => \@arguments,
-        options => $args{options},
-    );
+    shift @$unparsed;
+    return $cmd->execute(%args);
 }
 
 
@@ -335,7 +372,7 @@ Reference to an array containing L<Term::CLI::Argument>(3p) object
 instances that describe the parameters that the command takes,
 or C<undef>.
 
-Mutually exclusive with B<commands>.
+See also L<Term::CLI::Role::ArgumentSet|Term::CLI::Role::ArgumentSet/ATTRIBUTES>.
 
 =item B<callback> =E<gt> I<CodeRef>
 
@@ -348,12 +385,33 @@ Reference to an array containing C<Term::CLI::Command> object
 instances that describe the sub-commands that the command takes,
 or C<undef>.
 
-Mutually exclusive with B<arguments>.
+See also L<Term::CLI::Role::ArgumentSet|Term::CLI::Role::ArgumentSet/ATTRIBUTES>.
 
 =item B<options> =E<gt> I<ArrayRef>
 
 Reference to an array containing command options in
 L<Getopt::Long>(3p) style, or C<undef>.
+
+=item B<description> =E<gt> I<Str>
+
+Extended description of the command.
+
+See also L<Term::CLI::Role::HelpText|Term::CLI::Role::HelpText/ATTRIBUTES>.
+
+=item B<summary> =E<gt> I<Str>
+
+Short description of the command.
+
+See also L<Term::CLI::Role::HelpText|Term::CLI::Role::HelpText/ATTRIBUTES>.
+
+=item B<usage> =E<gt> I<Str>
+
+Static usage summary of the command.
+
+See also L<Term::CLI::Role::HelpText|Term::CLI::Role::HelpText/ATTRIBUTES>.
+
+(B<NOTE:> You will rarely have to specify this, as it can be determined
+automatically.)
 
 =back
 
@@ -362,11 +420,22 @@ L<Getopt::Long>(3p) style, or C<undef>.
 =head1 INHERITED METHODS
 
 This class inherits all the attributes and accessors of
-L<Term::CLI::Element>(3p) and L<Term::CLI::Role::CommandSet>(3p), most notably:
+L<Term::CLI::Element>(3p),
+L<Term::CLI::Role::CommandSet>(3p),
+L<Term::CLI::Role::HelpText>(3p),
+and
+L<Term::CLI::Role::ArgumentSet>(3p),
+most notably:
 
 =head2 Accessors
 
 =over
+
+=item B<has_arguments>
+X<has_arguments>
+
+See
+L<has_arguments in Term::CLI::Role::ArgumentSet|Term::CLI::Role::ArgumentSet/has_arguments>.
 
 =item B<has_callback>
 X<has_callback>
@@ -380,13 +449,21 @@ X<has_commands>
 See
 L<has_commands in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/has_commands>.
 
-=item B<commands> ( [ I<ArrayRef> ] )
+=item B<arguments>
+X<arguments>
+
+See
+L<arguments in Term::CLI::Role::ArgumentSet|Term::CLI::Role::ArgumentSet/arguments>.
+
+Returns a list of C<Term::CLI::Argument> object instances.
+
+=item B<commands>
 X<commands>
 
 See
 L<commands in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/commands>.
 
-I<ArrayRef> with C<Term::CLI::Command> object instances.
+Returns a list of C<Term::CLI::Command> object instances.
 
 =item B<callback> ( [ I<CodeRef> ] )
 X<callback>
@@ -394,11 +471,34 @@ X<callback>
 See
 L<callback in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/callback>.
 
+=item B<description> ( [ I<Str> ] )
+X<description>
+
+See
+L<description in Term::CLI::Role::HelpText|Term::CLI::Role::HelpText/description>.
+
+=item B<summary> ( [ I<Str> ] )
+X<summary>
+
+See
+L<summary in Term::CLI::Role::HelpText|Term::CLI::Role::HelpText/summary>.
+
+=item B<usage> ( [ I<Str> ] )
+X<usage>
+
+See
+L<description in Term::CLI::Role::HelpText|Term::CLI::Role::HelpText/description>.
+
 =back
 
 =head2 Others
 
 =over
+
+=item B<argument_names>
+X<argument_names>
+
+Return the list of argument names, in the original order.
 
 =item B<command_names>
 X<command_names>
@@ -420,9 +520,6 @@ return C<undef>.
 
 =over
 
-=item B<has_arguments>
-X<has_arguments>
-
 =item B<has_options>
 X<has_options>
 
@@ -434,19 +531,16 @@ X<options>
 
 I<ArrayRef> with command-line options in L<Getopt::Long>(3p) format.
 
-=item B<arguments> ( [ I<ArrayRef> ] )
-X<arguments>
-
-I<ArrayRef> with L<Term::CLI::Argument>(3p) object instances.
-
 =back
 
 =head2 Others
 
 =over
 
-=item B<complete_line> ( I<WORD>, ... )
+=item B<complete_line> ( I<CLI>, I<WORD>, ... )
 X<complete_line>
+
+I<CLI> is a reference to the top-level L<Term::CLI> instance.
 
 The I<WORD> arguments make up the parameters to this command.
 Given those, this method attempts to generate possible completions
@@ -455,11 +549,6 @@ for the last I<WORD> in the list.
 The method can complete options, sub-commands, and arguments.
 Completions of commands and arguments is delegated to the appropriate
 L<Term::CLI::Command> and L<Term::CLI::Argument> instances, resp.
-
-=item B<argument_names>
-X<argument_names>
-
-Return the list of argument names, in the original order.
 
 =item B<option_names>
 X<option_names>
@@ -499,7 +588,9 @@ function.
 
 L<Term::CLI::Argument>(3p),
 L<Term::CLI::Element>(3p),
+L<Term::CLI::Role::ArgumentSet>(3p),
 L<Term::CLI::Role::CommandSet>(3p),
+L<Term::CLI::Role::HelpText>(3p),
 L<Term::CLI>(3p),
 L<Getopt::Long>(3p).
 
