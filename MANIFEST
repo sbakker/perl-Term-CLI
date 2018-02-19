@@ -1,9 +1,6 @@
 Copying
-Makefile.PL
-MANIFEST
-IDEA
-demo/readline_demo.pl
-demo/term_cli_demo.pl
+examples/readline_demo.pl
+examples/term_cli_demo.pl
 lib/Term/CLI.pm
 lib/Term/CLI/Argument.pm
 lib/Term/CLI/Argument/Enum.pm
@@ -13,11 +10,17 @@ lib/Term/CLI/Argument/Number/Float.pm
 lib/Term/CLI/Argument/Number/Int.pm
 lib/Term/CLI/Argument/String.pm
 lib/Term/CLI/Command.pm
+lib/Term/CLI/Command/Help.pm
 lib/Term/CLI/Element.pm
 lib/Term/CLI/ReadLine.pm
+lib/Term/CLI/Role/ArgumentSet.pm
 lib/Term/CLI/Role/Base.pm
 lib/Term/CLI/Role/CommandSet.pm
 lib/Term/CLI/Tutorial.pod
+lib/Term/CLI/Version.pm
+Makefile.PL
+MANIFEST
+MANIFEST.SKIP
 t/00-compile.t
 t/01-pod-coverage.t
 t/02-pod.t
@@ -30,6 +33,7 @@ t/14-Term-CLI-Argument-Number-Int.t
 t/15-Term-CLI-Argument-Number-Float.t
 t/16-Term-CLI-Command.t
 t/17-Term-CLI.t
+TODO
 tutorial/example_01.pl
 tutorial/example_02.pl
 tutorial/example_03.pl
@@ -42,6 +46,8 @@ tutorial/example_09.pl
 tutorial/example_10.pl
 tutorial/example_11.pl
 tutorial/example_12.pl
+tutorial/example_13.pl
+tutorial/example_14.pl
 tutorial/readline_cli.pl
 tutorial/simple_cli.pl
 tutorial/term_cli.pl
