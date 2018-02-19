@@ -213,6 +213,9 @@ Reference to an array containing C<Term::CLI::Command> object
 instances that describe the sub-commands that the command takes,
 or C<undef>.
 
+Note that the elements of the array are copied over to an internal
+array, so modifications to the I<ArrayRef> will not be seen.
+
 =item B<callback> =E<gt> I<CodeRef>
 
 Reference to a subroutine that should be called when the command
@@ -230,8 +233,8 @@ X<has_callback>
 =item B<has_commands>
 X<has_commands>
 
-Predicate functions that return whether or not the associated
-attribute has been set.
+Predicate functions that return whether or not any (sub-)commands
+have been added to this object.
 
 =item B<callback> ( [ I<CODEREF> ] )
 X<callback>
@@ -300,6 +303,12 @@ its corresponding L<Term::CLI::Argument>'s
 L<validate|Term::CLI::Argument/validate> method (e.g. C<3e-1> may have
 been converted to C<0.3>).
 
+=item C<unparsed>
+
+Reference to an array containing all the words on the command line that
+have not been parsed as arguments or sub-commands yet. In case of parse
+errors, this often contains elements, and otherwise should be empty.
+
 =item C<command_line>
 
 The complete command line as given to the
@@ -329,17 +338,23 @@ be considered read-only.
 Note that a callback can be called even in the case of errors, so you
 should always check the C<status> before doing anything.
 
-=item B<commands> ( [ I<ArrayRef> ] )
+=item B<commands>
 X<commands>
 
-Get or set the I<ArrayRef> with C<Term::CLI::Command>
-object instances.
+Return the list of subordinate C<Term::CLI::Command> objects
+(i.e. "sub-commands").
 
 =back
 
 =head1 METHODS
 
 =over
+
+=item B<add_command> ( I<CMD_REF>, ... )
+X<add_command>
+
+Add the given I<CMD_REF> command(s) to the list of (sub-)commands, setting
+each I<CMD_REF>'s L<parent|/parent> in the process.
 
 =item B<command_names>
 X<command_names>
@@ -364,6 +379,13 @@ Example:
 
     my $sub_cmd = $cmd->find_command($prefix);
     die $cmd->error unless $sub_cmd;
+
+=item B<root_node> 
+X<root_node>
+
+Walks L<parent|/parent> chain until it can go no further. Returns a
+reference to the object at the top. In a functional setup, this
+is expected to be a L<Term::CLI>(3p) object.
 
 =item B<try_callback> ( I<ARGS> )
 X<try_callback>
