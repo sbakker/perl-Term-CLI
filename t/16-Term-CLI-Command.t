@@ -80,19 +80,17 @@ sub check_constructor: Test(2) {
         qr/Missing required arguments: name/,
         'error on missing name';
 
-    throws_ok
-        { Term::CLI::Command->new(
-            name => $CMD_NAME,
-            options => ['long|l', 'level|L', 'verbose|v+'],
-            commands => [ Term::CLI::Command->new(name => 'parameter') ],
-            arguments => [
-                Term::CLI::Argument::Enum->new(name => 'param',
-                    value_list => [qw( timeout maxlen prompt )]
-                ),
-            ]
-        ) }
-        qr/arguments and commands are mutually exclusive/,
-        'command cannot take both commands and arguments';
+    my $obj = Term::CLI::Command->new(
+        name => $CMD_NAME,
+        options => ['long|l', 'level|L', 'verbose|v+'],
+        commands => [ Term::CLI::Command->new(name => 'parameter') ],
+        arguments => [
+            Term::CLI::Argument::Enum->new(name => 'param',
+                value_list => [qw( timeout maxlen prompt )]
+            ),
+        ]
+    );
+    ok($obj, 'command takes both commands and arguments');
 }
 
 

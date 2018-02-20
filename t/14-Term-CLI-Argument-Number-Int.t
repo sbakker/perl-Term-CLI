@@ -57,7 +57,7 @@ sub check_attributes: Test(2) {
     is( $arg->type, 'Number::Int', "type attribute is Number::Int" );
 }
 
-sub check_validate: Test(17) {
+sub check_validate: Test(29) {
     my $self = shift;
     my $arg = $self->{arg};
 
@@ -79,8 +79,87 @@ sub check_validate: Test(17) {
     is( $arg->error, 'not a valid number',
         'error message on validate -> "not a valid number"' );
 
-    my $min = -10;
-    my $max = 10;
+    my ($min, $max);
+
+  # --- with min only
+    $min = 1;
+    $max = undef;
+    $arg->min($min);
+    $arg->clear_max;
+    $arg->inclusive(1);
+
+    $test_value = '4';
+    $value = $arg->validate($test_value);
+    ok( defined $value,
+        "'$test_value' passes $min <= $test_value" )
+    or diag("validation error: ".$arg->error);
+ 
+    $test_value = '0';
+    $value = $arg->validate($test_value);
+    ok( !defined $value,
+        "'$test_value' does not pass $min <= $test_value" );
+    is( $arg->error, 'too small', 'error is set correctly on too small number' );
+
+  # --- with max only
+    $min = undef;
+    $max = 10;
+    $arg->max($max);
+    $arg->clear_min;
+    $arg->inclusive(1);
+
+    $test_value = '4';
+    $value = $arg->validate($test_value);
+    ok( defined $value,
+        "'$test_value' passes $test_value <= $max" )
+    or diag("validation error: ".$arg->error);
+ 
+    $test_value = '11';
+    $value = $arg->validate($test_value);
+    ok( !defined $value,
+        "'$test_value' does not pass $test_value <= $max" );
+    is( $arg->error, 'too large', 'error is set correctly on too large number' );
+
+  # --- exclusive, with min only
+    $min = 1;
+    $max = undef;
+    $arg->min($min);
+    $arg->clear_max;
+    $arg->inclusive(0);
+
+    $test_value = '4';
+    $value = $arg->validate($test_value);
+    ok( defined $value,
+        "'$test_value' passes $min <= $test_value" )
+    or diag("validation error: ".$arg->error);
+ 
+    $test_value = '0';
+    $value = $arg->validate($test_value);
+    ok( !defined $value,
+        "'$test_value' does not pass $min <= $test_value" );
+    is( $arg->error, 'too small', 'error is set correctly on too small number' );
+
+  # --- exclusive, with max only
+    $min = undef;
+    $max = 10;
+    $arg->max($max);
+    $arg->clear_min;
+    $arg->inclusive(0);
+
+    $test_value = '4';
+    $value = $arg->validate($test_value);
+    ok( defined $value,
+        "'$test_value' passes $test_value <= $max" )
+    or diag("validation error: ".$arg->error);
+ 
+    $test_value = '11';
+    $value = $arg->validate($test_value);
+    ok( !defined $value,
+        "'$test_value' does not pass $test_value <= $max" );
+    is( $arg->error, 'too large', 'error is set correctly on too large number' );
+
+  # --- inclusive with min *and* max
+    $min = -10;
+    $max = 10;
     $test_value = '4';
     $arg->min($min);
     $arg->max($max);
@@ -103,6 +182,19 @@ sub check_validate: Test(17) {
         "'$test_value' passes $min <= $test_value <= $max" )
     or diag("validation error: ".$arg->error);
 
+    $test_value = $min-1;
+    $value = $arg->validate($test_value);
+    ok( !defined $value,
+        "'$test_value' does not pass $min <= $test_value <= $max" );
+    is( $arg->error, 'too small', 'error is set correctly on too small number' );
+
+    $test_value = $max+1;
+    $value = $arg->validate($test_value);
+    ok( !defined $value,
+        "'$test_value' does not pass $min <= $test_value <= $max" );
+    is( $arg->error, 'too large', 'error is set correctly on too large number' );
+
+  # --- exclusive with min *and* max
     $arg->inclusive(0);
 
     $test_value = $min;
@@ -118,18 +210,6 @@ sub check_validate: Test(17) {
     is( $arg->error, 'too large', 'error is set correctly on too large number' );
 
     $arg->inclusive(1);
-
-    $test_value = $min-1;
-    $value = $arg->validate($test_value);
-    ok( !defined $value,
-        "'$test_value' does not pass $min <= $test_value <= $max" );
-    is( $arg->error, 'too small', 'error is set correctly on too small number' );
-
-    $test_value = $max+1;
-    $value = $arg->validate($test_value);
-    ok( !defined $value,
-        "'$test_value' does not pass $min <= $test_value <= $max" );
-    is( $arg->error, 'too large', 'error is set correctly on too large number' );
 }
 
 }

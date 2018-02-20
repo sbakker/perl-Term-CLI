@@ -59,14 +59,17 @@ sub check_complete: Test(3) {
     my $self = shift;
     my $arg = $self->{arg};
 
-    is_deeply( [$arg->complete('')], \@ENUM_VALUES,
+    my @expected = sort @ENUM_VALUES;
+    is_deeply( [$arg->complete('')], \@expected,
         "complete returns (@ENUM_VALUES) for ''");
 
-    is_deeply( [$arg->complete('t')], [qw(two three)],
-        "complete returns (two three) for 't'");
+    @expected = sort qw( two three );
+    is_deeply( [$arg->complete('t')], \@expected,
+        "complete returns (@expected) for 't'");
 
-    is_deeply( [$arg->complete('X')], [],
-        "complete returns () for 'X'");
+    @expected = ();
+    is_deeply( [$arg->complete('X')], \@expected,
+        "complete returns (@expected) for 'X'");
 }
 
 sub check_validate: Test(10) {

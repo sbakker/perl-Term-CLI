@@ -72,7 +72,28 @@ sub startup : Test(startup => 2) {
     );
 
     push @commands, Term::CLI::Command->new(
-        name => 'test_1',
+        name => 'test_2_test_1',
+        arguments => [
+            Term::CLI::Argument::String->new(name => 'arg1',
+                min_occur => 2,
+                max_occur => 2
+            ),
+        ],
+        commands => [
+            Term::CLI::Command->new(
+                name => 'test_1', 
+                arguments => [
+                    Term::CLI::Argument::Enum->new(name => 'arg2',
+                        max_occur => 0,
+                        value_list => [qw( one two three )]
+                    ),
+                ],
+            ),
+        ],
+    );
+
+    push @commands, Term::CLI::Command->new(
+        name => 'test_0_1',
         arguments => [
             Term::CLI::Argument::String->new(name => 'arg',
                 min_occur => 0, max_occur => 1),
@@ -80,7 +101,7 @@ sub startup : Test(startup => 2) {
     );
 
     push @commands, Term::CLI::Command->new(
-        name => 'test_2',
+        name => 'test_1_2',
         arguments => [
             Term::CLI::Argument::String->new(name => 'arg',
                 min_occur => 1, max_occur => 2),
@@ -88,7 +109,7 @@ sub startup : Test(startup => 2) {
     );
 
     push @commands, Term::CLI::Command->new(
-        name => 'test_3',
+        name => 'test_2_2',
         arguments => [
             Term::CLI::Argument::String->new(name => 'arg',
                 min_occur => 2, max_occur => 2),
@@ -96,7 +117,7 @@ sub startup : Test(startup => 2) {
     );
 
     push @commands, Term::CLI::Command->new(
-        name => 'test_4',
+        name => 'test_1_0',
         arguments => [
             Term::CLI::Argument::String->new(name => 'arg',
                 min_occur => 1, max_occur => 0),
@@ -104,7 +125,7 @@ sub startup : Test(startup => 2) {
     );
 
     push @commands, Term::CLI::Command->new(
-        name => 'test_5',
+        name => 'test_2_0',
         arguments => [
             Term::CLI::Argument::String->new(name => 'arg',
                 min_occur => 2, max_occur => 0),
@@ -178,8 +199,39 @@ sub startup : Test(startup => 2) {
     );
     isa_ok( $cli, 'Term::CLI', 'Term::CLI->new' );
 
+    # Try out the "add_" methods.
+    my $test_2_4 = Term::CLI::Command->new(
+        name => 'test_2_4',
+    );
+    $test_2_4->add_argument(
+        Term::CLI::Argument::String->new(name => 'arg',
+                min_occur => 2, max_occur => 4),
+    );
+    push @commands, $test_2_4;
+    $cli->add_command($test_2_4);
+
     $self->{cli} = $cli;
     $self->{commands} = [@commands];
+}
+
+
+sub check_root_node: Test(6) {
+    my $self = shift;
+    my $cli = $self->{cli};
+    my $cmd = $self->{commands}->[0];
+
+    is($cmd->parent, $cli, "command parent node is CLI object");
+    is($cmd->root_node, $cli, "command root_node is CLI object");
+
+    my $test_2_test_1 = $cli->find_command('test_2_test_1');
+    ok($test_2_test_1, 'found the test_2_test_1 command');
+    my $test_1 = $test_2_test_1->find_command('test_1');
+    ok($test_2_test_1, 'found the test_2_test_1 test_1 sub-command');
+
+    is($test_1->parent, $test_2_test_1, "sub-command parent node is command object")
+        or diag("actual parent is ".$test_1->parent->name);
+    is($test_1->root_node, $cli, "sub-command root_node is CLI object")
+        or diag("actual root_node is ".$test_1->root_node->name);
 }
 
 
@@ -256,7 +308,7 @@ sub check__is_escaped: Test(6) {
 }
 
 
-sub check_complete_line: Test(7) {
+sub check_complete_line: Test(12) {
     my $self = shift;
     my $cli = $self->{cli};
 
@@ -271,6 +323,15 @@ sub check_complete_line: Test(7) {
     is_deeply(\@got, \@expected,
             "commands are (@expected)")
     or diag("complete_line('','',0) returned: (", join(", ", map {"'$_'"} @got), ")");
+
+    $line = 'X ';
+    $text = 'X';
+    $start = length($line);
+    @got = $cli->complete_line($text, $line.$text, $start);
+    @expected = qw( );
+    is_deeply(\@got, \@expected,
+            "completetions are (@expected)")
+    or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 
     $line = 'show ';
     $text = '';
@@ -308,11 +369,39 @@ sub check_complete_line: Test(7) {
             "completions are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 
-    $line = 'file --verbose cp ';
-    $text = '-i';
+    $line = 'make l ';
+    $text = 'n';
     $start = length($line);
     @got = $cli->complete_line($text, $line.$text, $start);
-    @expected = qw( -i );
+    @expected = ( 'never', 'now' );
+    is_deeply(\@got, \@expected,
+            "completions are (@expected)")
+    or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
+
+
+    $line = 'test_2_test_1 aap noot ';
+    $text = '';
+    $start = length($line);
+    @got = $cli->complete_line($text, $line.$text, $start);
+    @expected = qw( test_1 );
+    is_deeply(\@got, \@expected,
+            "completions are (@expected)")
+    or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
+
+    $line = 'test_2_test_1 aap noot test_1 ';
+    $text = 'o';
+    $start = length($line);
+    @got = $cli->complete_line($text, $line.$text, $start);
+    @expected = qw( one );
+    is_deeply(\@got, \@expected,
+            "completions are (@expected)")
+    or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
+
+    $line = 'test_2_test_1 aap noot test_1 one ';
+    $text = 't';
+    $start = length($line);
+    @got = $cli->complete_line($text, $line.$text, $start);
+    @expected = qw( three two );
     is_deeply(\@got, \@expected,
             "completions are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
@@ -327,13 +416,20 @@ sub check_complete_line: Test(7) {
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 }
 
-sub check_execute: Test(38) {
+sub check_execute: Test(47) {
     my $self = shift;
     my $cli = $self->{cli};
 
     my $line;
     my %result;
 
+  # ------
+    $line = '';
+    %result = $cli->execute($line);
+    is($result{status}, -1, 'failed command execution: missing command');
+    like($result{error}, qr/missing command/, 'error message missing command');
+
+  # ------
     $line = 'file --verbose cp aap noot';
     %result = $cli->execute($line);
     is($result{status}, 0, 'successful command execution');
@@ -347,27 +443,14 @@ sub check_execute: Test(38) {
     is($result{status}, -1, 'failed command execution: bad option');
     like($result{error}, qr/Unknown option: wtf/, 'error message bad option');
 
-    $line = 'make money';
-    %result = $cli->execute($line);
-    is($result{status}, -1, 'failed command execution: not enough arguments');
-    like($result{error}, qr/: need 1 .* argument/, 'error message too few args');
-
-    $line = 'make money veryfast';
-    %result = $cli->execute($line);
-    is($result{status}, -1, 'failed command execution: bad argument value');
-
     $line = 'file --verbose cp aap noot mies';
     %result = $cli->execute($line);
     is($result{status}, -1, 'failed command execution: too many arguments');
-    like($result{error}, qr/: too many arguments/, 'error message too many args');
+    like($result{error}, qr/too many .* arguments/, 'error message too many args');
 
     $line = 'file --verbose cp aap "noot';
     %result = $cli->execute($line);
     is($result{status}, -1, 'failed command execution: unbalanced quote');
-
-    $line = 'xfile --verbose cp aap noot';
-    %result = $cli->execute($line);
-    is($result{status}, -1, 'failed command execution: unknown command');
 
     $line = 'file --verbose cpr aap noot';
     %result = $cli->execute($line);
@@ -377,79 +460,125 @@ sub check_execute: Test(38) {
     %result = $cli->execute($line);
     is($result{status}, -1, 'failed command execution: missing sub-command');
 
-    $line = 'test_1';
+  # ------
+    $line = 'xfile --verbose cp aap noot';
+    %result = $cli->execute($line);
+    is($result{status}, -1, 'failed command execution: unknown command');
+  #
+  # ------
+    $line = 'make money';
+    %result = $cli->execute($line);
+    is($result{status}, -1, 'failed command execution: not enough arguments');
+    like($result{error}, qr/missing .* argument/, 'error message too few args');
+
+    $line = 'make money veryfast';
+    %result = $cli->execute($line);
+    is($result{status}, -1, 'failed command execution: bad argument value');
+
+  # ------
+    $line = 'test_0_1';
     %result = $cli->execute($line);
     is($result{status}, 0, 'successful execution with 0 args');
 
-    $line = 'test_1 foo';
+    $line = 'test_0_1 foo';
     %result = $cli->execute($line);
     is($result{status}, 0, 'successful execution with 1 arg');
 
-    $line = 'test_1 foo bar';
+    $line = 'test_0_1 foo bar';
     %result = $cli->execute($line);
     is($result{status}, -1, 'failed command execution: too many args');
-    like($result{error}, qr/: too many arguments/, 'error message too many args');
+    like($result{error}, qr/too many .* arguments/, 'error message too many args');
 
-    $line = 'test_2';
+  # ------
+    $line = 'test_1_0';
     %result = $cli->execute($line);
     is($result{status}, -1, 'failed command execution: too few args');
-    like($result{error}, qr/: need between \d+ and \d+ .* arguments/,
+    like($result{error}, qr/need at least 1 .* argument/,
         'error message too few args');
 
-    $line = 'test_2 foo';
-    %result = $cli->execute($line);
-    is($result{status}, 0, 'successful execution with 1 arg');
-
-    $line = 'test_2 foo bar';
+    $line = 'test_1_0 foo bar';
     %result = $cli->execute($line);
     is($result{status}, 0, 'successful execution with 2 args');
 
-    $line = 'test_2 foo bar baz';
+    $line = 'test_1_0 foo bar baz';
     %result = $cli->execute($line);
-    like($result{error}, qr/: too many arguments/, 'error message too many args');
+    is($result{status}, 0, 'successful execution with 3 args');
+
+  # ------
+    $line = 'test_1_2';
+    %result = $cli->execute($line);
+    is($result{status}, -1, 'failed command execution: too few args');
+    like($result{error}, qr/need \d+ or \d+ .* arguments/,
+        'error message too few args');
+
+    $line = 'test_1_2 foo';
+    %result = $cli->execute($line);
+    is($result{status}, 0, 'successful execution with 1 arg');
+
+    $line = 'test_1_2 foo bar';
+    %result = $cli->execute($line);
+    is($result{status}, 0, 'successful execution with 2 args');
+
+    $line = 'test_1_2 foo bar baz';
+    %result = $cli->execute($line);
+    like($result{error}, qr/too many .* arguments/, 'error message too many args');
  
-    $line = 'test_3 foo';
+  # ------
+    $line = 'test_2_0 foo';
     %result = $cli->execute($line);
     is($result{status}, -1, 'failed command execution: too few args');
-    like($result{error}, qr/: need 2 .* arguments/, 'error message too few args');
+    like($result{error}, qr/need at least 2 .* arguments/,
+        'error message too few args');
 
-    $line = 'test_3 foo bar';
+    $line = 'test_2_0 foo bar';
     %result = $cli->execute($line);
     is($result{status}, 0, 'successful execution with 2 args');
 
-    $line = 'test_3 foo bar baz';
+    $line = 'test_2_0 foo bar baz';
+    %result = $cli->execute($line);
+    is($result{status}, 0, 'successful execution with 3 args');
+
+  # ------
+    $line = 'test_2_2 foo';
+    %result = $cli->execute($line);
+    is($result{status}, -1, 'failed command execution: too few args');
+    like($result{error}, qr/need 2 .* arguments/, 'error message too few args');
+
+    $line = 'test_2_2 foo bar';
+    %result = $cli->execute($line);
+    is($result{status}, 0, 'successful execution with 2 args');
+
+    $line = 'test_2_2 foo bar baz';
     %result = $cli->execute($line);
     is($result{status}, -1, 'failed command execution: too many args');
-    like($result{error}, qr/: too many arguments/, 'error message too many args');
+    like($result{error}, qr/too many .* arguments/, 'error message too many args');
 
-    $line = 'test_4';
+  # ------
+    $line = 'test_2_4 foo';
     %result = $cli->execute($line);
     is($result{status}, -1, 'failed command execution: too few args');
-    like($result{error}, qr/: need at least 1 .* argument/,
+    like($result{error}, qr/need between \d+ and \d+ .* arguments/,
         'error message too few args');
 
-    $line = 'test_4 foo bar';
+  # ------
+    $line = 'test_2_test_1 foo bar test_1 one';
     %result = $cli->execute($line);
-    is($result{status}, 0, 'successful execution with 2 args');
+    is($result{status}, 0, 'successful execution of test_2_test_1')
+    or diag("error: ", $cli->error);
 
-    $line = 'test_4 foo bar baz';
+    $line = 'test_2_test_1 foo jack back test_1 bar';
     %result = $cli->execute($line);
-    is($result{status}, 0, 'successful execution with 3 args');
+    is($result{status}, -1, 'failed command execution: expected test_1');
+    like($result{error}, qr/expected 'test_1'/,
+        'error message bad sub-command');
 
-    $line = 'test_5 foo';
+    $line = 'test_2_test_1 foo bar';
     %result = $cli->execute($line);
-    is($result{status}, -1, 'failed command execution: too few args');
-    like($result{error}, qr/: need at least 2 .* arguments/,
-        'error message too few args');
+    is($result{status}, -1, 'failed command execution: missing test_1');
+    like($result{error}, qr/missing 'test_1'/,
+        'error message bad sub-command');
 
-    $line = 'test_5 foo bar';
-    %result = $cli->execute($line);
-    is($result{status}, 0, 'successful execution with 2 args');
-
-    $line = 'test_5 foo bar baz';
-    %result = $cli->execute($line);
-    is($result{status}, 0, 'successful execution with 3 args');
-
+  # ------
     $line = 'quit';
     %result = $cli->execute($line);
     is($result{status}, 0, 'successful execution of quit');
