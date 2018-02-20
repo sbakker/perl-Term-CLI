@@ -156,6 +156,13 @@ references that are owned by this object.
 
 =over
 
+=item B<add_argument> ( I<ARG>, ... )
+X<add_argument>
+
+Add I<ARG>(s) to the argument set. I<ARG> should be
+a reference to 
+L<Term::CLI::Argument|Term::CLI::Argument> object.
+
 =item B<argument_names>
 X<argument_names>
 
