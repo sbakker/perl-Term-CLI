@@ -59,10 +59,10 @@ sub complete {
     my ($self, $value) = @_;
 
     if (!length $value) {
-        return @{$self->value_list};
+        return sort @{$self->value_list};
     }
     else {
-        return grep
+        return sort grep
                 { substr($_, 0, length($value)) eq $value }
                 @{$self->value_list};
     }
