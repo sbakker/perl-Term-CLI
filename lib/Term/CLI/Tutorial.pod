@@ -206,24 +206,19 @@ This gives us:
 
 Adding a command to a L<Term::CLI> object is a matter of creating
 an array of L<Term::CLI::Command> instances and passing it to the
-L<Term::CLI>'s constructor under the C<commands> key.
+L<Term::CLI>'s C<add_command> method.
 
-    my @commands;
     my $term = Term::CLI->new(
         name     => 'bssh',             # A basically simple shell.
         skip     => qr/^\s*(?:#.*)?$/,  # Skip comments and empty lines.
         prompt   => 'bssh> ',           # A more descriptive prompt.
-        commands => \@commands,
     );
 
-    push @commands, Term::CLI::Command->new(
+    $term->add_command, Term::CLI::Command->new(
         ...
     );
 
-Here, we pass a reference to an array (C<@commands>) to the
-L<Term::CLI>'s C<new> constructor, after which we push a command
-onto that list. It is also possible to build the C<commands>
-list inside the constructor call:
+It is also possible to build the C<commands> list inside the constructor call:
 
     my $term = Term::CLI->new(
         ...
@@ -234,20 +229,25 @@ list inside the constructor call:
     );
 
 However, the code quickly becomes unwieldy when a large number of
-commands and options are added. You can also pass an anonymous
-ArrayRef and use the L<commands|Term::CLI::Role::CommandSet/commands>
-method to push commands:
+commands and options are added.
+
+You can also build a list first, and then call C<add_command>:
 
     my $term = Term::CLI->new(
         ...
-        commands => [],
     );
 
-    push @{$term->commands}, Term::CLI::Command->new(
+    my @commands;
+    push @commands, Term::CLI::Command->new(
         ...
     );
 
-YMMV.
+    ...
+
+    $term->add_command(@commands);
+
+This is the method we'll use for this tutorial, and comes in
+handy further down the line.
 
 So, now that we have the basic mechanism out of the way, let's
 add our first command, the highly useful C<exit>.
@@ -290,7 +290,7 @@ takes three attributes:
 
 The name of the command. This is a mandatory attribute.
 
-=item B<callback =E<gt> \&do_exit>
+=item B<callback =E<gt> \&execute_exit>
 
 The function to call when the command is executed.
 
@@ -709,7 +709,7 @@ The fun thing of nesting commands is that we can easily implement this:
 
     push @commands, Term::CLI::Command->new(
         name => 'debug',
-        commands => [@commands],
+        commands => [ @commands ],
         callback => sub {
             my ($cmd, %args) = @_;
             my @args = @{$args{arguments}};
@@ -721,8 +721,8 @@ The fun thing of nesting commands is that we can easily implement this:
         }
     );
 
-We basically added a C<debug> command that takes any other command
-structure as a sub-command and, after the sub-command it has executed,
+Here, we basically added a C<debug> command that takes any other command
+structure as a sub-command and, after the sub-command has executed,
 will print some status information.
 
     bash$ perl tutorial/example_10.pl
@@ -809,12 +809,10 @@ The following commands should be allowed now:
 
 However, the C<--verbose> option cannot be specified after C<clock>:
 
-    show clock --verbose --tz=UTC # -> ERROR: Unknown option: verbose
+    bssh> show clock --verbose --tz=UTC
+    ERROR: Unknown option: verbose
 
-If you want C<--verbose> to be valid after C<clock>, you need to specify
-it explicitly in its options.
-
-Note, though that the C<--verbose> option after C<show> I<is> recorded
+Note, though, that the C<--verbose> option after C<show> I<is> recorded
 in the C<options> hash when C<do_show_clock> is called:
 
     bash$ perl tutorial/example_12.pl
@@ -841,6 +839,14 @@ in the C<options> hash when C<do_show_clock> is called:
     # --- DEBUG ---
     bssh> exit
     -- exit: 0
+
+If you want C<--verbose> to be valid after C<clock>, you need to specify
+it explicitly in its options:
+
+    Term::CLI::Command->new( name => 'clock',
+        options => [ 'verbose|v', 'timezone|tz|t=s' ],
+        callback => \&do_show_clock,
+    ),
 
 =head1 ADDING HELP TEXT
 
