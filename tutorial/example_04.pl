@@ -8,13 +8,13 @@ use Term::CLI;
 
 $SIG{INT} = 'IGNORE';
 
-my @commands;
 my $term = Term::CLI->new(
 	name     => 'bssh',             # A basically simple shell.
 	skip     => qr/^\s*(?:#.*)?$/,  # Skip comments and empty lines.
 	prompt   => 'bssh> ',           # A more descriptive prompt.
-	commands => \@commands,
 );
+
+my @commands;
 
 push @commands, Term::CLI::Command->new(
 	name => 'exit',
@@ -41,6 +41,8 @@ sub execute_exit {
     say "-- $cmd: $excode";
     exit $excode;
 }
+
+$term->add_command(@commands);
 
 say "\n[Welcome to BSSH]";
 while ( defined(my $line = $term->readline) ) {
