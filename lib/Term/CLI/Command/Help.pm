@@ -365,6 +365,8 @@ If you want, you can override the default attributes; in that case, see the
 L<Term::CLI::Command>(3p) documentation. Attributes that are "safe" to override
 are: C<usage>, C<summary>, C<description>, C<name>.
 
+=back
+
 =head1 OUTPUT FORMATTING
 
 Help text is assumed to be in L<POD|perlpod> format, and will be formatted
