@@ -29,8 +29,8 @@ use namespace::clean;
 
 extends 'Term::CLI::Argument';
 
-has min => ( is => 'rw', predicate => 1 );
-has max => ( is => 'rw', predicate => 1 );
+has min => ( is => 'rw', clearer => 1, predicate => 1 );
+has max => ( is => 'rw', clearer => 1, predicate => 1 );
 has inclusive => ( is => 'rw', default => sub {1} );
 
 sub coerce_value {
@@ -154,6 +154,12 @@ Boolean indicating whether the boundaries are inclusive.
 =item B<has_max>
 
 Booleans, indicate whether C<min> and C<max> have been set, resp.
+
+=item B<clear_min>
+
+=item B<clear_max>
+
+Clear the C<min> and C<max> limits, resp.
 
 =back
 
