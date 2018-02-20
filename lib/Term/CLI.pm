@@ -222,13 +222,12 @@ sub complete_line {
     push @words, $text;
 
     my @list;
-    if ($self->has_commands) {
-        if (@words == 1) {
-            @list = $self->command_names;
-        }
-        elsif (my $cmd = $self->find_command($words[0])) {
-            @list = $cmd->complete_line(@words[1..$#words]);
-        }
+
+    if (@words == 1) {
+        @list = grep { rindex($_, $words[0], 0) == 0 } $self->command_names;
+    }
+    elsif (my $cmd = $self->find_command($words[0])) {
+        @list = $cmd->complete_line(@words[1..$#words]);
     }
 
     # Escape spaces in reply if necessary.
