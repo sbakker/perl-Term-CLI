@@ -31,7 +31,8 @@ my $test_2_cmd = Term::CLI::Command->new(
             min_occur => 1,
             max_occur => 0
         ),
-    ]
+    ],
+    description => "Test the 'one or more' arguments construct",
 );
 
 my $copy_cmd = Term::CLI::Command->new(
@@ -40,7 +41,8 @@ my $copy_cmd = Term::CLI::Command->new(
     arguments => [
         Term::CLI::Argument::Filename->new(name => 'src'),
         Term::CLI::Argument::Filename->new(name => 'dst'),
-    ]
+    ],
+    description => "Copy file <src> to <dst>",
 );
 
 my $move_cmd = Term::CLI::Command->new(
@@ -49,7 +51,8 @@ my $move_cmd = Term::CLI::Command->new(
     arguments => [
         Term::CLI::Argument::Filename->new(name => 'src'),
         Term::CLI::Argument::Filename->new(name => 'dst'),
-    ]
+    ],
+    description => "Move file/directory <src> to <dst>",
 );
 
 my $info_cmd = Term::CLI::Command->new(
@@ -57,7 +60,8 @@ my $info_cmd = Term::CLI::Command->new(
     options => ['verbose|v', 'version|V', 'dry-run|D', 'debug|d'],
     arguments => [
         Term::CLI::Argument::Filename->new(name => 'file')
-    ]
+    ],
+    description => "Show information about <file>",
 );
 
 my $file_cmd = Term::CLI::Command->new(
@@ -65,7 +69,8 @@ my $file_cmd = Term::CLI::Command->new(
     options => ['verbose|v', 'version|V', 'dry-run|D', 'debug|d'],
     commands =>  [
         $copy_cmd, $move_cmd, $info_cmd
-    ]
+    ],
+    description => "Various file operations.",
 );
 
 my $sleep_cmd = Term::CLI::Command->new(
@@ -75,7 +80,8 @@ my $sleep_cmd = Term::CLI::Command->new(
         Term::CLI::Argument::Number::Float->new(
             name => 'time', min => 0, inclusive => 0
         ),
-    ]
+    ],
+    description => "Sleep for <time> seconds.",
 );
 
 my $make_cmd = Term::CLI::Command->new(
@@ -88,7 +94,8 @@ my $make_cmd = Term::CLI::Command->new(
         Term::CLI::Argument::Enum->new(
             name => 'when', value_list => [qw( always now later never )]
         ),
-    ]
+    ],
+    description => "Make <thing> at time <when>.",
 );
 
 my $set_cmd = Term::CLI::Command->new(
@@ -96,6 +103,7 @@ my $set_cmd = Term::CLI::Command->new(
     commands => [
         Term::CLI::Command->new(
             name => 'delimiter',
+            description => 'Set the word delimiter',
             arguments => [
                 Term::CLI::Argument::String->new(name => 'delimiter')
             ],
@@ -111,6 +119,7 @@ my $set_cmd = Term::CLI::Command->new(
         ),
         Term::CLI::Command->new(
             name => 'quote',
+            description => 'Set the quote character for strings',
             arguments => [
                 Term::CLI::Argument::String->new(name => 'quote')
             ],
@@ -124,22 +133,26 @@ my $set_cmd = Term::CLI::Command->new(
                 return %args;
             }
         ),
-    ]
+    ],
+    description => 'Set CLI parameters'
 );
 
 
+my @commands = (
+    $file_cmd, $sleep_cmd, $make_cmd, $set_cmd,
+    $test_1_cmd, $test_2_cmd,
+    Term::CLI::Command::Help->new(),
+);
+
 my $cli = Term::CLI->new(
     prompt => $FindBin::Script.'> ',
-    commands => [
-        $file_cmd, $sleep_cmd, $make_cmd, $set_cmd,
-        $test_1_cmd, $test_2_cmd
-    ],
+    commands => \@commands,
     callback => sub {
         my $self = shift;
         my %args = @_;
 
         my $command_path = $args{command_path};
-        say "path:", map { " ".$_->name } @$command_path;
+        #say "path:", map { " ".$_->name } @$command_path;
 
         if ($args{status} < 0) {
             say "** ERROR: $args{error}";
@@ -154,14 +167,20 @@ my $cli = Term::CLI->new(
             $self->prompt("ERR[$args{status}]> ");
         }
 
-        say "options: ";
-        while (my ($k, $v) = each %{$args{options}}) {
-            say "   --$k => $v";
-        }
-        say "arguments:", map {" '$_'"} @{$args{arguments}};
+        #say "options: ";
+        #while (my ($k, $v) = each %{$args{options}}) {
+            #say "   --$k => $v";
+        ##}
+        #say "arguments:", map {" '$_'"} @{$args{arguments}};
         return %args;
     }
 );
+
+#say "TEST: " . $cli->_commands . " <=> " . \@commands;
+#
+#for my $cmd ($cli->commands) {
+#    say $cmd->name." parent ".$cmd->parent->name;
+#}
 
 while (my $input = $cli->readline(skip => qr/^\s*(?:#.*)?$/)) {
     $cli->execute($input);
