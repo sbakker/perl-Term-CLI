@@ -92,6 +92,7 @@ sub complete_line {
         }
     }
 
+    # If the command has arguments, try to skip over them.
     if ($self->has_arguments) {
         my @args = $self->arguments;
         my $n = 0;
@@ -99,7 +100,7 @@ sub complete_line {
             last if @args == 0;
             shift @words;
             $n++;
-            if ($args[0]->max_occur && $n >= $args[0]->max_occur) {
+            if ($args[0]->max_occur > 0 and $n >= $args[0]->max_occur) {
                 shift @args;
                 $n = 0;
             }
@@ -126,8 +127,8 @@ sub complete_line {
 sub execute {
     my ($self, %args) = @_;
 
-    $args{status} //= 0;
-    $args{error}  //= '';
+    $args{status} = 0;
+    $args{error}  = '';
 
     # Dereference and copy arguments/unparsed/options to prevent
     # unwanted side-effects.
@@ -155,8 +156,10 @@ sub execute {
         }
     }
 
-    if ($args{status} >= 0 and $self->has_arguments) {
-        %args = $self->_check_arguments(%args);
+    if ($args{status} >= 0) {
+        if ($self->has_arguments or !$self->has_commands) {
+            %args = $self->_check_arguments(%args);
+        }
     }
     if ($args{status} >= 0 and $self->has_commands) {
         %args = $self->_execute_command(%args);
@@ -165,22 +168,10 @@ sub execute {
 }
 
 
-sub _need_arg_text {
+sub _too_few_args_error {
     my ($self, $arg_spec) = @_;
 
-    if ($arg_spec->min_occur <= 0) {
-        if ($arg_spec->max_occur > 0) {
-            return sprintf("at most %d '%s' argument%s allowed",
-                $arg_spec->max_occur,
-                $arg_spec->name,
-                $arg_spec->max_occur == 1 ? '' : 's',
-            );
-        }
-        else {
-            return sprintf("'%s' argument is optional", $arg_spec->name);
-        }
-    }
-    elsif ($arg_spec->max_occur == $arg_spec->min_occur) {
+    if ($arg_spec->max_occur == $arg_spec->min_occur) {
         if ($arg_spec->min_occur == 1) {
             return sprintf("missing '%s' argument", $arg_spec->name);
         }
@@ -222,11 +213,10 @@ sub _check_arguments {
     my @arg_spec = $self->arguments;
 
     if (@arg_spec == 0 and @$unparsed > 0) {
-        if (!$self->has_commands) {
-            $args{status} = -1;
-            $args{error} = 'no arguments allowed';
-        }
-        return %args;
+        return (%args,
+            status => -1,
+            error => 'no arguments allowed',
+        );
     }
 
     my $argno = 0;
@@ -235,7 +225,7 @@ sub _check_arguments {
         if (@$unparsed < $arg_spec->min_occur) {
             return (%args,
                 status => -1,
-                error => $self->_need_arg_text($arg_spec)
+                error => $self->_too_few_args_error($arg_spec),
             );
         }
 
