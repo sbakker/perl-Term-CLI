@@ -197,7 +197,8 @@ sub _get_help {
 
     my $pod2txt = $self->_format_pod($pod);
 
-    if ($cur_cmd_ref->has_commands) {
+    # Only list sub-commands if there are more than one.
+    if (scalar $cur_cmd_ref->commands > 1) {
         my ($cmd_pod, $cmd_text) =
             $self->_make_command_summary(
                 cmd_path => \@cmd_path,
