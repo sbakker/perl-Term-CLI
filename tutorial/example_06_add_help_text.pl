@@ -18,7 +18,7 @@ my @commands;
 
 push @commands, Term::CLI::Command->new(
 	name => 'exit',
-    summary => 'Exit B<bssh>',
+    summary => 'exit B<bssh>',
     description => "Exit B<bssh> with code I<excode>,\n"
                   ."or C<0> if no exit code is given.",
 	callback => sub {

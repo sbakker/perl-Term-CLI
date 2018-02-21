@@ -20,7 +20,7 @@ push @commands, Term::CLI::Command::Help->new();
 
 push @commands, Term::CLI::Command->new(
 	name => 'exit',
-    summary => 'Exit the BSSH',
+    summary => 'exit the BSSH',
     description => "Exit the BSSH, with code I<excode>,\n"
                   ."or C<0> if no exit code is given.",
 	callback => sub {
@@ -42,7 +42,7 @@ push @commands, Term::CLI::Command->new(
 
 push @commands, Term::CLI::Command->new(
 	name => 'quit',
-    summary => 'Exit the BSSH with code 0',
+    summary => 'exit the BSSH with code 0',
 	callback => sub {
         my ($cmd, %args) = @_;
         return %args if $args{status} < 0;
@@ -53,14 +53,14 @@ push @commands, Term::CLI::Command->new(
 
 push @commands, Term::CLI::Command->new(
     name => 'inform',
-    summary => 'Inform I<dst_ip> about I<src_ip>.',
+    summary => 'inform I<dst_ip> about I<src_ip>',
     arguments => [
         Term::CLI::Argument::String->new( name => 'dst_ip' )
     ],
     commands => [
         Term::CLI::Command->new(
             name => 'about',
-            summary => 'Inform I<dst_ip> about I<src_ip>.',
+            summary => 'inform I<dst_ip> about I<src_ip>',
             arguments => [
                 Term::CLI::Argument::String->new( name => 'src_ip' )
             ],
@@ -87,7 +87,7 @@ push @commands, Term::CLI::Command->new(
     commands => [
         Term::CLI::Command->new(
             name => 'sleep',
-            summary => 'Sleep for I<time> seconds.',
+            summary => 'sleep for I<time> seconds',
             description => 'Sleep for I<time> seconds.'
                         .  'This action can be interrupted by'
                         .  ' an INT (I<Ctrl-C> or QUIT (I<Ctrl-\>) signal.',
@@ -116,7 +116,7 @@ push @commands, Term::CLI::Command->new(
         ),
         Term::CLI::Command->new(
             name => 'say',
-            summary => 'Tell the time I<time> seconds from now.',
+            summary => 'tell the time I<time> seconds from now',
             description => 'Display the time I<time> seconds from now.',
             options => [ 'timezone|tz|t=s' ],
             callback => sub {
@@ -142,7 +142,7 @@ push @commands, Term::CLI::Command->new(
 
 push @commands, Term::CLI::Command->new(
     name => 'debug',
-    summary => 'Debug individual commands',
+    summary => 'debug individual commands',
     usage => 'B<debug> I<cmd> ...',
     commands => [@commands],
     callback => sub {

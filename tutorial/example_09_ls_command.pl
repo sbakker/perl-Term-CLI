@@ -18,7 +18,7 @@ my @commands;
 
 push @commands, Term::CLI::Command->new(
 	name => 'exit',
-    summary => 'Exit B<bssh>',
+    summary => 'exit B<bssh>',
     description => "Exit B<bssh> with code I<excode>,\n"
                   ."or C<0> if no exit code is given.",
 	callback => sub {
@@ -49,7 +49,7 @@ push @commands, Term::CLI::Command::Help->new();
 
 push @commands, Term::CLI::Command->new(
     name => 'echo',
-    summary => 'Print arguments to F<stdout>.',
+    summary => 'print arguments to F<stdout>',
     description => "The C<echo> command prints its arguments\n"
                 .  "to F<stdout>, separated by spaces, and\n"
                 .  "terminated by a newline.\n",
@@ -67,7 +67,7 @@ push @commands, Term::CLI::Command->new(
 
 push @commands, Term::CLI::Command->new(
     name => 'make',
-    summary => 'Make I<target> at time I<when>',
+    summary => 'make I<target> at time I<when>',
     description => "Make I<target> at time I<when>.\n"
                 .  "Possible values for I<target> are:\n"
                 .  "C<love>, C<money>.\n"
@@ -92,7 +92,7 @@ push @commands, Term::CLI::Command->new(
 
 push @commands, Term::CLI::Command->new(
     name => 'ls',
-    summary => 'List file(s)',
+    summary => 'list file(s)',
     description => "List file(s) given by the arguments.\n"
                 .  "If no arguments are given, the command\n"
                 .  "will list the current directory.",

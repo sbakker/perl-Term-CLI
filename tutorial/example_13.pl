@@ -20,7 +20,7 @@ push @commands, Term::CLI::Command::Help->new();
 
 push @commands, Term::CLI::Command->new(
 	name => 'exit',
-    summary => 'Exit the BSSH',
+    summary => 'exit the BSSH',
     description => "Exit the BSSH, with code I<excode>,\n"
                   ."or C<0> if no exit code is given.",
 	callback => sub {
@@ -183,7 +183,7 @@ sub do_show_uptime {
 
 push @commands, Term::CLI::Command->new(
     name => 'debug',
-    summary => 'Debug individual commands',
+    summary => 'debug individual commands',
     usage => 'B<debug> I<cmd> ...',
     commands => [@commands],
     callback => sub {
