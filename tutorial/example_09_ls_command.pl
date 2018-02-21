@@ -54,9 +54,7 @@ push @commands, Term::CLI::Command->new(
                 .  "to F<stdout>, separated by spaces, and\n"
                 .  "terminated by a newline.\n",
     arguments => [
-        Term::CLI::Argument::String->new( name => 'arg',
-            min_occur => 0, max_occur => 0
-        ),
+        Term::CLI::Argument::String->new( name => 'arg', occur => 0 ),
     ],
     callback => sub {
         my ($cmd, %args) = @_;
@@ -99,9 +97,7 @@ push @commands, Term::CLI::Command->new(
                 .  "If no arguments are given, the command\n"
                 .  "will list the current directory.",
     arguments => [
-        Term::CLI::Argument::Filename->new( name => 'arg',
-            min_occur => 0, max_occur => 0
-        ),
+        Term::CLI::Argument::Filename->new( name => 'arg', occurr => 0 ),
     ],
     callback => sub {
         my ($cmd, %args) = @_;
