@@ -8,16 +8,19 @@ use Term::CLI;
 
 $SIG{INT} = 'IGNORE';
 
-my @commands;
 my $term = Term::CLI->new(
 	name     => 'bssh',             # A basically simple shell.
 	skip     => qr/^\s*(?:#.*)?$/,  # Skip comments and empty lines.
 	prompt   => 'bssh> ',           # A more descriptive prompt.
-	commands => \@commands,
 );
+
+my @commands;
 
 push @commands, Term::CLI::Command->new(
 	name => 'exit',
+    summary => 'Exit B<bssh>',
+    description => "Exit B<bssh> with code I<excode>,\n"
+                  ."or C<0> if no exit code is given.",
 	callback => sub {
         my ($cmd, %args) = @_;
         return %args if $args{status} < 0;
@@ -35,27 +38,16 @@ push @commands, Term::CLI::Command->new(
 	],
 );
 
-push @commands, Term::CLI::Command->new(
-    name => 'echo',
-    arguments => [
-        Term::CLI::Argument::String->new( name => 'arg',
-            min_occur => 0, max_occur => 0
-        ),
-    ],
-    callback => sub {
-        my ($cmd, %args) = @_;
-        return %args if $args{status} < 0;
-        say "@{$args{arguments}}";
-        return %args;
-    }
-);
-
 sub execute_exit {
     my ($cmd, $excode) = @_;
     $excode //= 0;
     say "-- $cmd: $excode";
     exit $excode;
 }
+
+push @commands, Term::CLI::Command::Help->new();
+
+$term->add_command(@commands);
 
 say "\n[Welcome to BSSH]";
 while ( defined(my $line = $term->readline) ) {
