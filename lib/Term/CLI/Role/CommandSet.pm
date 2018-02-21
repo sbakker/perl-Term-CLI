@@ -81,7 +81,9 @@ sub _trigger__commands {
 
 
 sub commands {
-    return @{$_[0]->_commands // []};
+    my $self = shift;
+    my @l = sort { $a->name cmp $b->name } @{$self->_commands // []};
+    return @l;
 }
 
 
@@ -108,7 +110,7 @@ sub add_command {
 
 sub command_names {
     my $self = shift;
-    return sort { $a cmp $b } map { $_->name } $self->commands;
+    return map { $_->name } $self->commands;
 }
 
 
@@ -348,7 +350,7 @@ should always check the C<status> before doing anything.
 X<commands>
 
 Return the list of subordinate C<Term::CLI::Command> objects
-(i.e. "sub-commands").
+(i.e. "sub-commands") sorted on C<name>.
 
 =back
 
