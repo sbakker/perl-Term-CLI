@@ -22,8 +22,6 @@ use 5.014_001;
 
 package Term::CLI::Command {
 
-our $VERSION = '1.00';
-
 use Modern::Perl;
 use Term::CLI::Version qw( $VERSION );
 use List::Util qw( first min );
