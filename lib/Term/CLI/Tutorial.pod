@@ -99,7 +99,7 @@ Sleep for I<seconds> seconds.
 
 =item B<do> {B<something>|B<nothing>} B<while> {B<working>|B<sleeping>}
 
-Do something while during another activity.
+Do something during another activity.
 
 =item B<interface> I<iface> {B<up>|B<down>}
 
@@ -404,23 +404,23 @@ command line completion:
 
 If you add this to the application, you'll get:
 
-	bash$ perl example_05_add_help.pl
+    bash$ perl tutorial/example_05_add_help.pl
 
-	[Welcome to BSSH]
-	bssh> help
-	Commands:
-		exit [excode]
-		help [cmd ...]             Show help.
-	bssh> help exit
-	Usage:
-		exit [excode]
-	bssh> help h
-	Usage:
-		help [--pod] [-p] [cmd ...]
+    [Welcome to BSSH]
+    bssh> help
+    Commands:
+        exit [excode]
+        help [cmd ...]             show help
+    bssh> help exit
+    Usage:
+        exit [excode]
+    bssh> help h
+    Usage:
+        help [--pod] [-p] [cmd ...]
 
-	Description:
-		Show help for any given command sequence. The "--pod"
-		option (or "-p") will cause raw POD to be shown.
+    Description:
+        Show help for any given command sequence. The "--pod"
+        option (or "-p") will cause raw POD to be shown.
 
 Note that we don't have to specify the full command to get help on:
 command abbreviation works here as well (C<help h>). Also, if you'd type
@@ -429,17 +429,17 @@ C<help h>, then hit the I<TAB> key, it would autocomplete to C<help help>.
 The C<--pod> option is handy if you want to copy the help text into a
 manual page:
 
-	bssh> help --pod help
+    bssh> help --pod help
 
-	=head2 Usage:
+    =head2 Usage:
 
-	B<help> [B<--pod>] [B<-p>] [I<cmd> ...]
+    B<help> [B<--pod>] [B<-p>] [I<cmd> ...]
 
-	=head2 Description:
+    =head2 Description:
 
-	Show help for any given command sequence.
-	The C<--pod> option (or C<-p>) will cause raw POD
-	to be shown.
+    Show help for any given command sequence.
+    The C<--pod> option (or C<-p>) will cause raw POD
+    to be shown.
 
 =head2 Fleshing out help text
 
@@ -453,42 +453,42 @@ and sub-commands), but it cannot magically describe what a command
 is all about. You'll have to specify that yourself, using the C<summary>
 and C<description> attributes in the C<exti> command definition:
 
-	push @commands, Term::CLI::Command->new(
-		name => 'exit',
-        summary => 'Exit B<bssh>',
+    push @commands, Term::CLI::Command->new(
+        name => 'exit',
+        summary => 'exit B<bssh>',
         description => "Exit B<bssh> with code I<excode>,\n"
                     ."or C<0> if no exit code is given.",
-		callback => sub {
-			my ($cmd, %args) = @_;
-			return %args if $args{status} < 0;
-			execute_exit($cmd->name, @{$args{arguments}});
-			return %args;
-		},
-		arguments => [
-			Term::CLI::Argument::Number::Int->new(  # Integer
-				name => 'excode',
-				min => 0,             # non-negative
-				inclusive => 1,       # "0" is allowed
-				min_occur => 0,       # occurrence is optional
-				max_occur => 1,       # no more than once
-			),
-		],
-	);
+        callback => sub {
+            my ($cmd, %args) = @_;
+            return %args if $args{status} < 0;
+            execute_exit($cmd->name, @{$args{arguments}});
+            return %args;
+        },
+        arguments => [
+            Term::CLI::Argument::Number::Int->new(  # Integer
+                name => 'excode',
+                min => 0,             # non-negative
+                inclusive => 1,       # "0" is allowed
+                min_occur => 0,       # occurrence is optional
+                max_occur => 1,       # no more than once
+            ),
+        ],
+    );
 
 The C<summary> text is what is displayed in the command summary, the
 C<description> text is shown in the full help for the command:
 
-    bash $perl example_06_add_help_text.pl
-    
+    bash $perl tutorial/example_06_add_help_text.pl
+
     [Welcome to BSSH]
     bssh> help
       Commands:
-        exit [excode]              Exit bssh
-        help [cmd ...]             Show help.
+        exit [excode]              exit bssh
+        help [cmd ...]             show help
     bssh> help exit
       Usage:
         exit [excode]
-    
+
       Description:
         Exit bssh with code excode, or 0 if no exit code is given.
 
@@ -503,36 +503,31 @@ arguments:
 
 =over
 
-=item * 
-
-The C<echo> command takes zero or more arbitrary string arguments.
-(L<M6::CLI::Argument::String>).
-
-=item * 
+=item *
 
 The C<echo> command takes zero or more arbitrary string arguments
 (L<M6::CLI::Argument::String>).
 
-=item * 
+=item *
 
 The C<make> command takes two string arguments, each from a set
 of pre-defined values.
 (L<M6::CLI::Argument::Enum>).
 
-=item * 
+=item *
 
 The C<ls> command demonstrates the use of file name arguments
 (L<M6::CLI::Argument::Filename>).
 
-=item * 
+=item *
 
 The C<cp> command demonstrates how to set up a variable number
 of arguments (L<M6::CLI::Argument::Filename>).
 
-=item * 
+=item *
 
 The C<sleep> command demonstrates a numerical argument
-of arguments (L<M6::CLI::Argument::Int>).
+(L<M6::CLI::Argument::Int>).
 
 =back
 
@@ -550,14 +545,12 @@ The implementation is straightforward:
 
     push @commands, Term::CLI::Command->new(
         name => 'echo',
-        summary => 'Print arguments to F<stdout>',
+        summary => 'print arguments to F<stdout>',
         description => "The C<echo> command prints its arguments\n"
                     .  "to F<stdout>, separated by spaces, and\n"
                     .  "terminated by a newline.\n",
         arguments => [
-            Term::CLI::Argument::String->new( name => 'arg',
-                min_occur => 0, max_occur => 0
-            ),
+            Term::CLI::Argument::String->new( name => 'arg', occur => 0 ),
         ],
         callback => sub {
             my ($cmd, %args) = @_;
@@ -591,7 +584,7 @@ L<Term::CLI::Argument::Enum> objects:
 
     push @commands, Term::CLI::Command->new(
         name => 'make',
-        summary => 'Make I<target> at time I<when>',
+        summary => 'make I<target> at time I<when>',
         description => "Make I<target> at time I<when>.\n"
                     .  "Possible values for I<target> are:\n"
                     .  "C<love>, C<money>.\n"
@@ -645,14 +638,12 @@ The code for this:
 
     push @commands, Term::CLI::Command->new(
         name => 'ls',
-        summary => 'List file(s)',
+        summary => 'list file(s)',
         description => "List file(s) given by the arguments.\n"
                     .  "If no arguments are given, the command\n"
                     .  "will list the current directory.",
         arguments => [
-            Term::CLI::Argument::Filename->new( name => 'arg',
-                min_occur => 0, max_occur => 0
-            ),
+            Term::CLI::Argument::Filename->new( name => 'arg', occur => 0 ),
         ],
         callback => sub {
             my ($cmd, %args) = @_;
@@ -739,7 +730,7 @@ made in the callback code.
 
     push @commands, Term::CLI::Command->new(
         name => 'cp',
-        summary => 'Copy files',
+        summary => 'copy files',
         description => "Copy files. The last argument in the\n"
                     .  "list is the destination.\n",
         arguments => [
@@ -777,11 +768,11 @@ Example:
     command:     cp
     source:      -r
     destination: foo
+    bssh> ^D
+    -- exit: 0
 
 Note that this setup does not recognise options, so all options will
 be passed as regular arguments.
-
-# TODO: CONTINUE HERE
 
 =head2 The C<sleep> command (single integer argument)
 
@@ -793,6 +784,11 @@ This is an almost trivial implementation:
 
     push @commands, Term::CLI::Command->new(
         name => 'sleep',
+        summary => 'sleep for I<time> seconds',
+        description => "Sleep for I<time> seconds.\n"
+                    .  "Report the actual time spent sleeping.\n"
+                    .  "This number can be smaller than I<time>\n"
+                    .  "in case of an interruption (e.g. INT signal).",
         arguments => [
             Term::CLI::Argument::Number::Int->new( name => 'time',
                 min => 1, inclusive => 1
@@ -822,6 +818,32 @@ This is an almost trivial implementation:
         }
     );
 
+The L<Term::CLI::Argument::Number::Int> allows us to set a minimum and maximum
+value (and whether or not the boundaries are included in the allowed range).
+Our time to sleep should obviously be a positive integer.
+
+See it in action:
+
+    bash$ perl tutorial/example_11_sleep_command.pl
+
+    [Welcome to BSSH]
+    bssh> help sleep
+      Usage:
+        sleep time
+
+      Description:
+        Sleep for time seconds. Report the actual time spent sleeping. This number
+        can be smaller than time in case of an interruption (e.g. INT signal).
+    bssh> sleep 3
+    -- sleep: 3
+    -- woke up after 3 secs
+    bssh> sleep 30
+    -- sleep: 30
+    ^C(interrupted by INT)
+    -- woke up after 5 secs
+    bssh> ^D
+    -- exit: 0
+
 =head1 SUB-COMMANDS
 
 You may have noticed that so far, we've only added commands with arguments.
@@ -840,8 +862,13 @@ The code for the C<show> command looks almost trivial:
 
     push @commands, Term::CLI::Command->new(
         name => 'show',
+        summary => 'show system properties',
+        description => "Show some system-related information,\n"
+                    .  "such as the system clock or load average.",
         commands => [
             Term::CLI::Command->new( name => 'clock',
+                summary => 'show system time',
+                description => 'Show system time and date.',
                 callback => sub {
                     my ($self, %args) = @_;
                     return %args if $args{status} < 0;
@@ -850,6 +877,8 @@ The code for the C<show> command looks almost trivial:
                 },
             ),
             Term::CLI::Command->new( name => 'load',
+                summary => 'show system load',
+                description => 'Show system load averages.',
                 callback => sub {
                     my ($self, %args) = @_;
                     return %args if $args{status} < 0;
@@ -863,170 +892,28 @@ The code for the C<show> command looks almost trivial:
 
 Adding this to our ever-growing C<bssh> code, we get:
 
-    bash$ perl tutorial/example_10.pl
+    bash$ perl tutorial/example_12_show_command.pl
 
     [Welcome to BSSH]
-    bssh> show <TAB><TAB>
-    clock  load
+    bssh> help show
+      Usage:
+        show {clock|load}
+
+      Description:
+        Show some system-related information, such as the system clock or load
+        average.
+
+      Sub-Commands:
+        show clock                                   show system time
+        show load                                    show system load
     bssh> show clock
-    Tue Feb 13 13:24:53 2018
+    Wed Feb 21 14:21:56 2018
     bssh> show load
-    13:24:56 up 5 days,  5:18,  1 user,  load average: 0.45, 0.56, 0.63
-    bssh> sh c
-    Tue Feb 13 13:24:58 2018
-    bssh> sh l
-    13:25:05 up 5 days,  5:19,  1 user,  load average: 0.38, 0.54, 0.62
+     14:21:59 up 1 day, 15:30,  1 user,  load average: 0.19, 0.33, 0.40
     bssh> ^D
     -- exit: 0
 
-=head2 Bonus points: a C<debug> command
-
-The fun thing of nesting commands is that we can easily implement this:
-
-    use Data::Dumper;
-
-    push @commands, Term::CLI::Command->new(
-        name => 'debug',
-        commands => [ @commands ],
-        callback => sub {
-            my ($cmd, %args) = @_;
-            my @args = @{$args{arguments}};
-            say "# --- DEBUG ---";
-            my $d = Data::Dumper->new([\%args], [qw(args)]);
-            print $d->Maxdepth(2)->Indent(1)->Terse(1)->Dump;
-            say "# --- DEBUG ---";
-            return %args;
-        }
-    );
-
-Here, we basically added a C<debug> command that takes any other command
-structure as a sub-command and, after the sub-command has executed,
-will print some status information.
-
-    bash$ perl tutorial/example_10.pl
-
-    [Welcome to BSSH]
-    bssh> debug <TAB><TAB>
-    cp     echo   exit   ls     make   show   sleep
-    bssh> debug echo hi
-    hi
-    # --- DEBUG ---
-    {
-      'error' => '',
-      'status' => 0,
-      'arguments' => [
-        'hi'
-      ],
-      'command_path' => [
-        'Term::CLI=HASH(0x55e95ae02e20)',
-        'Term::CLI::Command=HASH(0x55e95b0c3998)',
-        'Term::CLI::Command=HASH(0x55e95b03f780)'
-      ],
-      'options' => {}
-    }
-    # --- DEBUG ---
-    bssh> exit
-    -- exit: 0
-
-=head1 ADDING OPTIONS
-
-You may have noticed that the output of the C<debug> command above showed
-an C<options> key that points to a HashRef. This contains valid command
-line options from the input. To have the parsing and completion code
-recognise command line options, simply pass an C<options> parameter to
-the L<Term::CLI::Command> constructor call:
-
-    push @commands, Term::CLI::Command->new(
-        name => 'show',
-        options => [ 'verbose|v' ],
-        commands => [
-            Term::CLI::Command->new( name => 'clock',
-                options => [ 'timezone|tz|t=s' ],
-                callback => \&do_show_clock,
-            ),
-            Term::CLI::Command->new( name => 'load',
-                callback => \&do_show_uptime,
-            ),
-        ],
-    );
-
-    sub do_show_clock {
-        my ($self, %args) = @_;
-        return %args if $args{status} < 0;
-        my $opt = $args{options};
-
-        local($::ENV{TZ});
-        if ($opt->{timezone}) {
-            $::ENV{TZ} = $opt->{timezone};
-        }
-        say scalar(localtime);
-        return %args;
-    }
-
-    sub do_show_uptime {
-        my ($self, %args) = @_;
-        return %args if $args{status} < 0;
-        system('uptime');
-        $args{status} = $?;
-        return %args;
-    }
-
-The value should be an ArrayRef with the allowed options in
-L<Getopt::Long>(3p) format. The L<Term::CLI> code will turn
-on C<bundling> (allow grouping of single letter options, i.e. C<-a>
-nd C<-b> can be written as C<-ab>) and C<require_order> (no mixing of
-options and arguments).
-
-Above, we've added a C<--verbose> option to the C<show> command, and a
-specific C<--timezone> option to the C<clock> sub-command.
-
-The following commands should be allowed now:
-
-    show --verbose clock --tz=UTC
-    show clock -t UTC
-
-However, the C<--verbose> option cannot be specified after C<clock>:
-
-    bssh> show clock --verbose --tz=UTC
-    ERROR: Unknown option: verbose
-
-Note, though, that the C<--verbose> option after C<show> I<is> recorded
-in the C<options> hash when C<do_show_clock> is called:
-
-    bash$ perl tutorial/example_12.pl
-    
-    [Welcome to BSSH]
-    bssh> debug show --verbose clock --tz CET
-    Tue Feb 13 14:12:45 2018
-    # --- DEBUG ---
-    {
-      'options' => {
-        'verbose' => 1,
-        'timezone' => 'CET'
-      },
-      'error' => '',
-      'arguments' => [],
-      'command_path' => [
-        'Term::CLI=HASH(0x55efdbf10bc8)',
-        'Term::CLI::Command=HASH(0x55efdc040a28)',
-        'Term::CLI::Command=HASH(0x55efdc040fe0)',
-        'Term::CLI::Command=HASH(0x55efdc041070)'
-      ],
-      'status' => 0
-    }
-    # --- DEBUG ---
-    bssh> exit
-    -- exit: 0
-
-If you want C<--verbose> to be valid after C<clock>, you need to specify
-it explicitly in its options:
-
-    Term::CLI::Command->new( name => 'clock',
-        options => [ 'verbose|v', 'timezone|tz|t=s' ],
-        callback => \&do_show_clock,
-    ),
-
-=head1 COMBINING ARGUMENTS AND SUB-COMMANDS
+=head2 Combining arguments and sub-commands
 
 A L<Term::CLI::Command> object can have both arguments and (sub-)commands
 as well. If this is the case, the parser expects the arguments before the
@@ -1082,6 +969,8 @@ The specification says:
 
 S<    >B<interface> I<iface> {B<up>|B<down>}
 
+The I<iface> argument is used by both sub-commands.
+
 Code:
 
     push @commands, Term::CLI::Command->new(
@@ -1119,7 +1008,262 @@ Code:
         ],
     );
 
-=head1 NAIVE IMPLEMENTATION
+With the above two additions, we have:
+
+    bash$ perl tutorial/example_13_sub_cmd_and_args.pl
+
+    [Welcome to BSSH]
+    bssh> help
+      Commands:
+        cp path1 path2 ...                           copy files
+        do action while activity                     do action while activity
+        echo arg ...                                 print arguments to stdout
+        exit excode                                  exit bssh
+        help cmd ...                                 show help
+        interface iface {up|down}                    turn iface up or down
+        ls arg ...                                   list file(s)
+        make target when                             make target at time when
+        show {clock|load}                            show system properties
+        sleep time                                   sleep for time seconds
+    bssh> do something wh s
+    doing something while sleeping
+    bssh> i eth0 u
+    bringing up eth0
+    bssh> i eth0 d
+    shutting down eth0
+    bssh> ^D
+    -- exit: 0
+
+=head1 BONUS POINTS: A C<debug> COMMAND
+
+The fun thing of nesting commands is that we can easily implement this:
+
+    use Data::Dumper;
+
+    push @commands, Term::CLI::Command->new(
+        name => 'debug',
+        usage => 'B<debug> I<cmd> ...',
+        summary => 'debug commands',
+        description => "Print some debugging information regarding\n"
+                    .  "the execution of a command.",
+        commands => [ @commands ],
+        callback => sub {
+            my ($cmd, %args) = @_;
+            my @args = @{$args{arguments}};
+            say "# --- DEBUG ---";
+            my $d = Data::Dumper->new([\%args], [qw(args)]);
+            print $d->Maxdepth(2)->Indent(1)->Terse(1)->Dump;
+            say "# --- DEBUG ---";
+            return %args;
+        }
+    );
+
+Here, we basically added a C<debug> command that takes any other command
+structure as a sub-command and, after the sub-command has executed,
+will print some status information.
+
+    bash$ perl tutorial/example_10.pl
+
+    [Welcome to BSSH]
+    bssh> debug <TAB><TAB>
+    cp     echo   exit   ls     make   show   sleep
+    bssh> debug echo hi
+    hi
+    # --- DEBUG ---
+    {
+      'error' => '',
+      'status' => 0,
+      'arguments' => [
+        'hi'
+      ],
+      'command_path' => [
+        'Term::CLI=HASH(0x55e95ae02e20)',
+        'Term::CLI::Command=HASH(0x55e95b0c3998)',
+        'Term::CLI::Command=HASH(0x55e95b03f780)'
+      ],
+      'options' => {}
+    }
+    # --- DEBUG ---
+    bssh> exit
+    -- exit: 0
+
+Note the addition of the static C<usage> line, because the autogenerated
+usage line is too long (it lists every possible sub-command):
+
+    bash$ perl tutorial/example_14_debug_command.pl
+
+    [Welcome to BSSH]
+    bssh> help
+      Commands:
+        cp path1 path2 ...                           copy files
+        debug cmd ...                                debug commands
+        [...]
+    bssh> help debug
+      Usage:
+        debug cmd ...
+    
+      Description:
+        Print some debugging information regarding the execution of cmd.
+    
+      Sub-Commands:
+        debug cp path1 path2 ...                     copy files
+        debug do action while activity               Do action while activity
+        debug echo arg ...                           print arguments to stdout
+        debug exit excode                            exit bssh
+        debug help cmd ...                           show help
+        debug interface iface {down|up}              Turn iface up or down
+        debug ls arg ...                             list file(s)
+        debug make target when                       make target at time when
+        debug show {clock|load}                      show system properties
+        debug sleep time                             sleep for time seconds
+
+=head3 Caveat on C<parent>
+
+Note that this construction is not entirely without consequences, though:
+adding a
+L<Term::CLI::Command> to another
+L<Term::CLI::Command> or a
+L<Term::CLI>
+object (or any object that consumes the L<Term::CLI::Role::CommandSet> role)
+will cause the 
+L<Term::CLI::Command> object's
+C<parent> attribute to be set.
+
+At this moment, the L<parent|Term::CLI::Command/parent> attribute is only
+used to find the
+L<root_node|Term::CLI::Command/root_node>,
+but this may change in the future.
+
+To ensure the hierarchy still makes sense then, add the C<@commands> to the
+debug command I<before> adding them to the L<Term::CLI> object.
+
+And, yes, you can in principle do this:
+
+    my $debug = Term::CLI::Command->new( name => 'debug', ... );
+    push @commands, $debug;
+    $debug->add_command(@commands);
+    $term->add_command(@commands);
+
+This would give you a debug command that can debug itself:
+C<debug debug debug ...> (but I<why> would you want that!?).
+
+=head1 ADDING OPTIONS
+
+You may have noticed that the output of the C<debug> command above showed
+an C<options> key that points to a HashRef. This contains valid command
+line options from the input. To have the parsing and completion code
+recognise command line options, simply pass an C<options> parameter to
+the L<Term::CLI::Command> constructor call:
+
+    push @commands, Term::CLI::Command->new(
+        name => 'show',
+        options => [ 'verbose|v' ],
+        commands => [
+            Term::CLI::Command->new( name => 'clock',
+                options => [ 'timezone|tz|t=s' ],
+                callback => \&do_show_clock,
+            ),
+            Term::CLI::Command->new( name => 'load',
+                callback => \&do_show_uptime,
+            ),
+        ],
+    );
+
+    sub do_show_clock {
+        my ($self, %args) = @_;
+        return %args if $args{status} < 0;
+        my $opt = $args{options};
+
+        local($::ENV{TZ});
+        if ($opt->{timezone}) {
+            $::ENV{TZ} = $opt->{timezone};
+        }
+        say scalar(localtime);
+        return %args;
+    }
+
+    sub do_show_uptime {
+        my ($self, %args) = @_;
+        return %args if $args{status} < 0;
+        system('uptime');
+        $args{status} = $?;
+        return %args;
+    }
+
+The value should be an ArrayRef with the allowed options in
+L<Getopt::Long>(3p) format. The L<Term::CLI> code will turn
+on C<bundling> (allow grouping of single letter options, i.e. C<-a>
+nd C<-b> can be written as C<-ab>) and C<require_order> (no mixing of
+options and arguments).
+
+Above, we've added a C<--verbose> option to the C<show> command, and a
+specific C<--timezone> option to the C<clock> sub-command.
+
+The following commands should be allowed now:
+
+    bash$ perl tutorial/example_15_options.pl
+    
+    [Welcome to BSSH]
+    bssh> help show clock
+      Usage:
+        show clock [--timezone=s] [--tz=s] [-ts]
+    
+      Description:
+        Show system time and date.
+    bssh> show clock
+    Wed Feb 21 15:40:46 2018
+    bssh> show --verbose clock --tz=UTC
+    Wed Feb 21 14:41:02 2018
+    bssh> show clock -t UTC
+    Wed Feb 21 14:41:05 2018
+
+However, the C<--verbose> option cannot be specified after C<clock>:
+
+    bssh> show clock --verbose --tz=UTC
+    ERROR: Unknown option: verbose
+
+Note, though, that the C<--verbose> option after C<show> I<is> recorded
+in the C<options> hash when C<do_show_clock> is called:
+
+    bssh> debug show --verbose clock --tz CET
+    Tue Feb 21 14:41:45 2018
+    # --- DEBUG ---
+    {
+      'options' => {
+        'verbose' => 1,
+        'timezone' => 'CET'
+      },
+      'error' => '',
+      'arguments' => [],
+      'command_path' => [
+        'Term::CLI=HASH(0x55efdbf10bc8)',
+        'Term::CLI::Command=HASH(0x55efdc040a28)',
+        'Term::CLI::Command=HASH(0x55efdc040fe0)',
+        'Term::CLI::Command=HASH(0x55efdc041070)'
+      ],
+      'status' => 0
+    }
+    # --- DEBUG ---
+
+If you want C<--verbose> to be valid after C<clock>, you'll need to
+specify it explicitly in its options:
+
+    Term::CLI::Command->new( name => 'clock',
+        options => [ 'verbose|v', 'timezone|tz|t=s' ],
+        ...
+    ),
+
+=head1 COMPARISON WITH OTHER IMPLEMENTATIONS
+
+Here are some examples of how you might go about it without
+L<Term::CLI>. We've only decided to imlement a few of the
+simpler commands.
+
+=head2 Naive implementation
+
+The "naive" implementation uses no fancy modules, just a loop
+reading from F<STDIN> and some explicit C<if> statements matching
+the commands:
 
     use Modern::Perl;
     use Text::ParseWords qw( shellwords );
@@ -1174,19 +1318,14 @@ Code:
         say "making $args[0] $args[1]";
     }
 
-(This full script can be found in as F<tutorial/simple_cli.pl> in the source
+(This full script can be found in as F<examples/simple_cli.pl> in the source
 distribution.)
 
 This performs the basic actions, but does not offer anything else.
 
-=head1 IMPLEMENTATION WITH TERM::READLINE
+=head2 IMPLEMENTATION WITH TERM::READLINE
 
-The basic program is nice, but...
-
-=head2 I want input editing and history!
-
-If you want basic input editing capability and history, the next logical
-step is to use the L<Term::ReadLine> library in the REPL:
+Replacing the REPL above by a L<Term::ReadLine>(3p) construction, we get:
 
     use Modern::Perl;
     use Text::ParseWords qw( shellwords );
@@ -1198,28 +1337,49 @@ step is to use the L<Term::ReadLine> library in the REPL:
     }
     execute_exit('exit', 0);
 
-(This script can be found in as F<tutorial/readline_cli.pl> in the source
+(This script can be found as F<examples/readline_cli.pl> in the source
 distribution.)
 
-=head2 I want completion!
+This adds a few nice features:
 
-Well, there's some completion, but you'll notice that e.g. the C<make> command
-will show file name completions, not the valid targets.
+=over
+
+=item * Input editing
+
+=item * History
+
+=back
+
+But lacks some others:
+
+=over
+
+=item * Command line completion
+
+By default L<Term::ReadLine> performs
+file name completion, so e.g. the C<make> command will show file name completions,
+not the valid targets.
 
 It's possible to set up custom completion routines, but it's not trivial.
 
-=head2 I want command and parameter abbreviation!
+=item * Command and parameter abbreviation
 
-So you want to write C<ex 0>, or C<m l a>?
+You can't write C<ex 0>, or C<m l a>.
 
-Well, that requires prefix matching in the C<evaluate_input> and various
-C<execute_*> routines, and you'd also need to make sure to do something
-sensible with ambiguous prefixes (like throwing an error).
+To support abbreviations, you'd have to add prefix matching in the
+C<evaluate_input> and various C<execute_*> routines, making sure
+to do something sensible with ambiguous prefixes (e.g. throwing an
+error). You'd have to do that for every sub-command/parameter, though.
+
+=item * Built-in help
+
+=back
 
 =head1 SEE ALSO
 
 L<Getopt::Long>(3p),
 L<Term::CLI>(3p),
+L<Term::CLI::Argument>(3p),
 L<Term::CLI::Argument::Enum>(3p),
 L<Term::CLI::Argument::FileName>(3p),
 L<Term::CLI::Argument::Number>(3p),
@@ -1227,7 +1387,8 @@ L<Term::CLI::Argument::Number::Float>(3p),
 L<Term::CLI::Argument::Number::Int>(3p),
 L<Term::CLI::Argument::String>(3p),
 L<Term::CLI::Command>(3p),
-L<Term::CLI::Role::CommandSet>(3p).
+L<Term::CLI::Role::CommandSet>(3p),
+L<Term::ReadLine>(3p).
 
 =head1 FILES
 
@@ -1235,11 +1396,11 @@ The following files in the source distribution illustrate the examples above:
 
 =over
 
-=item F<tutorial/simple_cli.pl>
+=item F<examples/simple_cli.pl>
 
 The "naive" implementation with a simple read loop.
 
-=item F<tutorial/readline_cli.pl>
+=item F<examples/readline_cli.pl>
 
 The simple L<Term::ReadLine> implementation that adds
 command line editing,
