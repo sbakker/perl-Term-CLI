@@ -126,19 +126,30 @@ sub usage_text {
         my @args;
         for my $arg ($self->arguments) {
             my $name = 'I<'.$arg->name.'>';
+            my $str = $name;
+
+            if ($arg->min_occur > 1) {
+                $str .= "1";
+                for my $n (2..$arg->min_occur) {
+                    $str .= " ${name}$n";
+                }
+            }
+
             if ($arg->max_occur <= 0) {
-                $name .= ' ...';
+                $str .= ' ...';
             }
-            elsif ($arg->max_occur == 2) {
-                $name .= "1 ${name}2";
+            elsif ($arg->max_occur == $arg->min_occur + 1) {
+                $str .= " ${name}".$arg->max_occur if $arg->max_occur > 1;
             }
-            elsif ($arg->max_occur > 1) {
-                $name .= "1 ... $name".$arg->max_occur;
+            elsif ($arg->max_occur > $arg->min_occur) {
+                $str .= "1" if $arg->min_occur <= 1;
+                $str .= " ... $name".$arg->max_occur;
             }
+
             if ($arg->min_occur <= 0) {
                 $name = "[$name]";
             }
-            push @args, $name;
+            push @args, $str;
         }
         $usage_suffix = join(' ', @args);
     }
