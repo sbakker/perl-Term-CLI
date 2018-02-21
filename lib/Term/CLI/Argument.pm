@@ -22,8 +22,6 @@ use 5.014_001;
 
 package Term::CLI::Argument {
 
-our $VERSION = '1.00';
-
 use Modern::Perl;
 use Term::CLI::Version qw( $VERSION );
 use Moo;
@@ -36,6 +34,26 @@ extends 'Term::CLI::Element';
 
 has min_occur => ( is => 'rw', isa => Int, default => sub{1});
 has max_occur => ( is => 'rw', isa => Int, default => sub{1});
+
+sub BUILD {
+    my ($self, $args) = @_;
+    # Allow "occur" as a shortcut for min/max setting.
+    if (defined $args->{occur}) {
+        $self->min_occur($args->{occur});
+        $self->max_occur($args->{occur});
+    }
+}
+
+sub occur {
+    my $self = shift @_;
+    if (@_) {
+        my $min = shift @_;
+        my $max = @_ ? shift @_ : $min;
+        $self->min_occur($min);
+        $self->max_occur($max);
+    }
+    return ($self->min_occur, $self->max_occur);
+}
 
 sub type {
     my $self = shift;
@@ -92,15 +110,65 @@ Create a new Term::CLI::Argument object and return a reference to it.
 
 The B<name> attribute is required.
 
+Other possible attributes are:
+
+=over
+
+=item B<min_occur> =E<gt> I<INT>
+
+The minimal number of times the argument must occur.
+A negative or zero value means there is no minimum.
+
+The default is C<1>.
+
+=item B<max_occur> =E<gt> I<INT>
+
+The maximum number of times the argument may occur.
+A negative or zero value means there is no maximum.
+
+The default is C<1>.
+
+=item B<occur> =E<gt> I<INT>
+
+A shortcut to setting C<min_occur> and C<max_occur>
+to the same value. Specifying this will override
+any C<min_occur> or C<max_occur> attributes.
+
 =back
 
-=head1 ACCESSORS
-
-Accessors are inherited from L<Term::CLI::Element>(3p).
+=back
 
 =head1 METHODS
 
+=head2 Accessors
+
+Accessors are inherited from L<Term::CLI::Element>(3p).
+
+Additionally, there are the following:
+
 =over
+
+=item B<min_occur> ( [ I<INT> ] )
+
+Get or set the C<min_occur> attribute.
+
+=item B<max_occur> ( [ I<INT> ] )
+
+Get or set the C<max_occur> attribute.
+
+=back
+
+=head2 Other
+
+=over
+
+=item B<occur> ( [ I<INT> [, I<INT> ] ] )
+
+When called with no arguments, returns two-element list containing the
+L<min_occur|/min_occur> and L<max_occur|/max_occur> values, resp.
+
+When called with one argument, it will set both the C<min_occur> and
+C<max_occur> attributes to the given value.
 
 =item B<type>
 
