@@ -729,6 +729,12 @@ L<Term::CLI::Role::CommandSet>(3p),
 L<Text::ParseWords>(3p),
 L<Types::Standard>(3p).
 
+Inspiration for the custom completion came from:
+L<https://robots.thoughtbot.com/tab-completion-in-gnu-readline>.
+This is an excellent tutorial into the completion mechanics
+of the C<readline> library, and, by extension,
+L<Term::ReadLine::Gnu>(3p).
+
 =head1 AUTHOR
 
 Steven Bakker E<lt>sb@monkey-mind.netE<gt>, 2018.
