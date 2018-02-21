@@ -29,6 +29,16 @@ use namespace::clean;
 
 extends 'Term::CLI::Argument';
 
+sub validate {
+    my ($self, $value) = @_;
+
+    $self->set_error('');
+    if (!defined $value) {
+        return $self->set_error("value must be defined");
+    }
+    return $value;
+}
+
 }
 
 1;
@@ -63,6 +73,14 @@ See L<Term::CLI::Argument>(3p).
 =head1 METHODS
 
 See L<Term::CLI::Argument>(3p).
+
+=over
+
+=item B<validate> ( I<Str> )
+
+Overloaded from L<Term::CLI::Argument> to also allow empty strings.
+
+=back
 
 =head1 SEE ALSO
 
