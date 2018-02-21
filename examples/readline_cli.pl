@@ -50,7 +50,7 @@ sub execute_cp {
         return;
     }
     say "-- $cmd: copying $args[0] to $args[1]";
-    system('cp', @args);
+    say "(would run: cp @args)";
 }
 
 sub execute_ls {

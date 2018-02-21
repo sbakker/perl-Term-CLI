@@ -14,9 +14,11 @@ use Term::CLI::Argument::String;
 
 my $test_1_cmd = Term::CLI::Command->new(
     name => 'test_1',
+    summary => 'test 0..2 enum argument',
+    description => 'Test enum argument appearing 0..2 times.',
     arguments => [
         Term::CLI::Argument::Enum->new(name => 'arg',
-            value_list => [qw( one two three )],
+            value_list => [qw( one two three four )],
             min_occur => 0,
             max_occur => 2
         ),
@@ -25,6 +27,8 @@ my $test_1_cmd = Term::CLI::Command->new(
 
 my $test_2_cmd = Term::CLI::Command->new(
     name => 'test_2',
+    summary => 'test 1 or more enum argument',
+    description => "Test the 'one or more' enum argument construct.",
     arguments => [
         Term::CLI::Argument::Enum->new(name => 'arg',
             value_list => [qw( one two three four )],
@@ -32,60 +36,66 @@ my $test_2_cmd = Term::CLI::Command->new(
             max_occur => 0
         ),
     ],
-    description => "Test the 'one or more' arguments construct",
 );
 
 my $copy_cmd = Term::CLI::Command->new(
     name => 'cp',
+    summary => "copy file",
+    description => "Copy file I<src> to I<dst>.",
     options => ['verbose|v', 'debug|d', 'interactive|i', 'force|f'],
     arguments => [
         Term::CLI::Argument::Filename->new(name => 'src'),
         Term::CLI::Argument::Filename->new(name => 'dst'),
     ],
-    description => "Copy file <src> to <dst>",
 );
 
 my $move_cmd = Term::CLI::Command->new(
     name => 'mv',
+    summary => "move file",
+    description => "Move file/directory I<src> to I<dst>.",
     options => ['verbose|v', 'debug|d', 'interactive|i', 'force|f'],
     arguments => [
         Term::CLI::Argument::Filename->new(name => 'src'),
         Term::CLI::Argument::Filename->new(name => 'dst'),
     ],
-    description => "Move file/directory <src> to <dst>",
 );
 
 my $info_cmd = Term::CLI::Command->new(
     name => 'info',
+    summary => "show file information",
+    description => "Show information about I<file>.",
     options => ['verbose|v', 'version|V', 'dry-run|D', 'debug|d'],
     arguments => [
         Term::CLI::Argument::Filename->new(name => 'file')
     ],
-    description => "Show information about <file>",
 );
 
 my $file_cmd = Term::CLI::Command->new(
     name => 'file',
+    summary => 'file operations',
+    description => "Various file operations.",
     options => ['verbose|v', 'version|V', 'dry-run|D', 'debug|d'],
     commands =>  [
         $copy_cmd, $move_cmd, $info_cmd
     ],
-    description => "Various file operations.",
 );
 
 my $sleep_cmd = Term::CLI::Command->new(
     name => 'sleep',
+    summary => "rest your weary head",
+    description => "Sleep for I<time> seconds.",
     options => ['verbose|v', 'debug|d'],
     arguments => [
         Term::CLI::Argument::Number::Float->new(
             name => 'time', min => 0, inclusive => 0
         ),
     ],
-    description => "Sleep for <time> seconds.",
 );
 
 my $make_cmd = Term::CLI::Command->new(
     name => 'make',
+    summary => "make stuff",
+    description => "Make I<thing> at time I<when>.",
     options => ['verbose|v', 'debug|d'],
     arguments => [
         Term::CLI::Argument::Enum->new(
@@ -95,15 +105,18 @@ my $make_cmd = Term::CLI::Command->new(
             name => 'when', value_list => [qw( always now later never )]
         ),
     ],
-    description => "Make <thing> at time <when>.",
 );
+
 
 my $set_cmd = Term::CLI::Command->new(
     name => 'set',
+    summary => 'set CLI parameters',
+    description => 'Set various CLI parameters.',
     commands => [
         Term::CLI::Command->new(
             name => 'delimiter',
-            description => 'Set the word delimiter',
+            summary => 'set word delimiter',
+            description => 'Set the word delimiter to I<delimiter>.',
             arguments => [
                 Term::CLI::Argument::String->new(name => 'delimiter')
             ],
@@ -119,7 +132,8 @@ my $set_cmd = Term::CLI::Command->new(
         ),
         Term::CLI::Command->new(
             name => 'quote',
-            description => 'Set the quote character for strings',
+            summary => 'set argument quote character',
+            description => 'Set the quote character for arguments to I<quote>',
             arguments => [
                 Term::CLI::Argument::String->new(name => 'quote')
             ],
@@ -134,7 +148,6 @@ my $set_cmd = Term::CLI::Command->new(
             }
         ),
     ],
-    description => 'Set CLI parameters'
 );
 
 

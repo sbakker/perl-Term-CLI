@@ -26,12 +26,6 @@ sub setup_term {
         name => 'bssh',
         prompt => '> ',
         skip => qr/^\s*(?:#.*)?$/,
-        commands => \@commands,
-        callback => sub {
-            my ($self, %args) = @_;
-            say STDERR "ERROR: $args{error}" if $args{status} < 0;
-            return %args;
-        }
     );
 
     push @commands, Term::CLI::Command->new(
@@ -45,7 +39,7 @@ sub setup_term {
             return %args if $args{status} < 0;
             my @args = @{$args{arguments}};
             say "-- ".$cmd->name.": copying $args[0] to $args[1]";
-            system('cp', @args);
+            say "(would run: cp @args)";
             return %args;
         }
     );
@@ -135,19 +129,8 @@ sub setup_term {
         }
     );
 
-    push @commands, Term::CLI::Command->new(
-        name => 'debug',
-        commands => [@commands],
-        callback => sub {
-            my ($cmd, %args) = @_;
-            my @args = @{$args{arguments}};
-            say "# --- DEBUG ---";
-            my $d = Data::Dumper->new([\%args], [qw(args)]);
-            print $d->Maxdepth(2)->Indent(1)->Terse(1)->Dump;
-            say "# --- DEBUG ---";
-            return %args;
-        }
-    );
+    push @commands, Term::CLI::Command::Help->new();
 
+    $term->add_command(@commands);
     return $term;
 }

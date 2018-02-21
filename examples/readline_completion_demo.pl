@@ -13,7 +13,7 @@ use Term::ReadLine::Gnu;
 use FindBin;
 
 my $prog = $FindBin::Script;
-my $term = Term::ReadLine->new("cli_demo_6");
+my $term = Term::ReadLine->new("readline_completion_demo");
 
 sub complete_word {
     my ($term, $text, $line, $start, $end) = @_;
