@@ -74,10 +74,7 @@ sub startup : Test(startup => 2) {
     push @commands, Term::CLI::Command->new(
         name => 'test_2_test_1',
         arguments => [
-            Term::CLI::Argument::String->new(name => 'arg1',
-                min_occur => 2,
-                max_occur => 2
-            ),
+            Term::CLI::Argument::String->new(name => 'arg1', occur => 2),
         ],
         commands => [
             Term::CLI::Command->new(
@@ -111,8 +108,7 @@ sub startup : Test(startup => 2) {
     push @commands, Term::CLI::Command->new(
         name => 'test_2_2',
         arguments => [
-            Term::CLI::Argument::String->new(name => 'arg',
-                min_occur => 2, max_occur => 2),
+            Term::CLI::Argument::String->new(name => 'arg', occur => 2),
         ]
     );
 
