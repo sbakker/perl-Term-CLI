@@ -80,7 +80,7 @@ sub check_validate: Test(6) {
 
     $arg->set_error('SOMETHING');
 
-    my $test_value = 'a string';
+    $test_value = 'a string';
     ok( $arg->validate($test_value), "'$test_value' validates");
     is ( $arg->error, '',
         "error is cleared on successful validation" );
