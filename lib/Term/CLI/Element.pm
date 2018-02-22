@@ -62,6 +62,16 @@ to provide basic, shared functionality.
 This class inherits from L<Term::CLI::Base>(3p) to provide the
 C<error>, C<term>, and C<set_error> methods.
 
+=head1 CLASS STRUCTURE
+
+=head2 Inherits from:
+
+L<Term::CLI::Base>(3p).
+
+=head2 Consumes:
+
+None.
+
 =head1 CONSTRUCTORS
 
 =over

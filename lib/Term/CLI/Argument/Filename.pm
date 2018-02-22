@@ -68,6 +68,16 @@ Term::CLI::Argument::Filename - class for file name arguments in Term::CLI
 Class for file name arguments in L<Term::CLI>(3p). Inherits from
 the L<Term::CLI::Argument>(3p) class.
 
+=head1 CLASS STRUCTURE
+
+=head2 Inherits from:
+
+L<Term::CLI::Argument>(3p).
+
+=head2 Consumes:
+
+None.
+
 =head1 CONSTRUCTORS
 
 See L<Term::CLI::Argument>(3p).

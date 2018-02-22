@@ -335,9 +335,19 @@ Term::CLI::Command - Class for (sub-)commands in Term::CLI
 
 =head1 DESCRIPTION
 
-Class for arguments in L<Term::CLI>(3p).
-Inherits from L<M6::CLI::Element>(3p) and
-L<M6::CLI::Role::CommandSet>(3p).
+Class for command elements in L<Term::CLI>(3p).
+
+=head1 CLASS STRUCTURE
+
+=head2 Inherits from:
+
+L<Term::CLI::Element>(3p).
+
+=head2 Consumes:
+
+L<Term::CLI::Role::ArgumentSet>(3p),
+L<Term::CLI::Role::CommandSet>(3p),
+L<Term::CLI::Role::HelpText>(3p).
 
 =head1 CONSTRUCTORS
 

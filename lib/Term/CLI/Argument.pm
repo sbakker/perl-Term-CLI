@@ -99,6 +99,16 @@ Term::CLI::Argument - generic parent class for arguments in Term::CLI
 Generic parent class for arguments in L<Term::CLI>(3p).
 Inherits from L<M6::CLI::Element>(3p).
 
+=head1 CLASS STRUCTURE
+
+=head2 Inherits from:
+
+L<Term::CLI::Element>(3p).
+
+=head2 Consumes:
+
+None.
+
 =head1 CONSTRUCTORS
 
 =over

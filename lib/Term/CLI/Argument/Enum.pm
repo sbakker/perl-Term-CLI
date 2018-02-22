@@ -102,6 +102,16 @@ Class for "enum" string arguments in L<Term::CLI>(3p).
 This class inherits from
 the L<Term::CLI::Argument>(3p) class.
 
+=head1 CLASS STRUCTURE
+
+=head2 Inherits from:
+
+L<Term::CLI::Argument>(3p).
+
+=head2 Consumes:
+
+None.
+
 =head1 CONSTRUCTORS
 
 =over

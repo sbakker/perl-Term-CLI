@@ -60,7 +60,17 @@ Term::CLI::Argument::String - class for basic string arguments in Term::CLI
 =head1 DESCRIPTION
 
 Simple class for string arguments in L<Term::CLI>(3p). This is basically
-the L<Term::CLI::Argument>(3p) class.
+the L<Term::CLI::Argument>(3p) class, but also allowing empty strings.
+
+=head1 CLASS STRUCTURE
+
+=head2 Inherits from:
+
+L<Term::CLI::Argument>(3p).
+
+=head2 Consumes:
+
+None.
 
 =head1 CONSTRUCTORS
 

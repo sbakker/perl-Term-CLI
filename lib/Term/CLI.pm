@@ -386,9 +386,10 @@ Term::CLI - CLI interpreter based on Term::ReadLine
 Implement an easy-to-use command line interpreter based on
 L<Term::ReadLine>(3p) and L<Term::ReadLine::Gnu>(3p).
 
-First-time users may want to read L<Term::CLI::Introduction> and
-L<Term::CLI::Tutorial> first, and peruse the example scripts in the
-source distritbution's F<examples> and F<tutorial> directories.
+First-time users may want to read L<Term::CLI::Tutorial>
+and L<Term::CLI::Intro> first, and peruse the example scripts
+in the source distribution's F<examples> and F<tutorial>
+directories.
 
 =head1 CLASS STRUCTURE
 

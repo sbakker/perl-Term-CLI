@@ -62,13 +62,21 @@ Term::CLI::Argument::Number::Float - class for floating point arguments in Term:
 Class for floating point arguments in L<Term::CLI>(3p). Extends
 L<Term::CLI::Argument::Number>(3p).
 
-=head1 CONSTRUCTORS
+=head2 Inherits from:
 
 L<Term::CLI::Argument::Number>(3p).
+
+=head2 Consumes:
+
+None.
+
+=head1 CONSTRUCTORS
+
+See L<Term::CLI::Argument::Number>(3p).
 
 =head1 ACCESSORS
 
-L<Term::CLI::Argument::Number>(3p).
+See L<Term::CLI::Argument::Number>(3p).
 
 =head1 METHODS
 
