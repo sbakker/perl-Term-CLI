@@ -55,12 +55,12 @@ use Types::Standard qw(
 use Moo;
 use namespace::clean;
 
-with('Term::CLI::Role::Base');
+extends 'Term::CLI::Base';
+
 with('Term::CLI::Role::CommandSet');
 
-has name => (
-    is => 'ro',
-    isa => Str,
+# Provide a default for 'name'.
+has '+name' => (
     default => sub { $FindBin::Script }
 );
 
@@ -80,7 +80,6 @@ has skip => (
     is => 'rw',
     isa => RegexpRef,
 );
-
 
 has word_delimiters  => ( is => 'rw', isa => Str, default => sub {" \n\t"} );
 has quote_characters => ( is => 'rw', isa => Str, default => sub {q("')} );
@@ -384,9 +383,22 @@ Term::CLI - CLI interpreter based on Term::ReadLine
 
 =head1 DESCRIPTION
 
-Class for arguments in L<Term::CLI>(3p).
-Inherits from the L<M6::CLI::Role::CommandSet>(3p)
-role.
+Implement an easy-to-use command line interpreter based on
+L<Term::ReadLine>(3p) and L<Term::ReadLine::Gnu>(3p).
+
+First-time users may want to read L<Term::CLI::Introduction> and
+L<Term::CLI::Tutorial> first, and peruse the example scripts in the
+source distritbution's F<examples> and F<tutorial> directories.
+
+=head1 CLASS STRUCTURE
+
+=head2 Inherits from:
+
+L<Term::CLI::Base>(3p).
+
+=head2 Consumes:
+
+L<Term::CLI::Role::CommandSet>(3p).
 
 =head1 CONSTRUCTORS
 
@@ -406,23 +418,31 @@ Valid attributes:
 Reference to a subroutine that should be called when the command
 is executed, or C<undef>.
 
-=item B<commands> =E<gt> I<ARRAYREF>
+=item B<commands> =E<gt> I<ArrayRef>
 
 Reference to an array containing L<Term::CLI::Command> object
 instances that describe the commands that C<Term::CLI> recognises,
 or C<undef>.
 
-=item B<name> =E<gt> I<STRING>
+=item B<name> =E<gt> I<Str>
 
 The application name. This is used for e.g. the history file
 and default command prompt.
 
 If not given, defaults to C<$FindBin::Script> (see L<FindBin>(3p)).
 
-=item B<prompt> =E<gt> I<STRING>
+=item B<prompt> =E<gt> I<Str>
 
 Prompt to display when L<readline|/readline> is called. Defaults
 to the application name with C<E<gt>> and a space appended.
+
+=item B<skip> =E<gt> I<RegEx>
+
+Set the object's L<skip|/skip> attribute, telling the
+L<readline|/readline> method to ignore input lines
+that match the given I<RegEx>.
+A common call value is C<qr{^\s+(?:#.*)$}> to skip
+empty lines, lines with only whitespace, and comments.
 
 =back
 
@@ -431,7 +451,8 @@ to the application name with C<E<gt>> and a space appended.
 =head1 INHERITED METHODS
 
 This class inherits all the attributes and accessors of
-L<Term::CLI::Role::CommandSet>(3p), most notably:
+L<Term::CLI::Role::CommandSet>(3p) and L<Term::CLI::Base>(3p),
+most notably:
 
 =head2 Accessors
 
@@ -492,7 +513,9 @@ L<find_matches in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/find_m
 =item B<name>
 X<name>
 
-Return the application name.
+The application name. 
+See
+L<name in Term::CLI::Base|Term::CLI::Base/name>.
 
 =item B<prompt> ( [ I<Str> ] )
 X<prompt>
@@ -503,6 +526,8 @@ Get or set the command line prompt to display to the user.
 X<term>
 
 Return a reference to the underlying L<Term::CLI::ReadLine> object.
+See
+L<term in Term::CLI::Base|Term::CLI::Base/term>.
 
 =item B<quote_characters> ( [ I<Str> ] )
 X<quote_characters>
@@ -564,13 +589,6 @@ The function will split the line in words and delegate the
 completion to the first L<Term::CLI::Command> sub-command,
 see L<Term::CLI::Command|Term::CLI::Command/complete_line>.
 
-=item B<option_names>
-X<option_names>
-
-Return a list of all command line options for this command.
-Long options are prefixed with C<-->, and one-letter options
-are prefixed with C<->.
-
 =item B<readline> ( [ I<ATTR> =E<gt> I<VAL>, ... ] )
 X<readline>
 
@@ -585,7 +603,7 @@ The following I<ATTR> are recognised:
 
 =over
 
-=item B<skip> =<E<gt> I<RegEx>
+=item B<skip> =E<gt> I<RegEx>
 
 Override the object's L<skip|/skip> attribute.
 
@@ -597,7 +615,7 @@ call is:
 This will skip empty lines, lines containing whitespace, and
 comments.
 
-=item B<prompt> =<E<gt> I<Str>
+=item B<prompt> =E<gt> I<Str>
 
 Override the prompt given by the L<prompt|/prompt> method.
 
