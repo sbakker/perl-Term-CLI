@@ -26,16 +26,21 @@ use Modern::Perl;
 use List::Util qw( first );
 use Term::CLI::Version qw( $VERSION );
 
+use Types::Standard qw(
+    ArrayRef
+);
+
 use Moo;
 use namespace::clean;
 
-extends 'Term::CLI::Argument::String';
+extends 'Term::CLI::Argument';
 
 has value_list => (
     is => 'ro',
-    isa => sub { die "$_[0] is not an ARRAY ref" if ref $_[0] ne 'ARRAY' },
+    isa => ArrayRef,
     required => 1,
 );
+
 
 sub validate {
     my ($self, $value) = @_;
@@ -54,6 +59,7 @@ sub validate {
         return $self->set_error("ambiguous value (matches: @found)");
     }
 }
+
 
 sub complete {
     my ($self, $value) = @_;
@@ -94,7 +100,7 @@ Term::CLI::Argument::Enum - class for "enum" string arguments in Term::CLI
 Class for "enum" string arguments in L<Term::CLI>(3p).
 
 This class inherits from
-the L<Term::CLI::Argument::String>(3p) class.
+the L<Term::CLI::Argument>(3p) class.
 
 =head1 CONSTRUCTORS
 
@@ -102,14 +108,14 @@ the L<Term::CLI::Argument::String>(3p) class.
 
 =item B<new> ( B<name> =E<gt> I<STRING>, B<value_list> =E<gt> I<ARRAYREF> )
 
-See also L<Term::CLI::Argument::String>(3p). The B<value_list> argument is
+See also L<Term::CLI::Argument>(3p). The B<value_list> argument is
 mandatory.
 
 =back
 
 =head1 ACCESSORS
 
-See also L<Term::CLI::Argument::String>(3p).
+See also L<Term::CLI::Argument>(3p).
 
 =over
 
@@ -121,7 +127,7 @@ A reference to a list of valid values for the argument.
 
 =head1 METHODS
 
-See also L<Term::CLI::Argument::String>(3p).
+See also L<Term::CLI::Argument>(3p).
 
 The following methods are added or overloaded:
 
@@ -135,7 +141,6 @@ The following methods are added or overloaded:
 
 =head1 SEE ALSO
 
-L<Term::CLI::Argument::String>(3p),
 L<Term::CLI::Argument>(3p),
 L<Term::CLI>(3p).
 
