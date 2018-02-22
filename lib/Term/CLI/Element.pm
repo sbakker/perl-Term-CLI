@@ -31,9 +31,7 @@ use Types::Standard qw( Str );
 use Moo;
 use namespace::clean;
 
-with 'Term::CLI::Role::Base';
-
-has name    => ( is => 'ro', isa => Str, required => 1 );
+extends 'Term::CLI::Base';
 
 sub complete { return () }
 
@@ -57,11 +55,11 @@ Term::CLI::Element - generic parent class for elements in Term::CLI
 
 =head1 DESCRIPTION
 
-Generic parent class for elements in L<Term::CLI>(3p). This is used
-by L<Term::CLI::Command>(3p) and L<Term::CLI::Argument>(3p) to provide
-basic, shared functionality.
+Generic parent class for command line elements in L<Term::CLI>(3p).
+This is used by L<Term::CLI::Command>(3p) and L<Term::CLI::Argument>(3p)
+to provide basic, shared functionality.
 
-It loads the L<Term::CLI::Role::Base>(3p) role to provide the
+This class inherits from L<Term::CLI::Base>(3p) to provide the
 C<error>, C<term>, and C<set_error> methods.
 
 =head1 CONSTRUCTORS
@@ -79,18 +77,10 @@ The B<name> attribute is required.
 
 =head1 METHODS
 
-=head2 Accessors
+The C<Term::CLI::Element> inherits from accessors
+and methods from L<Term::CLI::Base>(3p).
 
-=over
-
-=item B<name> (I<STRING>, read-only)
-
-Element name. Can be any string, but must be specified at construction
-time.
-
-=back
-
-=head2 Others
+In addition, it defines:
 
 =over
 
@@ -105,10 +95,11 @@ Sub-classes should probably override this.
 
 =head1 SEE ALSO
 
+L<Term::CLI>(3p),
 L<Term::CLI::Argument>(3p),
+L<Term::CLI::Base>(3p),
 L<Term::CLI::Command>(3p),
-L<Term::CLI::ReadLine>(3p),
-L<Term::CLI>(3p).
+L<Term::CLI::ReadLine>(3p).
 
 =head1 AUTHOR
 
