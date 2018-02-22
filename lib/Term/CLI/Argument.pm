@@ -224,4 +224,27 @@ This software is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+=begin __PODCOVERAGE
+
+=head1 THIS SECTION SHOULD BE HIDDEN
+
+This section is meant for methods that should not be considered
+for coverage. This typically includes things like BUILD and DEMOLISH from
+Moo/Moose. It is possible to skip these when using the Pod::Coverage class
+(using C<also_private>), but this is not an option when running C<cover>
+from the command line.
+
+The simplest trick is to add a hidden section with an item list containing
+these methods.
+
+=over
+
+=item BUILD
+
+=item DEMOLISH
+
+=back
+
+=end __PODCOVERAGE
+
 =cut
