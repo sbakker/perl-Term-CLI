@@ -24,6 +24,15 @@ Term::CLI::Tutorial - tips, tricks, and examples for Term::CLI
 
  use Term::CLI;
 
+=head1 DESCRIPTION
+
+This manual shows how to use L<Term::CLI> to build a working CLI application
+with command-line editing capabilities, command history, command completion,
+and more.
+
+For an introduction in the object class structure, see
+L<Term::CLI::Intro>(3p).
+
 =head1 INTRODUCTION
 
 If you have ever found yourself needing to write a command-line
@@ -1376,6 +1385,8 @@ error). You'd have to do that for every sub-command/parameter, though.
 =back
 
 =head1 SEE ALSO
+
+L<Term::CLI::Intro>(3p).
 
 L<Getopt::Long>(3p),
 L<Term::CLI>(3p),
