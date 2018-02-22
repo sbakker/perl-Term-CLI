@@ -1,6 +1,6 @@
 #===============================================================================
 #
-#       Module:  Term::CLI::Role::Base
+#       Module:  Term::CLI::Base
 #
 #  Description:  Generic roel for Term::CLI classes
 #
@@ -20,15 +20,21 @@
 
 use 5.014_001;
 
-package Term::CLI::Role::Base {
+package Term::CLI::Base {
 
 use Modern::Perl;
 use Term::CLI::Version qw( $VERSION );
 use Term::CLI::ReadLine;
 
-use Moo::Role;
+use Types::Standard qw(
+    Str
+);
 
-has error   => ( is => 'rwp', default => sub {''} );
+use Moo;
+use namespace::clean;
+
+has name => ( is => 'ro', isa => Str, required => 1 );
+has error => ( is => 'rwp', isa => Str, default => sub {''} );
 
 sub term { return Term::CLI::ReadLine->term }
 
@@ -53,7 +59,7 @@ __END__
 
 =head1 NAME
 
-Term::CLI::Role::Base - generic role Term::CLI classes
+Term::CLI::Base - generic base class for Term::CLI classes
 
 =head1 SYNOPSIS
 
@@ -61,15 +67,16 @@ Term::CLI::Role::Base - generic role Term::CLI classes
 
     use Moo;
 
-    with('Term::CLI::Role::Base');
+    extends 'Term::CLI::Base';
 
     ...
  };
 
 =head1 DESCRIPTION
 
-Generic role for L<Term::CLI>(3p) classes. This role provides some
-basic functions and attributes that all classes share.
+Generic base class for L<Term::CLI>(3p) classes. This class provides some
+basic functions and attributes that all classes except L<Term::CLI::ReadLine>
+share.
 
 =head1 METHODS
 
@@ -77,11 +84,16 @@ basic functions and attributes that all classes share.
 
 =over
 
-=item B<error> (I<STRING>, read-only)
+=item B<name>
+
+Element name. Can be any string, but must be specified at construction
+time.
+
+=item B<error>
 
 Contains a diagnostic message in case of errors.
 
-=item B<term> (read-only)
+=item B<term>
 
 The active L<Term::CLI::ReadLine> object.
 
@@ -100,9 +112,9 @@ and return a "failure" (C<undef> or the empty list, depending on call context).
 
 =head1 SEE ALSO
 
+L<Term::CLI>(3p),
 L<Term::CLI::Element>(3p),
-L<Term::CLI::ReadLine>(3p),
-L<Term::CLI>(3p).
+L<Term::CLI::ReadLine>(3p).
 
 =head1 AUTHOR
 
