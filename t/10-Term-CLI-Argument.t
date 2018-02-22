@@ -40,6 +40,35 @@ sub check_attributes: Test(2) {
     is( $arg->type, 'GENERIC', "type attribute is GENERIC" );
 }
 
+sub check_occur: Test(8) {
+    my $self = shift;
+    my $arg = $self->{arg};
+
+    my $min_occur = $arg->min_occur;
+    is($min_occur, 1, 'default min_occur is 1');
+
+    my $max_occur = $arg->max_occur;
+    is($max_occur, 1, 'default max_occur is 1');
+
+    $arg->occur(4, 8);
+
+    $min_occur = $arg->min_occur;
+    is($min_occur, 4, 'min_occur after occur(4,8) is 4');
+
+    $max_occur = $arg->max_occur;
+    is($max_occur, 8, 'max_occur after occur(4,8) is 8');
+
+    ($min_occur, $max_occur) = $arg->occur;
+
+    is($min_occur, 4, 'occur returns 4 as minimum');
+    is($max_occur, 8, 'occur returns 8 as maximum');
+
+    $arg->occur(9);
+    ($min_occur, $max_occur) = $arg->occur;
+    is($min_occur, 9, 'min_occur after occur(9) is 9');
+    is($max_occur, 9, 'max_occur after occur(9) is 9');
+}
+
 sub check_validate: Test(8) {
     my $self = shift;
     my $arg = $self->{arg};
