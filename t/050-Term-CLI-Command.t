@@ -51,7 +51,7 @@ sub startup : Test(startup => 1) {
                     Term::CLI::Argument::Enum->new(name => 'channel',
                         value_list => [qw( in out )]
                     ),
-                ]
+                ],
             ),
             Term::CLI::Command->new(name => 'parameter',
                 arguments => [
@@ -94,7 +94,7 @@ sub check_constructor: Test(2) {
 }
 
 
-sub check_arguments: Test(3) {
+sub check_arguments: Test(4) {
     my $self = shift;
     my $cmd = $self->{cmd};
 
@@ -104,6 +104,9 @@ sub check_arguments: Test(3) {
     my @got;
     @got = $cmd->argument_names;
     is(scalar(@got), 0, 'top-level command has no arguments');
+
+    ok(!defined $sub->find_command('x'),
+        'command with no sub-commands will find_command nothing');
 
     @got = $sub->argument_names;
     is_deeply(\@got, [qw(param channel)],
