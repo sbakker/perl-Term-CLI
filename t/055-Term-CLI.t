@@ -32,30 +32,36 @@ use File::Temp qw( tempdir );
 # Untaint the PATH.
 $::ENV{PATH} = '/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin';
 
-sub startup : Test(startup => 2) {
+sub startup : Test(startup => 4) {
     my $self = shift;
     my @commands;
 
-    push @commands, Term::CLI::Command->new(
+    my $cp_cmd = Term::CLI::Command->new(
         name => 'cp',
         options => ['interactive|i', 'force|f'],
         arguments => [
             Term::CLI::Argument::Filename->new(name => 'src'),
-            Term::CLI::Argument::Filename->new(name => 'dst'),
         ],
         callback => sub {
             my ($self, %args) = @_;
             return %args;
         }
     );
+    push @commands, $cp_cmd;
+    $cp_cmd->add_argument(
+        Term::CLI::Argument::Filename->new(name => 'dst'),
+    );
 
-    push @commands, Term::CLI::Command->new(
+    my $mv_cmd = Term::CLI::Command->new(
         name => 'mv',
         options => ['interactive|i', 'force|f'],
-        arguments => [
-            Term::CLI::Argument::Filename->new(name => 'src'),
-            Term::CLI::Argument::Filename->new(name => 'dst'),
-        ]
+        arguments => [],
+    );
+    push @commands, $mv_cmd;
+    ok(!$mv_cmd->has_arguments, 'empty arguments array -> has_arguments == false');
+    $mv_cmd->add_argument(
+        Term::CLI::Argument::Filename->new(name => 'src'),
+        Term::CLI::Argument::Filename->new(name => 'dst'),
     );
 
     push @commands, Term::CLI::Command->new(
@@ -153,47 +159,53 @@ sub startup : Test(startup => 2) {
 
     push @commands, Term::CLI::Command->new( name => 'quit' );
 
-    push @commands, Term::CLI::Command->new(
+    my $show_cmd = Term::CLI::Command->new(
         name => 'show',
         options => ['long|l', 'level|L', 'debug|d+', 'verbose|v+'],
-        commands => [
-            Term::CLI::Command->new(name => 'time'),
-            Term::CLI::Command->new(name => 'date',
-                arguments => [
-                    Term::CLI::Argument::Enum->new(name => 'channel',
-                        value_list => [qw( in out )]
-                    ),
-                ]
-            ),
-            Term::CLI::Command->new(name => 'debug',
-                arguments => [
-                    Term::CLI::Argument::Enum->new(name => 'channel',
-                        value_list => [qw( in out )]
-                    ),
-                ]
-            ),
-            Term::CLI::Command->new(name => 'parameter',
-                arguments => [
-                    Term::CLI::Argument::Enum->new(name => 'param',
-                        value_list => [qw( timeout maxlen prompt )]
-                    ),
-                    Term::CLI::Argument::Enum->new(name => 'channel',
-                        value_list => [qw( in out )]
-                    ),
-                ]
-            ),
-        ]
     );
+
+    push @commands, $show_cmd;
+
+    my @show_sub_commands = (
+        Term::CLI::Command->new(name => 'time'),
+        Term::CLI::Command->new(name => 'date',
+            arguments => [
+                Term::CLI::Argument::Enum->new(name => 'channel',
+                    value_list => [qw( in out )]
+                ),
+            ]
+        ),
+        Term::CLI::Command->new(name => 'debug',
+            arguments => [
+                Term::CLI::Argument::Enum->new(name => 'channel',
+                    value_list => [qw( in out )]
+                ),
+            ]
+        ),
+        Term::CLI::Command->new(name => 'parameter',
+            arguments => [
+                Term::CLI::Argument::Enum->new(name => 'param',
+                    value_list => [qw( timeout maxlen prompt )]
+                ),
+                Term::CLI::Argument::Enum->new(name => 'channel',
+                    value_list => [qw( in out )]
+                ),
+            ]
+        ),
+    );
+    $show_cmd->add_command(@show_sub_commands);
 
     isa_ok( $commands[0], 'Term::CLI::Command',
             'Term::CLI::Command->new' );
 
     my $cli = Term::CLI->new(
         prompt => 'test> ',
-        commands => [@commands],
         callback => undef,
+        commands => [],
     );
     isa_ok( $cli, 'Term::CLI', 'Term::CLI->new' );
+    ok(!$cli->has_commands, 'empty commands array -> has_commands == false');
+    $cli->add_command(@commands);
 
     # Try out the "add_" methods.
     my $test_2_4 = Term::CLI::Command->new(
