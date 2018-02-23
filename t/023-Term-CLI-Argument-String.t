@@ -38,15 +38,6 @@ sub startup : Test(startup => 1) {
     $self->{arg} = $arg;
 }
 
-sub check_constructor: Test(1) {
-    my $self = shift;
-
-    throws_ok
-        { Term::CLI::Argument::String->new( name => $ARG_NAME) }
-        qr/Missing required arguments: value_list/,
-        'error on missing value_list';
-}
-
 sub check_attributes: Test(2) {
     my $self = shift;
     my $arg = $self->{arg};
@@ -67,21 +58,22 @@ sub check_validate: Test(6) {
     my $self = shift;
     my $arg = $self->{arg};
 
-    ok( !$arg->validate(undef), "'undef' does not validate");
+    ok( !defined $arg->validate(undef), "'undef' does not validate");
     is ( $arg->error, 'value must be defined',
         "error on 'undef' value is set correctly" );
 
     $arg->set_error('SOMETHING');
 
     my $test_value = '';
-    ok( $arg->validate($test_value), "'$test_value' validates");
+    ok( defined $arg->validate($test_value), "'$test_value' validates")
+        or diag("error is: ", $arg->error);
     is ( $arg->error, '',
         "error is cleared on successful validation" );
 
     $arg->set_error('SOMETHING');
 
     $test_value = 'a string';
-    ok( $arg->validate($test_value), "'$test_value' validates");
+    ok( defined $arg->validate($test_value), "'$test_value' validates");
     is ( $arg->error, '',
         "error is cleared on successful validation" );
 }
