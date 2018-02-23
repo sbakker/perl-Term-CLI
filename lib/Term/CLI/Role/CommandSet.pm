@@ -72,10 +72,10 @@ has callback => (
 #
 sub _trigger__commands {
     my ($self, $arg) = @_;
-    if ($arg) {
-        for my $cmd (@$arg) {
-            $cmd->_set_parent($self);
-        }
+    # No need to check for defined-ness of $arg.
+    # The writer method already checks & croaks.
+    for my $cmd (@$arg) {
+        $cmd->_set_parent($self);
     }
 };
 
