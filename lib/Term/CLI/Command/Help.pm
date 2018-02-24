@@ -27,6 +27,7 @@ use Term::CLI::Version qw( $VERSION );
 use Pod::Text::Termcap;
 use List::Util qw( first );
 use File::Which;
+use Types::Standard qw( ArrayRef Str );
 
 my @PAGERS = (
     [qw(
@@ -46,6 +47,12 @@ use Moo;
 use namespace::clean;
 
 extends 'Term::CLI::Command';
+
+has 'pager' => (
+    is => 'rw',
+    isa => ArrayRef[Str],
+    default => sub { [@PAGER] },
+);
 
 has '+name' => (
     default => sub { 'help' }
@@ -253,7 +260,7 @@ sub complete_line {
         $cur_cmd_ref = $new_cmd_ref;
     }
 
-    #say STDERR "WORDS: <@words> ; partial:<$partial>";
+    #say STDERR "WORDS: <@words> (".int(@words)."); partial:<$partial>";
     #say STDERR "CMDS: ".join(' ', $cur_cmd_ref->command_names);
 
     if (@words == 0) {
@@ -284,10 +291,10 @@ sub _execute_help {
     }
 
     my $pager_fh;
-
-    if (!open $pager_fh, "|-", @PAGER) {
+    my $pager_cmd = $self->pager;
+    if (!open $pager_fh, "|-", @{$pager_cmd}) {
         $args{status} = -1;
-        $args{error} = "cannot run '$PAGER[0]': $!";
+        $args{error} = "cannot run '$$pager_cmd[0]': $!";
         return %args;
     }
 
@@ -364,7 +371,46 @@ no need to provide any.
 
 If you want, you can override the default attributes; in that case, see the
 L<Term::CLI::Command>(3p) documentation. Attributes that are "safe" to override
-are: C<usage>, C<summary>, C<description>, C<name>.
+are:
+
+=over
+
+=item B<description> =E<gt> I<Str>
+
+Override the default description for the C<help> command.
+
+=item B<name> =E<gt> I<Str>
+
+Override the name for the help command. Default is C<help>.
+
+=item B<pager> =E<gt> I<ArrayRef>[I<Str>]
+
+Override the default pager for help display. See
+L<OUTPUT PAGING|/OUTPUT PAGING>. The value should
+be a command line split on words, e.g.:
+
+    OBJ->pager( [ 'cat', '-n', '-e' ] );
+
+=item B<summary> =E<gt>
+
+Override the default summary for the C<help> command.
+
+=item B<usage> =E<gt>
+
+Override the automatic usage string for the C<help> command.
+
+=back
+
+=back
+
+=head1 METHODS
+
+=over
+
+=item B<pager> ( [ I<ArrayRef>[I<Str>]> ] )
+X<pager>
+
+Get or set the pager command.
 
 =back
 
@@ -378,8 +424,11 @@ for the terminal using L<Pod::Text::Termcap>(3p).
 The C<help> command will try to pipe the formatted output through a suitable
 pager.
 
-At startup, the pager is selected from the following list, in order of preference:
-L<less>, L<more>, L<pg>, L<cat>.
+At startup, the pager is selected from the following list, in order of
+preference: L<less>, L<more>, L<pg>, L<cat>.
+
+This can be overridden by supplying a value to the object's C<pager>
+attribute.
 
 =head1 EXAMPLE
 
