@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Copyright (c) Steven Bakker
+# Copyright (C) 2018, Steven Bakker
 #
 # See the "Copying" file that came with this package
 # to see the licensing terms.
