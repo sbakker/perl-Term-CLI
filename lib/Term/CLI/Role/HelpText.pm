@@ -84,12 +84,14 @@ sub get_options_summary {
                 $short_arg = "[<$1>]";
             }
             for my $optname (split(qr/\|/, $spec =~ s/^([^!+=:]+).*/$1/r)) {
-                if (length $optname == 1 and $with_options & 0x01) {
-                    if (length $short_arg == 0) {
-                        $short_opts_no_arg .= $optname;
-                    }
-                    else {
-                        push @options, "[B<-$optname>$short_arg]";
+                if (length $optname == 1) {
+                    if ($with_options & 0x01) {
+                        if (length $short_arg == 0) {
+                            $short_opts_no_arg .= $optname;
+                        }
+                        else {
+                            push @options, "[B<-$optname>$short_arg]";
+                        }
                     }
                 }
                 elsif ($with_options & 0x02) {
