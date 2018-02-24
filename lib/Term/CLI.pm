@@ -334,7 +334,6 @@ sub read_history {
     else {
         return $self->set_error("$hist_file: $!");
     }
-    return;
 }
 
 
