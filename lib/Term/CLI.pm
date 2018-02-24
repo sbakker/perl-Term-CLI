@@ -50,6 +50,7 @@ use Types::Standard qw(
     Maybe
     RegexpRef
     Str
+    Int
 );
 
 use Moo;
@@ -81,9 +82,20 @@ has skip => (
     isa => RegexpRef,
 );
 
+has history_file => (
+    is => 'rw',
+    isa => Str
+);
+
+has history_lines => (
+    is => 'rw',
+    isa => Int,
+    default => sub { 1000 },
+    trigger => 1,
+);
+
 has word_delimiters  => ( is => 'rw', isa => Str, default => sub {" \n\t"} );
 has quote_characters => ( is => 'rw', isa => Str, default => sub {q("')} );
-
 
 sub BUILD {
     my ($self, $args) = @_;
@@ -105,8 +117,25 @@ sub BUILD {
         $term->forced_update_display();
         return 1;
     };
+
+    if (!exists $args->{history_file}) {
+        my $hist_file = $self->name;
+        $hist_file =~ s{^/}{}g;
+        $hist_file =~ s{/$}{}g;
+        $hist_file =~ s{/+}{-}g;
+        $self->history_file("$::ENV{HOME}/.${hist_file}_history");
+    }
+
+    # Set ReadLine history size...
+    $self->term->StifleHistory($self->history_lines);
 }
 
+sub _trigger_history_lines {
+    my ($self, $arg) = @_;
+
+    # the ReadLine object may not have been initialised yet...
+    $self->term->StifleHistory($arg) if $self->term;
+}
 
 # %args = $self->_default_callback(%args);
 #
@@ -292,6 +321,39 @@ sub readline {
 }
 
 
+sub read_history {
+    my $self = shift;
+
+    my $hist_file = @_ ? shift @_ : $self->history_file;
+
+    if ($self->term->ReadHistory($hist_file)) {
+        $self->history_file($hist_file);
+        $self->set_error('');
+        return 1;
+    }
+    else {
+        return $self->set_error("$hist_file: $!");
+    }
+    return;
+}
+
+
+sub write_history {
+    my $self = shift;
+
+    my $hist_file = @_ ? shift @_ : $self->history_file;
+
+    if ($self->term->WriteHistory($hist_file)) {
+        $self->history_file($hist_file);
+        $self->set_error('');
+        return 1;
+    }
+    else {
+        return $self->set_error("$hist_file: $!");
+    }
+}
+
+
 sub execute {
     my ($self, $cmd) = @_;
 
@@ -371,6 +433,9 @@ Term::CLI - CLI interpreter based on Term::ReadLine
     ],
  );
 
+ $cli->read_history;  # Read history from ~/.myapp_history
+ $cli->write_history; # Write history to ~/.myapp_history
+
  $cli->word_delimiters(';,');
  # $cli will now recognise things like: 'copy;--verbose;a,b'
 
@@ -444,6 +509,17 @@ L<readline|/readline> method to ignore input lines
 that match the given I<RegEx>.
 A common call value is C<qr{^\s+(?:#.*)$}> to skip
 empty lines, lines with only whitespace, and comments.
+
+=item B<history_file> =E<gt> I<Str>
+
+Specify the file to read/write input history to/from.
+The default is I<name> + C<_history> in the user's
+I<HOME> directory.
+
+=item B<history_lines> =E<gt> I<Str>
+
+Maximum number of lines to keep in the input history.
+Default is 1000.
 
 =back
 
@@ -571,6 +647,41 @@ Default is C< \t\n>, that is I<space>, I<tab>, and I<newline>.
 
 The first character in the string is also the character that is
 appended to a completed word at the command line prompt.
+
+=back
+
+=head2 History Control
+
+=over
+
+=item B<history_lines> ( [ I<Int> ] )
+
+Get or set the maximum number of lines to keep in the history.
+Default is 1000.
+
+=item B<history_file> ( [ I<Str> ] )
+
+Set the default file to read from/write to.
+
+=item B<read_history> ( [ I<Str> ] )
+
+Try to read input history from the L<history_file()|/history_file>.
+Returns 1 on success. On failure, it will set the L<error|/error>
+field and return C<undef>.
+
+If I<Str> is given, it will try to read from that file instead. If that is
+successful, the L<history_file()|/history_file> attribute will be set
+to I<Str>.
+
+=item B<write_history> ( [ I<Str> ] )
+
+Try to write the input history to the L<history_file()|/history_file>.
+Returns 1 on success. On failure, it will set the L<error|/error> field
+and return C<undef>.
+
+If I<Str> is given, it will try to write to that file instead. If that is
+successful, the L<history_file()|/history_file> attribute will be set
+to I<Str>.
 
 =back
 
