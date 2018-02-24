@@ -4,7 +4,7 @@
 #
 #  Description:  Class for integer arguments in Term::CLI
 #
-#       Author:  Steven Bakker (SB), <sb@monkey-mind.net>
+#       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
 #      Created:  22/01/18
 #
 #   Copyright (c) 2018 Steven Bakker
@@ -104,7 +104,7 @@ L<Term::CLI>(3p).
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sb@monkey-mind.netE<gt>, 2018.
+Steven Bakker E<lt>sbakker@cpan.orgE<gt>, 2018.
 
 =head1 COPYRIGHT AND LICENSE
 
