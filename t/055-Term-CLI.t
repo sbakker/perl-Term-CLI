@@ -32,7 +32,7 @@ use File::Temp qw( tempdir );
 # Untaint the PATH.
 $::ENV{PATH} = '/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin';
 
-sub startup : Test(startup => 4) {
+sub startup : Test(startup => 5) {
     my $self = shift;
     my @commands;
 
@@ -77,7 +77,7 @@ sub startup : Test(startup => 4) {
         commands =>  [ @commands ]
     );
 
-    push @commands, Term::CLI::Command->new(
+    my $test_2_test_1 = Term::CLI::Command->new(
         name => 'test_2_test_1',
         arguments => [
             Term::CLI::Argument::String->new(name => 'arg1', occur => 2),
@@ -94,6 +94,9 @@ sub startup : Test(startup => 4) {
             ),
         ],
     );
+    ok(!$test_2_test_1->has_options,
+        'has_options returns false for command without options');
+    push @commands, $test_2_test_1;
 
     push @commands, Term::CLI::Command->new(
         name => 'test_0_1',
@@ -316,7 +319,7 @@ sub check__is_escaped: Test(6) {
 }
 
 
-sub check_complete_line: Test(12) {
+sub check_complete_line: Test(11) {
     my $self = shift;
     my $cli = $self->{cli};
 
@@ -338,7 +341,7 @@ sub check_complete_line: Test(12) {
     @got = $cli->complete_line($text, $line.$text, $start);
     @expected = qw( );
     is_deeply(\@got, \@expected,
-            "completetions are (@expected)")
+            "'$line$text' completions are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 
     $line = 'show ';
@@ -347,7 +350,7 @@ sub check_complete_line: Test(12) {
     @got = $cli->complete_line($text, $line.$text, $start);
     @expected = qw( date debug parameter time );
     is_deeply(\@got, \@expected,
-            "commands are (@expected)")
+            "'show' commands are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 
     $line = 'file --verbose cp ';
@@ -356,7 +359,7 @@ sub check_complete_line: Test(12) {
     @got = $cli->complete_line($text, $line.$text, $start);
     @expected = qw( --interactive );
     is_deeply(\@got, \@expected,
-            "completions are (@expected)")
+            "'$line$text' completions are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 
     $line = 'file --verbose cp ';
@@ -365,7 +368,7 @@ sub check_complete_line: Test(12) {
     @got = $cli->complete_line($text, $line.$text, $start);
     @expected = qw( -i );
     is_deeply(\@got, \@expected,
-            "completions are (@expected)")
+            "'$line$text' completions are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 
     $line = 'make ';
@@ -374,7 +377,7 @@ sub check_complete_line: Test(12) {
     @got = $cli->complete_line($text, $line.$text, $start);
     @expected = ( 'not\ war' );
     is_deeply(\@got, \@expected,
-            "completions are (@expected)")
+            "'$line$text' completions are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 
     $line = 'make l ';
@@ -383,7 +386,7 @@ sub check_complete_line: Test(12) {
     @got = $cli->complete_line($text, $line.$text, $start);
     @expected = ( 'never', 'now' );
     is_deeply(\@got, \@expected,
-            "completions are (@expected)")
+            "'$line$text' completions are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 
 
@@ -393,7 +396,7 @@ sub check_complete_line: Test(12) {
     @got = $cli->complete_line($text, $line.$text, $start);
     @expected = qw( test_1 );
     is_deeply(\@got, \@expected,
-            "completions are (@expected)")
+            "'$line$text' completions are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 
     $line = 'test_2_test_1 aap noot test_1 ';
@@ -402,7 +405,7 @@ sub check_complete_line: Test(12) {
     @got = $cli->complete_line($text, $line.$text, $start);
     @expected = qw( one );
     is_deeply(\@got, \@expected,
-            "completions are (@expected)")
+            "'$line$text' completions are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 
     $line = 'test_2_test_1 aap noot test_1 one ';
@@ -411,7 +414,7 @@ sub check_complete_line: Test(12) {
     @got = $cli->complete_line($text, $line.$text, $start);
     @expected = qw( three two );
     is_deeply(\@got, \@expected,
-            "completions are (@expected)")
+            "'$line$text' completions are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 
     $line = 'quit ';
@@ -420,7 +423,7 @@ sub check_complete_line: Test(12) {
     @got = $cli->complete_line($text, $line.$text, $start);
     @expected = qw();
     is_deeply(\@got, \@expected,
-            "completions for '$line$text' are (@expected)")
+            "'$line$text' completions are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 }
 
