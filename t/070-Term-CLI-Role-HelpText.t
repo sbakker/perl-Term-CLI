@@ -1,4 +1,11 @@
 #!/usr/bin/perl -T
+#
+# Copyright (C) 2018, Steven Bakker.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the same terms as Perl 5.14.0. For more details, see the full text
+# of the licenses in the directory LICENSES.
+#
 
 use 5.014_001;
 use strict;
