@@ -6,6 +6,8 @@ use Term::CLI;
 
 my $term = setup_term();
 
+$term->read_history or warn "cannot read history: ".$term->error."\n";
+
 while (defined(my $cmd_line = $term->readline)) {
     $term->execute($cmd_line);
 }
@@ -26,6 +28,7 @@ sub setup_term {
         name => 'bssh',
         prompt => '> ',
         skip => qr/^\s*(?:#.*)?$/,
+        history_lines => 100,
     );
 
     push @commands, Term::CLI::Command->new(
