@@ -24,7 +24,7 @@ use Term::CLI;
 # Untaint the PATH.
 $::ENV{PATH} = '/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin';
 
-sub check_usagae : Test(5) {
+sub check_usage : Test(5) {
     my $self = shift;
     my @commands;
 
