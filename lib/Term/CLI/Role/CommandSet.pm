@@ -23,10 +23,6 @@ use 5.014_001;
 package Term::CLI::Role::CommandSet  0.02 {
 
 use Modern::Perl;
-use List::Util qw( first min );
-use Carp qw( croak );
-use Getopt::Long qw( GetOptionsFromArray );
-use Data::Dumper;
 
 use Types::Standard qw(
     ArrayRef

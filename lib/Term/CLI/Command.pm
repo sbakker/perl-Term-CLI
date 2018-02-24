@@ -24,9 +24,7 @@ package Term::CLI::Command  0.02 {
 
 use Modern::Perl;
 use List::Util qw( first min );
-use Carp qw( croak );
 use Getopt::Long qw( GetOptionsFromArray );
-use Data::Dumper;
 
 use Types::Standard qw(
     ArrayRef

@@ -25,7 +25,6 @@ WriteMakefile(
     
     PREREQ_PM    => {
         # Include output from "perldepend --cpan bin/* lib/**/*.pm"
-        'Carp'                => '1.40',
         'Data::Dumper'        => '2.160',
         'FindBin'             => '1.51',
         'Getopt::Long'        => '2.48',

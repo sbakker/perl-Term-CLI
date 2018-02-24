@@ -24,7 +24,6 @@ package Term::CLI  0.02 {
 
 use Modern::Perl;
 use Text::ParseWords qw( parse_line );
-use Carp qw( croak );
 use Term::CLI::ReadLine;
 use FindBin;
 

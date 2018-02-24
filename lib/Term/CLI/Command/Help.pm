@@ -27,6 +27,7 @@ use Pod::Text::Termcap;
 use List::Util qw( first );
 use File::Which;
 use Types::Standard qw( ArrayRef Str );
+use Getopt::Long qw( GetOptionsFromArray );
 
 my @PAGERS = (
     [qw(

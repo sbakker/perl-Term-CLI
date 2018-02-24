@@ -23,8 +23,6 @@ use 5.014_001;
 package Term::CLI::Role::ArgumentSet  0.02 {
 
 use Modern::Perl;
-use Carp qw( croak );
-use Getopt::Long qw( GetOptionsFromArray );
 
 use Types::Standard qw(
     ArrayRef
