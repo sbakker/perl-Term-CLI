@@ -6,27 +6,20 @@
 # to see the licensing terms.
 #
 
-use 5.014_001;
-
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
 
 my $module_name  = 'Term::CLI';
 my $version_from = 'lib/Term/CLI.pm';
-my $changelog    = 'debian/changelog';
-my $dfl_version  = '0.001';
-
-## List of scripts in "bin" directory.
-## Only if necessary...
-# my @scripts = qw(
-# );
+my $dfl_version  = '0.01';
 
 WriteMakefile(
     find_version(),
-    NAME          => $module_name,
-    AUTHOR        => 'Steven Bakker <sbakker@cpan.org>',
-    ABSTRACT_FROM => 'lib/Term/CLI.pm',
+    NAME             => $module_name,
+    AUTHOR           => 'Steven Bakker <sbakker@cpan.org>',
+    ABSTRACT_FROM    => 'lib/Term/CLI.pm',
+    MIN_PERL_VERSION => 5.014_001,
 
     PREREQ_FATAL => 0, # Change to 1 if you really need our prereqs.
     
@@ -61,19 +54,6 @@ WriteMakefile(
 );
 
 sub find_version {
-    my @version;
-
-    if (-f $changelog) {
-        # Read the package version from debian/changelog
-        my ($module_version) = `head -1 $changelog 2>/dev/null`
-            =~ m{
-                \(
-                (\d+ (?:\.\d+)) .*?
-                \)
-            }x;
-        return (VERSION => $module_version) if $module_version;
-    }
-
     return (VERSION_FROM => $version_from) if -f $version_from;
     return $dfl_version;
 }
