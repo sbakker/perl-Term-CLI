@@ -20,9 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Base {
-
-our $VERSION = 0.01;
+package Term::CLI::Base  0.02 {
 
 use Modern::Perl;
 use Term::CLI::ReadLine;

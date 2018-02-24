@@ -20,9 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Role::CommandSet {
-
-our $VERSION = 0.01;
+package Term::CLI::Role::CommandSet  0.02 {
 
 use Modern::Perl;
 use List::Util qw( first min );

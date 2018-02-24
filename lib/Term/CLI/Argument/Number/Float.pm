@@ -20,9 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Argument::Number::Float {
-
-our $VERSION = 0.01;
+package Term::CLI::Argument::Number::Float  0.02 {
 
 use Modern::Perl;
 use POSIX qw( );
