@@ -44,7 +44,6 @@ t/060-Term-CLI-ReadLine.t
 t/065-Term-CLI-Command-Help.t
 t/070-Term-CLI-Role-HelpText.t
 t/075-Term-CLI-History.t
-TODO
 tutorial/example_01_basic_repl.pl
 tutorial/example_02_ignore_blank.pl
 tutorial/example_03_setting_prompt.pl
