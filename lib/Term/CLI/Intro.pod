@@ -2,7 +2,7 @@
 #
 #       Module:  Term::CLI::Intro
 #
-#       Author:  Steven Bakker (SB), <Steven.Bakker@ams-ix.net>
+#       Author:  Steven Bakker (SBAKKER), <Steven.Bakker@ams-ix.net>
 #      Created:  22/Feb/18
 #
 #   Copyright (c) 2018 Steven Bakker
@@ -213,7 +213,7 @@ L<Term::ReadLine>(3p).
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sb@monkey-mind.netE<gt>
+Steven Bakker E<lt>sbakker@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
