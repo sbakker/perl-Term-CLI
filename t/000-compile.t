@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!perl
 #
 # Copyright (C) 2018, Steven Bakker.
 #
