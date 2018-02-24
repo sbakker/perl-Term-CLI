@@ -13,7 +13,7 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 my $module_name  = 'Term::CLI';
-my $version_from = 'lib/Term/CLI/Version.pm';
+my $version_from = 'lib/Term/CLI.pm';
 my $changelog    = 'debian/changelog';
 my $dfl_version  = '0.001';
 
