@@ -1262,6 +1262,33 @@ specify it explicitly in its options:
         ...
     ),
 
+=head1 DEALING WITH HISTORY
+
+By default, the L<Term::CLI> objects to not try to read or write
+to history files, so you will have to tell the application to do
+so explicitly. Fortunately, that's not hard:
+
+    $cli->read_history();
+
+    while (defined (my $l = $cli->readline)) {
+        ...
+    }
+
+    $cli->write_history()
+        or warn "cannot write history: ".$cli->error."\n";
+
+(Note that we don't raise a warning if we cannot read the history
+file: you don't want to get a warning if you run the application
+for the first time.)
+
+By default, if the application is named C<bssh>, the history will
+be read/written to/from C<~/.bssh_history>, and L<Term::CLI> will
+remember 1000 lines of input history.
+
+See the L<HISTORY CONTROL|Term::CLI/HISTORY CONTROL> 
+section in the L<Term::CLI> documentation for more information
+on how to change the defaults.
+
 =head1 COMPARISON WITH OTHER IMPLEMENTATIONS
 
 Here are some examples of how you might go about it without
