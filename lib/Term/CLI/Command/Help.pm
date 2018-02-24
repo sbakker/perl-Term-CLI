@@ -114,9 +114,9 @@ sub _format_pod {
 sub _make_command_summary {
     my ($self, %args) = @_;
     
-    my $cmd_path   = $args{cmd_path} // [];
-    my $commands   = $args{commands} // [];
-    my $pod_prefix = $args{pod_prefix} // '';
+    my $cmd_path   = $args{cmd_path};
+    my $commands   = $args{commands};
+    my $pod_prefix = $args{pod_prefix};
 
     my $text = '';
     my $over_width = int(($self->term->term_width - 4) / 3);
@@ -232,6 +232,7 @@ sub complete_line {
 
     my $partial = $words[$#words] // '';
 
+    # uncoverable branch false
     if ($self->has_options) {
 
         Getopt::Long::Configure(qw(bundling require_order pass_through));
