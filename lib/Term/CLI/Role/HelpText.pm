@@ -22,8 +22,9 @@ use 5.014_001;
 
 package Term::CLI::Role::HelpText {
 
+our $VERSION = 0.01;
+
 use Modern::Perl;
-use Term::CLI::Version qw( $VERSION );
 
 use Types::Standard qw(
     Maybe

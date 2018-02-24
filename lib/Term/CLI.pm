@@ -24,7 +24,7 @@ package Term::CLI {
 
 use Modern::Perl;
 
-use Term::CLI::Version qw( $VERSION );
+our $VERSION = 0.01;
 
 use List::Util qw( first );
 use Text::ParseWords qw( parse_line );

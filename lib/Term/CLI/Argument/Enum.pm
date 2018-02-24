@@ -22,9 +22,10 @@ use 5.014_001;
 
 package Term::CLI::Argument::Enum {
 
+our $VERSION = 0.01;
+
 use Modern::Perl;
 use List::Util qw( first );
-use Term::CLI::Version qw( $VERSION );
 
 use Types::Standard qw(
     ArrayRef

@@ -22,8 +22,9 @@ use 5.014_001;
 
 package Term::CLI::Role::CommandSet {
 
+our $VERSION = 0.01;
+
 use Modern::Perl;
-use Term::CLI::Version qw( $VERSION );
 use List::Util qw( first min );
 use Carp qw( croak );
 use Getopt::Long qw( GetOptionsFromArray );

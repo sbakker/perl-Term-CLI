@@ -22,8 +22,9 @@ use 5.014_001;
 
 package Term::CLI::Command::Help {
 
+our $VERSION = 0.01;
+
 use Modern::Perl;
-use Term::CLI::Version qw( $VERSION );
 use Pod::Text::Termcap;
 use List::Util qw( first );
 use File::Which;

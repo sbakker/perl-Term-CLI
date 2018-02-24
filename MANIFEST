@@ -17,7 +17,6 @@ lib/Term/CLI/Role/ArgumentSet.pm
 lib/Term/CLI/Role/CommandSet.pm
 lib/Term/CLI/Role/HelpText.pm
 lib/Term/CLI/Tutorial.pod
-lib/Term/CLI/Version.pm
 Makefile.PL
 MANIFEST
 MANIFEST.SKIP
