@@ -1,0 +1,14 @@
+Term::CLI is Copyright (C) 2018, Steven Bakker.
+
+The Term::CLI collection of modules implementing a convenient interactive
+CLI parser based on Term::ReadLine(::Gnu), providing completion and
+validation.
+
+For more information, see the Term::CLI::Tutorial and Term::CLI::Intro
+POD pages.
+
+LICENCE INFORMATION
+
+This module is free software; you can redistribute it and/or modify it
+under the same terms as Perl 5.14.0. For more details, see the full text
+of the licenses in the directory LICENSES.

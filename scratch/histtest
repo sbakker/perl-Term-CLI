@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+
+use Modern::Perl;
+use Term::ReadLine;
+
+my $t = Term::ReadLine->new('jabba');
+
+$t->ReadHistory('/does/not/exist.hist')
+or warn "cannot read history: $!";
+
+$t->ReadHistory('/etc/shadow')
+or warn "cannot read history: $!";
+
+while (defined (my $l = $t->readline('jabba> '))) {
+    say "got: $l";
+    my @l = $t->GetHistory;
+    say "hist:<@l>";
+}
