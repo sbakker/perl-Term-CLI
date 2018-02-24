@@ -292,10 +292,12 @@ sub _execute_help {
 
     my $pager_fh;
     my $pager_cmd = $self->pager;
-    if (!open $pager_fh, "|-", @{$pager_cmd}) {
-        $args{status} = -1;
-        $args{error} = "cannot run '$$pager_cmd[0]': $!";
-        return %args;
+    { no warnings 'exec';
+        if (!open $pager_fh, "|-", @{$pager_cmd}) {
+            $args{status} = -1;
+            $args{error} = "cannot run '$$pager_cmd[0]': $!";
+            return %args;
+        }
     }
 
     #my $parser = Pod::Text::Termcap->new( width => $self->term_width - 4 );
