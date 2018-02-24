@@ -1264,7 +1264,7 @@ specify it explicitly in its options:
 
 =head1 DEALING WITH HISTORY
 
-By default, the L<Term::CLI> objects to not try to read or write
+By default, the L<Term::CLI> objects do not try to read or write
 to history files, so you will have to tell the application to do
 so explicitly. Fortunately, that's not hard:
 
