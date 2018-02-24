@@ -23,7 +23,6 @@ use 5.014_001;
 package Term::CLI  0.02 {
 
 use Modern::Perl;
-use List::Util qw( first );
 use Text::ParseWords qw( parse_line );
 use Carp qw( croak );
 use Term::CLI::ReadLine;
@@ -851,7 +850,9 @@ L<Getopt::Long>(3p),
 L<Term::CLI>(3p),
 L<Term::CLI::Argument>(3p),
 L<Term::CLI::Command>(3p),
+L<Term::CLI::Intro>(3p),
 L<Term::CLI::Role::CommandSet>(3p),
+L<Term::CLI::Tutorial>(3p),
 L<Text::ParseWords>(3p),
 L<Types::Standard>(3p).
 
