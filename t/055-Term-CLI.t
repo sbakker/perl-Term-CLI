@@ -27,8 +27,6 @@ use Term::CLI::Argument::Enum;
 use Term::CLI::Argument::Filename;
 use Term::CLI::Argument::Number::Int;
 
-use File::Temp qw( tempdir );
-
 # Untaint the PATH.
 $::ENV{PATH} = '/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin';
 

@@ -24,8 +24,6 @@ use Term::CLI::ReadLine;
 use Term::CLI::Command;
 use Term::CLI::Argument::Enum;
 
-use File::Temp qw( tempdir );
-
 my $CMD_NAME = 'show';
 
 # Untaint the PATH.

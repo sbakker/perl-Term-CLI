@@ -22,7 +22,6 @@ use Test::Exception;
 use FindBin;
 use Term::CLI::ReadLine;
 use Term::CLI::Argument::Number::Float;
-use File::Temp qw( tempdir );
 
 my $ARG_NAME  = 'test_float';
 
