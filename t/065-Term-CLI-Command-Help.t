@@ -42,8 +42,18 @@ sub startup : Test(startup => 1) {
 
     push @commands,Term::CLI::Command->new(
         name => 'mv',
+        summary => 'move files/directories',
+        description => 'Move I<path>1 to I<path>2.',
         arguments => [
             Term::CLI::Argument::Filename->new(name => 'path', occur => 2),
+        ],
+    );
+
+    push @commands,Term::CLI::Command->new(
+        name => 'show',
+        commands => [
+            Term::CLI::Command->new( name => 'clock' ),
+            Term::CLI::Command->new( name => 'load' ),
         ],
     );
 
@@ -60,7 +70,7 @@ sub startup : Test(startup => 1) {
     $self->{commands} = [@commands];
 }
 
-sub check_help : Test(8) {
+sub check_help : Test(17) {
     my $self = shift;
     my $cli = $self->{cli};
 
@@ -69,6 +79,7 @@ sub check_help : Test(8) {
         qr/Commands:.*cp.*help.*mv/sm,
         'help returns command summary'
     );
+
     stdout_like(
         sub { $cli->execute('help --pod') },
         qr/=head2 Commands:.*B<cp>.*B<help>.*B<mv>/sm,
@@ -86,16 +97,55 @@ sub check_help : Test(8) {
         '"help --pod cp" returns POD command help'
     );
 
+    stdout_like(
+        sub { $cli->execute('help --pod show') },
+        qr/=head2 Usage:.*B<show>.*=head2 Sub-Commands:.*B<clock>.*B<load>/sm,
+        "'help --pod show' returns POD command summary with sub-commands'",
+    );
+
+    stdout_like(
+        sub { $cli->execute('help --pod show load') },
+        qr/=head2 Usage:.*B<show> B<load>/sm,
+        "'help --pod show load' returns POD command summary with sub-commands'",
+    );
+
+    stdout_like(
+        sub { $cli->execute('help --pod mv') },
+        qr/=head2 Usage:.*B<mv> I<path>1 I<path>2/sm,
+        "'help --pod mv' returns POD command summary'",
+    );
+
     my %args = $cli->execute('help xp');
-    ok($args{status} < 0, '"help xp" results in an error"');
+    ok($args{status} < 0, '"help xp" results in an error');
     like($args{error}, qr/unknown command/, 'error is set correctly');
 
     %args = $cli->execute('help cp sub');
-    ok($args{status} < 0, '"help cp sub" results in an error"');
+    ok($args{status} < 0, '"help cp sub" results in an error');
     like($args{error}, qr/cp: unknown command/, 'error is set correctly');
+
+    %args = $cli->execute('help --bad foo');
+    ok($args{status} < 0, '"help --bad foo" results in an error');
+    like($args{error}, qr/Unknown option: bad/, 'error is set correctly');
+
+    $cli->find_command('help')->pager([ '/does/not/exist' ]);
+    %args = $cli->execute('help');
+    ok($args{status} < 0, '"help" with non-existent pager results in an error');
+    like($args{error}, qr/cannot run '.*': No such file or directory/,
+        'error on non-existent pager is set correctly');
+
+    $cli->find_command('help')->pager([ 'cat', '-x' ]);
+
+    stderr_like(
+        sub { %args = $cli->execute('help') },
+        qr/cat: invalid option/,
+        '"help" with bad pager args results in an error',
+    );
+
+    ok($args{status} > 0, '"help" with bad pager args results in an error');
+
 }
 
-sub check_complete : Test(3) {
+sub check_complete : Test(7) {
     my $self = shift;
     my $cli = $self->{cli};
 
@@ -105,7 +155,7 @@ sub check_complete : Test(3) {
     $text = '';
     $start = length($line);
     @got = $cli->complete_line($text, $line.$text, $start);
-    @expected = qw( cp help mv );
+    @expected = qw( cp help mv show );
     is_deeply(\@got, \@expected,
             "completion for 'help': commands are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
@@ -126,6 +176,42 @@ sub check_complete : Test(3) {
     @expected = qw();
     is_deeply(\@got, \@expected,
             "completion for '$line$text': commands are (@expected)")
+    or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
+
+    $line = 'help show ';
+    $text = '';
+    $start = length($line);
+    @got = $cli->complete_line($text, $line.$text, $start);
+    @expected = qw( clock load );
+    is_deeply(\@got, \@expected,
+            "'$line$text' completions are (@expected)")
+    or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
+
+    $line = 'help show foo ';
+    $text = 'bar';
+    $start = length($line);
+    @got = $cli->complete_line($text, $line.$text, $start);
+    @expected = qw( );
+    is_deeply(\@got, \@expected,
+            "'$line$text' completions are (@expected)")
+    or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
+
+    $line = 'help ';
+    $text = '--p';
+    $start = length($line);
+    @got = $cli->complete_line($text, $line.$text, $start);
+    @expected = qw( --pod );
+    is_deeply(\@got, \@expected,
+            "'$line$text' completions are (@expected)")
+    or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
+
+    $line = 'help -- ';
+    $text = '--p';
+    $start = length($line);
+    @got = $cli->complete_line($text, $line.$text, $start);
+    @expected = qw( );
+    is_deeply(\@got, \@expected,
+            "'$line$text' completions are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 
 }
