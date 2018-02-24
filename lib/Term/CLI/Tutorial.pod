@@ -460,7 +460,7 @@ The L<Term::CLI::Command::Help> class is smart enough to construct a
 usage line from the given command (including its options, parameters
 and sub-commands), but it cannot magically describe what a command
 is all about. You'll have to specify that yourself, using the C<summary>
-and C<description> attributes in the C<exti> command definition:
+and C<description> attributes in the C<exit> command definition:
 
     push @commands, Term::CLI::Command->new(
         name => 'exit',
