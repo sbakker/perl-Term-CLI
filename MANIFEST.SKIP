@@ -1,6 +1,5 @@
 ^cover_db/
 ^scratch/
-^pkg/
 dist\.ini
 .bak$
 .old$
