@@ -18,7 +18,7 @@ local($/)  = undef;
 
 while (<>) {
     # Fix version number.
-    s/^(\s* package \s+ \S+) (?:\s* \S+)? \s* \{/$1  '$VERSION' {/xm;
+    s/^(\s* package \s+ \S+) (?:\s* \S+)? \s* \{/$1  $VERSION {/xm;
 
     # Remove classic $VERSION assignment.
     s/^our \s+ \$VERSION \s* = \s* \S+ \s* ;\s*//xm;
