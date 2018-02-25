@@ -14,7 +14,7 @@ BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  perl(File::Temp) >= 0.2304
 BuildRequires:  perl(FindBin) >= 1.51
 BuildRequires:  perl(Getopt::Long) >= 2.48
-BuildRequires:  perl(List::Util) >= 1.4202
+BuildRequires:  perl(List::Util) >= 1.42
 BuildRequires:  perl(Modern::Perl) >= 1.20170117
 BuildRequires:  perl(Moo) >= 2.002005
 BuildRequires:  perl(Moo::Role) >= 2.002005

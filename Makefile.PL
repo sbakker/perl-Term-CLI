@@ -29,7 +29,7 @@ WriteMakefile(
         'Data::Dumper'        => '2.160',
         'FindBin'             => '1.51',
         'Getopt::Long'        => '2.48',
-        'List::Util'          => '1.4202',
+        'List::Util'          => '1.42',
         'Modern::Perl'        => '1.20170117',
         'Moo'                 => '2.002005',
         'Moo::Role'           => '2.002005',
