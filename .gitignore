@@ -13,3 +13,5 @@ debian/*.substvars
 debian/*/
 m6-check-login-accounts-*.tar.gz
 pm_to_blib
+.build
+Term-CLI-*/
