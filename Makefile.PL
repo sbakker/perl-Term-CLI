@@ -18,6 +18,7 @@ WriteMakefile(
     find_version(),
     NAME             => $module_name,
     AUTHOR           => 'Steven Bakker <sbakker@cpan.org>',
+    LICENSE          => 'perl_5',
     ABSTRACT_FROM    => 'lib/Term/CLI.pm',
     MIN_PERL_VERSION => 5.014_001,
 
