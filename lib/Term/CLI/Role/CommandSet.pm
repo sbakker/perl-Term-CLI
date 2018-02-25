@@ -20,7 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Role::CommandSet  0.02 {
+package Term::CLI::Role::CommandSet {
 
 use Modern::Perl;
 
@@ -346,6 +346,14 @@ X<commands>
 
 Return the list of subordinate C<Term::CLI::Command> objects
 (i.e. "sub-commands") sorted on C<name>.
+
+=item B<parent>
+X<parent>
+
+Return a reference to the object that "owns" this object.
+This is typically another object class that consumes this
+C<Term::CLI::Role::CommandSet> role, such as
+C<Term::CLI>(3p) or C<Term::CLI::Command>(3p), or C<undef>.
 
 =back
 

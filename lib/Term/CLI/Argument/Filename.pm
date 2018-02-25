@@ -20,7 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Argument::Filename  0.02 {
+package Term::CLI::Argument::Filename {
 
 use Modern::Perl;
 use Moo;

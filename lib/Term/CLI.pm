@@ -20,7 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI  0.02 {
+package Term::CLI {
 
 use Modern::Perl;
 use Text::ParseWords qw( parse_line );

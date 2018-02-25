@@ -20,7 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Argument::Number::Int  0.02 {
+package Term::CLI::Argument::Number::Int {
 
 use Modern::Perl;
 use POSIX qw( );
