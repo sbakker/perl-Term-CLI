@@ -4,3 +4,5 @@
 dist\.ini
 .bak$
 .old$
+^Makefile$
+^MYMETA\.(?:json|yml)$
