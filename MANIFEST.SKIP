@@ -9,4 +9,4 @@
 ^scratch/
 \.old$
 \.bak$
-
+^pkg/
