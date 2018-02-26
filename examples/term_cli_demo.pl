@@ -3,7 +3,8 @@
 # See https://robots.thoughtbot.com/tab-completion-in-gnu-readline
 
 use Modern::Perl;
-use lib qw( ../lib );
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use Data::Dumper;
 use Term::CLI;
 use Term::CLI::Command;
@@ -144,6 +145,26 @@ my $set_cmd = Term::CLI::Command->new(
                 my $quote_chars = $args->[0];
                 my $path = $args{command_path};
                 $path->[0]->quote_characters($quote_chars);
+                return %args;
+            }
+        ),
+        Term::CLI::Command->new(
+            name => 'verbose',
+            summary => 'set verbose flag',
+            description => 'Set the verbose flag for the program.',
+            arguments => [
+                Term::CLI::Argument::Bool->new(name => 'bool',
+                    true_values  => [qw( 1 true on yes ok )],
+                    false_values => [qw( 1 false off no never )],
+                )
+
+            ],
+            callback => sub {
+                my ($self, %args) = @_;
+                return %args if $args{status} < 0;
+                my $args = $args{arguments};
+                my $bool = $args->[0];
+                say "Setting verbose to $bool";
                 return %args;
             }
         ),
