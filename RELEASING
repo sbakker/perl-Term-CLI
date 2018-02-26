@@ -4,6 +4,8 @@ Creating a new release:
 
         perl scratch/fix_version_number.pl VERSION lib/**/*.pm
 
+    * Fix version in pkg/ files.
+
     * Add entry in Changes.
 
     * Test build:
