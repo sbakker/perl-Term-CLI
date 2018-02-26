@@ -1,0 +1,22 @@
+Creating a new release:
+
+    * Fix VERSION in modules:
+
+        perl scratch/fix_version_number.pl VERSION lib/**/*.pm
+
+    * Add entry in Changes.
+
+    * Test build:
+
+        dzil test
+
+    * If all OK, release:
+
+        dzil release
+
+    * If successful, commit & tag:
+
+        git commit -a -m 'Release vVERSION'
+        git tag -m 'Release vVERSION'
+        git push
+        git push --tags
