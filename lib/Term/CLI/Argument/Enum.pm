@@ -43,7 +43,7 @@ has value_list => (
 sub validate {
     my ($self, $value) = @_;
 
-    $self->SUPER::validate($value) or return;
+    defined $self->SUPER::validate($value) or return;
 
     my @found = grep { rindex($_, $value, 0) == 0 } @{$self->value_list};
     if (@found == 0) {
