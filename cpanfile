@@ -18,11 +18,14 @@ requires "warnings" => "0";
 
 on 'test' => sub {
   requires "File::Temp" => "0";
+  requires "Pod::Coverage::TrustPod" => "0";
   requires "Test::Class" => "0";
   requires "Test::Compile" => "0";
   requires "Test::Exception" => "0";
   requires "Test::More" => "0";
   requires "Test::Output" => "0";
+  requires "Test::Pod" => "0";
+  requires "Test::Pod::Coverage" => "0";
   requires "strict" => "0";
 };
 
