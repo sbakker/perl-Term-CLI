@@ -120,6 +120,8 @@ sub _make_command_summary {
 
     my $text = '';
     my $over_width = int(($self->term->term_width - 4) / 3);
+    $over_width = 40 if $over_width > 40;
+
     my $full_pod = $pod_prefix."=over $over_width\n\n";
 
     for my $cmd_ref (@$commands) {
