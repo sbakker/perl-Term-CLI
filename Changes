@@ -1,3 +1,20 @@
+0.03003_pre -- 2018-02-27
+
+    [New Modules]
+
+    - Add Term::CLI::Argument::Bool
+
+    [Bug Fixes]
+
+    - lib/Term/CLI/Argument/Enum.pm
+        - Check SUPER's validate with defined not boolean
+
+    - lib/Term/CLI/Command/Help.pm
+        - Fix "=over" size in command summary to a maximum.
+
+    - lib/Term/CLI/Argument/String.pm
+        - Add min_len and max_len restrictions.
+
 0.03002 -- 2018-02-26
 
     [Bug Fixes]
