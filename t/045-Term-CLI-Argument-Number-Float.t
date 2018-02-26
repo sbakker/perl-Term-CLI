@@ -74,7 +74,7 @@ sub check_validate: Test(17) {
     is( $value, $expected, "'$test_value' => $value (equal to $expected)" );
 
     $test_value = '1.23e-4';
-    $expected   = 0.000123;
+    $expected   = 1.23e-4;
     $value      = $arg->validate($test_value);
     ok( defined $value, "'$test_value' validates OK" );
     is( $value, $expected, "'$test_value' => $value (equal to $expected)" );
