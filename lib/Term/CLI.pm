@@ -29,12 +29,14 @@ use FindBin;
 
 # Load all Term::CLI classes so the user doesn't have to.
 
+use Term::CLI::Argument::Bool;
 use Term::CLI::Argument::Enum;
 use Term::CLI::Argument::Filename;
 use Term::CLI::Argument::Number;
 use Term::CLI::Argument::Number::Float;
 use Term::CLI::Argument::Number::Int;
 use Term::CLI::Argument::String;
+
 use Term::CLI::Command;
 use Term::CLI::Command::Help;
 
