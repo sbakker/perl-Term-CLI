@@ -46,7 +46,7 @@ sub validate {
     if ($self->has_min_len && length $value < $self->min_len) {
         return $self->set_error("too short (min. length ".$self->min_len.")");
     }
-    elsif ($self->has_max && length $value > $self->max_len) {
+    elsif ($self->has_max_len && length $value > $self->max_len) {
         return $self->set_error("too long (max. length ".$self->max_len.")");
     }
     return $value;
