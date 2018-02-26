@@ -68,7 +68,23 @@ Term::CLI::Argument::String - class for basic string arguments in Term::CLI
 
  use Term::CLI::Argument::String;
 
- my $arg = Term::CLI::Argument::String->new(name => 'arg1');
+ my $arg1 = Term::CLI::Argument::String->new(
+    name => 'arg1'
+ );
+
+ $arg1->validate('');      # returns ''
+ $arg1->validate('a');     # returns 'a'
+ $arg1->validate('abcde'); # returns 'abcde'
+
+ my $arg2 = Term::CLI::Argument::String->new(
+    name => 'arg2'
+    min_length => 1,
+    max_length => 4,
+ );
+
+ $arg2->validate('');      # returns undef, sets error
+ $arg2->validate('a');     # returns 'a'
+ $arg2->validate('abcde'); # returns undef, sets error
 
 =head1 DESCRIPTION
 
