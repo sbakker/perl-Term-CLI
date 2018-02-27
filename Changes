@@ -4,16 +4,41 @@
 
     - Add Term::CLI::Argument::Bool
 
+      Files: lib/Term/CLI/Argument/Bool.pm
+
+    [Features]
+
+    - Add min_len and max_len restrictions to
+      Term::CLI::Argument::String.
+
+      Files: lib/Term/CLI/Argument/String.pm
+
     [Bug Fixes]
 
-    - lib/Term/CLI/Argument/Enum.pm
-        - Check SUPER's validate with defined not boolean
+    - Check SUPER's validate with defined not boolean
 
-    - lib/Term/CLI/Command/Help.pm
-        - Fix "=over" size in command summary to a maximum.
+      Files: lib/Term/CLI/Argument/Enum.pm
 
-    - lib/Term/CLI/Argument/String.pm
-        - Add min_len and max_len restrictions.
+    - Fix "=over" size in command summary to a maximum.
+
+      Files: lib/Term/CLI/Command/Help.pm
+
+    - Fix test on FreeBSD - closes #2
+
+      Error message from "cat" on invalid option differs from
+      Linux to FreeBSD. Just check for "cat:" in the error
+      message instead.
+
+      Files: t/065-Term-CLI-Command-Help.t
+
+    - Fix tests for non-English locales - closes #3
+
+      Tests were assuming that external commands
+      communicate their diagnostics in English.
+
+      Files:
+        t/065-Term-CLI-Command-Help.t
+        t/075-Term-CLI-History.t
 
 0.03002 -- 2018-02-26
 
