@@ -137,7 +137,7 @@ sub check_help : Test(17) {
     $cli->find_command('help')->pager([ '/does/not/exist' ]);
     %args = $cli->execute('help');
     ok($args{status} < 0, '"help" with non-existent pager results in an error');
-    like($args{error}, qr/cannot run '.*': No such file or directory/,
+    like($args{error}, qr/cannot run '.*':/,
         'error on non-existent pager is set correctly');
 
     $cli->find_command('help')->pager([ 'cat', '-x' ]);
