@@ -144,7 +144,7 @@ sub check_help : Test(17) {
 
     stderr_like(
         sub { %args = $cli->execute('help') },
-        qr/cat: invalid option/,
+        qr/cat:/,
         '"help" with bad pager args results in an error',
     );
 
