@@ -2,7 +2,7 @@
 #
 #       Module:  Term::CLI::Base
 #
-#  Description:  Generic roel for Term::CLI classes
+#  Description:  Generic role for Term::CLI classes
 #
 #       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
 #      Created:  10/02/18
