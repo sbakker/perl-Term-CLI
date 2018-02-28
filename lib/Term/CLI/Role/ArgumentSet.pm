@@ -52,6 +52,14 @@ sub arguments {
 }
 
 
+sub set_arguments {
+    my $self = shift;
+
+    $self->_set_arguments([]);
+    $self->add_argument(@_);
+}
+
+
 sub has_arguments {
     my $self = shift;
     return ($self->_arguments and scalar @{$self->_arguments} > 0);
@@ -153,11 +161,18 @@ references that are owned by this object.
 
 =over
 
+=item B<set_arguments> ( I<ARG>, ... )
+X<set_arguments>
+
+Reset the list of arguments to (I<ARG>, ...).
+Each I<ARG> should be a reference to a
+L<Term::CLI::Argument|Term::CLI::Argument> object.
+
 =item B<add_argument> ( I<ARG>, ... )
 X<add_argument>
 
-Add I<ARG>(s) to the argument set. I<ARG> should be
-a reference to 
+Add I<ARG>(s) to the argument set.
+Each I<ARG> should be a reference to a
 L<Term::CLI::Argument|Term::CLI::Argument> object.
 
 =item B<argument_names>

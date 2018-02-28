@@ -79,8 +79,8 @@ sub get_options_summary {
                 $short_arg = "I<$1>";
             }
             elsif ($spec =~ /:(.*)$/) {
-                $long_arg = "[=<$1>]";
-                $short_arg = "[<$1>]";
+                $long_arg = "[=I<$1>]";
+                $short_arg = "[I<$1>]";
             }
             for my $optname (split(qr/\|/, $spec =~ s/^([^!+=:]+).*/$1/r)) {
                 if (length $optname == 1) {
@@ -140,15 +140,20 @@ sub usage_text {
                 $str .= ' ...';
             }
             elsif ($arg->max_occur == $arg->min_occur + 1) {
-                $str .= " ${name}".$arg->max_occur if $arg->max_occur > 1;
+                $str .= " [${name}".$arg->max_occur."]" if $arg->max_occur > 1;
             }
             elsif ($arg->max_occur > $arg->min_occur) {
-                $str .= "1" if $arg->min_occur <= 1;
-                $str .= " ... $name".$arg->max_occur;
+                $str .= '1' if $arg->min_occur <= 1;
+                $str .= ' ['
+                        . $name.($arg->min_occur+1)
+                        . ' ... '
+                        . $name.$arg->max_occur
+                        . ']'
+                        ;
             }
 
             if ($arg->min_occur <= 0) {
-                $name = "[$name]";
+                $str = "[$str]";
             }
             push @args, $str;
         }
