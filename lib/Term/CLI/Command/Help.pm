@@ -73,14 +73,14 @@ has '+options' => (
 
 has '+description' => (
     default => sub {
-        qq{Show help for any given command sequence.\n}
-        .qq{The C<--pod> option (or C<-p>) will cause raw POD\n}
-        .qq{to be shown.}
+        loc(qq{Show help for any given command sequence.\n}
+           .qq{The C<--pod> option (or C<-p>) will cause raw POD\n}
+           .qq{to be shown.});
     }
 );
 
 has '+summary' => (
-    default => sub { 'show help' },
+    default => sub { loc('show help') },
 );
 
 #has '+usage' => (
@@ -156,7 +156,7 @@ sub _get_help {
         my ($pod, $text)
             = $self->_make_command_summary(
                 cmd_path   => [],
-                pod_prefix => "=head2 Commands:\n\n",
+                pod_prefix => "=head2 ".loc("Commands").":\n\n",
                 commands   => [$self->root_node->commands]
             );
         return (%args, pod => $pod, text => $text);
@@ -183,18 +183,20 @@ sub _get_help {
     }
 
     my $last_cmd = pop @cmd_ref_path;
-    my $usage_prefix = join(' ', map { $_->usage_text(with_options => 'none', with_subcommands => 0) } @cmd_ref_path);
+    my $usage_prefix = join(' ',
+        map { $_->usage_text(with_options => 'none', with_subcommands => 0) }
+        @cmd_ref_path
+    );
     $usage_prefix .= ' ' if length $usage_prefix;
-    my $pod .= "=head2 Usage:\n\n";
+    my $pod .= "=head2 ".loc("Usage").":\n\n";
     for my $usage ($last_cmd->usage_text(with_options => 'both')) {
-        #$pod .= "=item $usage_prefix$usage\n\n";
         $pod .= "$usage_prefix$usage\n\n";
     }
     $pod =~ s/\n*$//s;
     $pod .= "\n\n";
 
     if (my $description = $cur_cmd_ref->description) {
-        $pod .= "=head2 Description:\n\n";
+        $pod .= "=head2 ".loc("Description").":\n\n";
         $pod .= $cur_cmd_ref->description;
     }
     elsif (my $summary = $cur_cmd_ref->summary) {
@@ -211,7 +213,7 @@ sub _get_help {
         my ($cmd_pod, $cmd_text) =
             $self->_make_command_summary(
                 cmd_path => \@cmd_path,
-                pod_prefix => "=head2 Sub-Commands:\n\n",
+                pod_prefix => "=head2 ".loc("Sub-Commands").":\n\n",
                 commands => [$cur_cmd_ref->commands],
             );
         $pod .= $cmd_pod;
@@ -298,7 +300,7 @@ sub _execute_help {
     { no warnings 'exec';
         if (!open $pager_fh, "|-", @{$pager_cmd}) {
             $args{status} = -1;
-            $args{error} = "cannot run '$$pager_cmd[0]': $!";
+            $args{error} = loc("cannot run '[_1]': [_2]", $$pager_cmd[0], $!);
             return %args;
         }
     }

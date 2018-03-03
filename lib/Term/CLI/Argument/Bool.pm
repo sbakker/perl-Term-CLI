@@ -30,6 +30,8 @@ use Types::Standard qw(
     Bool
 );
 
+use Term::CLI::L10N;
+
 use Moo;
 use namespace::clean;
 
@@ -79,8 +81,11 @@ sub validate {
     if (@true_match) {
         if (@false_match) {
             return $self->set_error(
-                "ambiguous boolean value",
-                " (matches [@true_match] and [@false_match])"
+                loc("ambiguous boolean value"
+                    ." (matches ~[[_1]~] and ~[[_2]~])",
+                    join(", ", @true_match),
+                    join(", ", @false_match),
+                )
             );
         }
         else {
@@ -91,7 +96,7 @@ sub validate {
         return 0;
     }
 
-    return $self->set_error("invalid boolean value");
+    return $self->set_error(loc("invalid boolean value"));
 }
 
 

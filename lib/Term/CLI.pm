@@ -27,6 +27,8 @@ use Text::ParseWords qw( parse_line );
 use Term::CLI::ReadLine;
 use FindBin;
 
+use Term::CLI::L10N;
+
 # Load all Term::CLI classes so the user doesn't have to.
 
 use Term::CLI::Argument::Bool;
@@ -143,7 +145,7 @@ sub _default_callback {
     my ($self, %args) = @_;
 
     if ($args{status} < 0) {
-        say STDERR "ERROR: ", $args{error};
+        say STDERR loc("ERROR"), ": ", $args{error};
     }
     return %args;
 }

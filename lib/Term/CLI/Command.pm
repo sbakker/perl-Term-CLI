@@ -25,7 +25,6 @@ package Term::CLI::Command  0.03002 {
 use Modern::Perl;
 use List::Util qw( first min );
 use Getopt::Long qw( GetOptionsFromArray );
-
 use Types::Standard qw(
     ArrayRef
     CodeRef
@@ -33,6 +32,8 @@ use Types::Standard qw(
     Maybe
     Str
 );
+
+use Term::CLI::L10N;
 
 use Moo;
 use namespace::clean;
@@ -237,7 +238,7 @@ sub _check_arguments {
                 return (%args,
                     status => -1,
                     error => "arg#$argno, '$arg': " . $arg_spec->error
-                           . " for '" . $arg_spec->name . "'"
+                           . " ".loc("for")." '" . $arg_spec->name . "'"
                 );
             }
             push @{$args{arguments}}, $arg_value;

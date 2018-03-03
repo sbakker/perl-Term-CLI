@@ -40,14 +40,18 @@ sub validate {
     $self->set_error('');
 
     if (!defined $value) {
-        return $self->set_error("value must be defined");
+        return $self->set_error(loc('value must be defined'));
     }
 
     if ($self->has_min_len && length $value < $self->min_len) {
-        return $self->set_error("too short (min. length ".$self->min_len.")");
+        return $self->set_error(
+            loc("too short (min. length [_1])", $self->min_len)
+        );
     }
     elsif ($self->has_max_len && length $value > $self->max_len) {
-        return $self->set_error("too long (max. length ".$self->max_len.")");
+        return $self->set_error(
+            loc("too long (max. length [_1])", $self->max_len)
+        );
     }
     return $value;
 }

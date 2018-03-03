@@ -70,7 +70,7 @@ sub validate {
 
     $self->set_error('');
     if (!defined $value or $value eq '') {
-        return $self->set_error("value cannot be empty");
+        return $self->set_error(loc('value cannot be empty'));
     }
     return $value;
 }

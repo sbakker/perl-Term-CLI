@@ -169,10 +169,7 @@ sub usage_text {
         }
         else {
             $sub_commands_text
-                = join('|', map { 'B<'.$_->name.'>' } @sub_commands);
-            if ($sub_commands_text =~ /\|/) {
-                $sub_commands_text = "{$sub_commands_text}";
-            }
+                = '{'.join('|', map { 'B<'.$_->name.'>' } @sub_commands).'}';
         }
         $usage_suffix .= ' ' if length $usage_suffix;
         $usage_suffix .= $sub_commands_text;
@@ -180,10 +177,7 @@ sub usage_text {
 
     $usage_suffix = " $usage_suffix" if length $usage_suffix;
 
-    my $opts = '';
-    if ($args{with_options}) {
-        $opts = $self->get_options_summary( with_options => $args{with_options} );
-    }
+    my $opts = $self->get_options_summary( with_options => $args{with_options} );
 
     if (length $opts) {
         return "$usage_prefix $opts$usage_suffix";

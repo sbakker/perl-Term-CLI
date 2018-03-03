@@ -23,6 +23,8 @@ use 5.014_001;
 package Term::CLI::Argument::Number  0.03002 {
 
 use Modern::Perl;
+use Term::CLI::L10N;
+
 use Moo;
 use namespace::clean;
 
@@ -40,29 +42,29 @@ sub validate {
     my ($self, $value) = @_;
 
     if (!defined $value || length($value) == 0) {
-        return $self->set_error('not a valid number');
+        return $self->set_error(loc('not a valid number'));
     }
 
     my ($num, $unparsed) = $self->coerce_value($value);
 
     if ($unparsed) {
-        return $self->set_error('not a valid number');
+        return $self->set_error(loc('not a valid number'));
     }
 
     if ($self->inclusive) {
         if ($self->has_min && $num < $self->min) {
-            return $self->set_error('too small');
+            return $self->set_error(loc('too small'));
         }
         elsif ($self->has_max && $num > $self->max) {
-            return $self->set_error('too large');
+            return $self->set_error(loc('too large'));
         }
     }
     else {
         if ($self->has_min && $num <= $self->min) {
-            return $self->set_error('too small');
+            return $self->set_error(loc('too small'));
         }
         elsif ($self->has_max && $num >= $self->max) {
-            return $self->set_error('too large');
+            return $self->set_error(loc('too large'));
         }
     }
     return $num;

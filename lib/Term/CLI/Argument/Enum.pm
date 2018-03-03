@@ -47,14 +47,16 @@ sub validate {
 
     my @found = grep { rindex($_, $value, 0) == 0 } @{$self->value_list};
     if (@found == 0) {
-        return $self->set_error("not a valid value");
+        return $self->set_error(loc("not a valid value"));
     }
     elsif (@found == 1) {
         return $found[0];
     }
     else {
         @found = sort @found;
-        return $self->set_error("ambiguous value (matches: @found)");
+        return $self->set_error(
+            loc("ambiguous value (matches: [_1])", join(", ", @found))
+        );
     }
 }
 
