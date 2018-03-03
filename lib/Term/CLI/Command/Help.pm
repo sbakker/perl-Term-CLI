@@ -28,6 +28,7 @@ use List::Util qw( first );
 use File::Which;
 use Types::Standard qw( ArrayRef Str );
 use Getopt::Long qw( GetOptionsFromArray );
+use Term::CLI::L10N;
 
 my @PAGERS = (
     [qw(
