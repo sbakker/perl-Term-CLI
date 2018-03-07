@@ -50,7 +50,7 @@ sub startup : Test(startup => 1) {
     push @commands,Term::CLI::Command->new(
         name => 'mv',
         summary => 'move files/directories',
-        description => 'Move I<path>1 to I<path>2.',
+        description => 'Move I<path1> to I<path2>.',
         arguments => [
             Term::CLI::Argument::Filename->new(name => 'path', occur => 2),
         ],
@@ -118,7 +118,7 @@ sub check_help : Test(17) {
 
     stdout_like(
         sub { $cli->execute('help --pod mv') },
-        qr/=head2 Usage:.*B<mv> I<path>1 I<path>2/sm,
+        qr/=head2 Usage:.*B<mv> I<path1> I<path2>/sm,
         "'help --pod mv' returns POD command summary'",
     );
 
