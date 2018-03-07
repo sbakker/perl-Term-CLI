@@ -16,7 +16,9 @@
 #
 #===============================================================================
 
-package Term::CLI::L10N 0.001 {
+use 5.014_001;
+
+package Term::CLI::L10N  0.03002 {
 
 use Modern::Perl;
 
@@ -30,16 +32,22 @@ BEGIN {
     );
 }
 
-our $lh = __PACKAGE__->get_handle() || __PACKAGE__->get_handle('en')
-    or die "No language files for 'en'";
+our $lh;
+
+sub _init_handle {
+    $lh //= __PACKAGE__->get_handle() || __PACKAGE__->get_handle('en')
+        or die "No language files for 'en'";
+    return $lh;
+}
 
 *__ = \&loc;        # Alias __ to loc().
 
 sub handle {
-    return $lh;
+    return _init_handle();
 }
 
 sub loc {
+    _init_handle();
     return $lh->SUPER::maketext(@_);
 }
 
@@ -48,6 +56,7 @@ sub set_language {
 
     $lh = __PACKAGE__->get_handle(@_)
         or die "No language files for (@_)";
+    return $lh;
 }
 
 }
