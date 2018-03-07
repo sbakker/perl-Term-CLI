@@ -5,7 +5,7 @@
 #       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
 #      Created:  27/02/18
 #
-#   Copyright (c) 2018 AMS-IX B.V.; All rights reserved.
+#   Copyright (c) 2018 Steven Bakker; All rights reserved.
 #
 #   This module is free software; you can redistribute it and/or modify
 #   it under the same terms as Perl itself. See "perldoc perlartistic."
@@ -128,15 +128,15 @@ Dies with an error if no language can be loaded.
 L<Term::CLI::L10N::en>(3p),
 L<Term::CLI::L10N::nl>(3p),
 L<Locale::Maketext>(3p),
-L<Locale::Maketext::Lexicon>(3p),
+L<Locale::Maketext::Lexicon>(3p).
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sbakker@cpan.orgE<gt>, AMS-IX B.V.; 2018.
+Steven Bakker E<lt>sbakker@cpan.orgE<gt>.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2018 AMS-IX B.V.; All rights reserved.
+Copyright (c) 2018 Steven Bakker; All rights reserved.
 
 This module is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. See "perldoc perlartistic."
