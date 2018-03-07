@@ -4,7 +4,7 @@
 #       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
 #      Created:  27/02/18
 #
-#   Copyright (c) 2018 AMS-IX B.V.; All rights reserved.
+#   Copyright (c) 2018 Steven Bakker; All rights reserved.
 #
 #   This module is free software; you can redistribute it and/or modify
 #   it under the same terms as Perl itself. See "perldoc perlartistic."
@@ -43,9 +43,15 @@ Term::CLI::L10N::en - English localizations for Term::CLI
 
  use Term::CLI::L10N;
 
- loc("invalid value");
+ Term::CLI::L10N->set_language('en');
+
+ say loc("invalid value"); # -> invalid value
+ say Term::CLI::L10N->quant(1, 'guitar') ; # -> 1 guitar
+ say Term::CLI::L10N->quant(2, 'guitar') ; # -> 2 guitars
 
 =head1 DESCRIPTION
+
+Provide English language strings for L<Term::CLI>(3p).
 
 =head1 VARIABLES
 
@@ -54,21 +60,24 @@ Term::CLI::L10N::en - English localizations for Term::CLI
 =item <%LEXICON>
 
 Package variable containing the language mappings.
+Contains C<_AUTO> mapped to C<1>, assuming that all
+messages are written in English by default.
 
 =back
 
 =head1 SEE ALSO
 
+L<Term::CLI>(3p),
 L<Locale::Maketext>(3p),
 L<Term::CLI::L10N>(3p).
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sbakker@cpan.orgE<gt>, AMS-IX B.V.; 2018.
+Steven Bakker E<lt>sbakker@cpan.orgE<gt>.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2018 AMS-IX B.V.; All rights reserved.
+Copyright (c) 2018 Steven Bakker; All rights reserved.
 
 This module is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. See "perldoc perlartistic."
