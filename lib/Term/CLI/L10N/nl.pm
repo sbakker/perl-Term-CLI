@@ -4,7 +4,7 @@
 #       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
 #      Created:  27/02/18
 #
-#   Copyright (c) 2018 AMS-IX B.V.; All rights reserved.
+#   Copyright (c) 2018 Steven Bakker; All rights reserved.
 #
 #   This module is free software; you can redistribute it and/or modify
 #   it under the same terms as Perl itself. See "perldoc perlartistic."
@@ -288,3 +288,82 @@ msgstr ""
 #: lib/Term/CLI/Role/CommandSet.pm:142
 msgid "ambiguous command '%1' (matches: %2)"
 msgstr ""
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Term::CLI::L10N::nl - Dutch localizations for Term::CLI
+
+=head1 SYNOPSIS
+
+ use Term::CLI::L10N;
+
+ Term::CLI::L10N->set_language('nl');
+ 
+ say loc("ERROR"); # -> FOUT
+
+ say Term::CLI::L10N->quant(1, 'dingen'); # -> 1 ding
+ say Term::CLI::L10N->quant(1, 'leraren'); # -> 1 leraar
+
+=head1 DESCRIPTION
+
+The C<Term::CLI::L10N::nl> module is derived from the
+L<Term::CLI::L10N>(3p) class to provide Dutch translations for
+the messages of the L<Term::CLI>(3p) library.
+
+It implements its own C<numerate> method that reverses the
+meaning of its "form" arguments (because its easier to derive
+the singular noun from the plural in Dutch).
+
+It defines its lexicon using L<Locale::Maketext::Lexicon::Gettext>(3p)
+and the C<__DATA__> block.
+
+=head1 CONSTRUCTORS
+
+Inherits its constructor from L<Term::CLI::L10N>, though it should
+not be called directly.
+
+=head1 METHODS
+
+=over
+
+=item B<singularise> ( I<Str> )
+
+=item B<singularize> ( I<Str> )
+
+Take I<Str> as a plural noun and return its singular form.
+
+=item B<numerate> ( I<$num>, I<$plural> [, I<$singular>] )
+
+Overrides the parent's C<numerate> method, see L<Locale::Maketext>(3p).
+
+Note that the I<$plural> and I<$singular> forms are reversed here, and
+that there is no C<$negative> (or, if given, it will be ignored).
+
+=back
+
+=head1 SEE ALSO
+
+L<Term::CLI::L10N>(3p),
+L<Term::CLI>(3p),
+L<perl>(1).
+
+=head1 AUTHOR
+
+Steven Bakker E<lt>sbakker@cpan.orgE<gt>.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2018 Steven Bakker; All rights reserved.
+
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself. See "perldoc perlartistic."
+
+This software is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+=cut
