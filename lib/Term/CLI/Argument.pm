@@ -25,6 +25,8 @@ package Term::CLI::Argument  0.03002 {
 use Modern::Perl;
 use Moo;
 
+use Term::CLI::L10N;
+
 use Types::Standard qw( Int );
 
 use namespace::clean;
