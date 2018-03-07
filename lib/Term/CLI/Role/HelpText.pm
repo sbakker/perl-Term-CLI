@@ -126,13 +126,13 @@ sub usage_text {
     if ($args{with_arguments} and $self->has_arguments) {
         my @args;
         for my $arg ($self->arguments) {
-            my $name = 'I<'.$arg->name.'>';
-            my $str = $name;
+            #my $name = 'I<'.$arg->name.'>';
+            my $name = $arg->name;
+            my $str = $arg->max_occur > 1 ? "I<${name}1>" : "I<$name>";
 
             if ($arg->min_occur > 1) {
-                $str .= "1";
                 for my $n (2..$arg->min_occur) {
-                    $str .= " ${name}$n";
+                    $str .= " I<${name}$n>";
                 }
             }
 
@@ -140,14 +140,16 @@ sub usage_text {
                 $str .= ' ...';
             }
             elsif ($arg->max_occur == $arg->min_occur + 1) {
-                $str .= " [${name}".$arg->max_occur."]" if $arg->max_occur > 1;
+                $str .= " [I<${name}".$arg->max_occur.">]" if $arg->max_occur > 1;
+            }
+            elsif ($arg->max_occur == 2 && $arg->min_occur <= 1) {
+                $str .= " [I<${name}".$arg->max_occur.">]";
             }
             elsif ($arg->max_occur > $arg->min_occur) {
-                $str .= '1' if $arg->min_occur <= 1;
                 $str .= ' ['
-                        . $name.($arg->min_occur+1)
+                        . "I<$name".($arg->min_occur+1).">"
                         . ' ... '
-                        . $name.$arg->max_occur
+                        . "I<$name".$arg->max_occur.">"
                         . ']'
                         ;
             }
