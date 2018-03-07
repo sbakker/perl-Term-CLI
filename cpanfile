@@ -1,7 +1,10 @@
+requires "Exporter" => "0";
 requires "File::Which" => "0";
 requires "FindBin" => "0";
 requires "Getopt::Long" => "0";
 requires "List::Util" => "0";
+requires "Locale::Maketext" => "0";
+requires "Locale::Maketext::Lexicon::Gettext" => "0";
 requires "Modern::Perl" => "0";
 requires "Moo" => "0";
 requires "Moo::Role" => "0";
@@ -14,6 +17,7 @@ requires "Types::Standard" => "0";
 requires "namespace::clean" => "0";
 requires "parent" => "0";
 requires "perl" => "5.014_001";
+requires "subs" => "0";
 requires "warnings" => "0";
 
 on 'test' => sub {

@@ -17,10 +17,13 @@ my %WriteMakefileArgs = (
   "MIN_PERL_VERSION" => "5.014001",
   "NAME" => "Term::CLI",
   "PREREQ_PM" => {
+    "Exporter" => 0,
     "File::Which" => 0,
     "FindBin" => 0,
     "Getopt::Long" => 0,
     "List::Util" => 0,
+    "Locale::Maketext" => 0,
+    "Locale::Maketext::Lexicon::Gettext" => 0,
     "Modern::Perl" => 0,
     "Moo" => 0,
     "Moo::Role" => 0,
@@ -32,6 +35,7 @@ my %WriteMakefileArgs = (
     "Types::Standard" => 0,
     "namespace::clean" => 0,
     "parent" => 0,
+    "subs" => 0,
     "warnings" => 0
   },
   "TEST_REQUIRES" => {
@@ -54,11 +58,14 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
+  "Exporter" => 0,
   "File::Temp" => 0,
   "File::Which" => 0,
   "FindBin" => 0,
   "Getopt::Long" => 0,
   "List::Util" => 0,
+  "Locale::Maketext" => 0,
+  "Locale::Maketext::Lexicon::Gettext" => 0,
   "Modern::Perl" => 0,
   "Moo" => 0,
   "Moo::Role" => 0,
@@ -79,6 +86,7 @@ my %FallbackPrereqs = (
   "namespace::clean" => 0,
   "parent" => 0,
   "strict" => 0,
+  "subs" => 0,
   "warnings" => 0
 );
 
