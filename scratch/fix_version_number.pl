@@ -20,8 +20,8 @@ while (<>) {
     # Fix version number.
     s/^(\s* package \s+ \S+) (?:\s* \S+)? \s* \{/$1  $VERSION {/xm;
 
-    # Remove classic $VERSION assignment.
-    s/^our \s+ \$VERSION \s* = \s* \S+ \s* ;\s*//xm;
+    # Update classic $VERSION assignment.
+    s/^(\s* our \s+ \$VERSION \s* = \s* )\S+( \s* ;\s*)/$1$VERSION$2/xm;
 
     print;
 }
