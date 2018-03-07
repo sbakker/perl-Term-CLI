@@ -23,6 +23,7 @@ use 5.014_001;
 package Term::CLI::Argument::Enum  0.03002 {
 
 use Modern::Perl;
+use Term::CLI::L10N;
 
 use Types::Standard qw(
     ArrayRef
