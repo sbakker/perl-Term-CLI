@@ -15,9 +15,11 @@
 #
 #===============================================================================
 
+use 5.014_001;
+
 package Term::CLI::L10N::nl;
 
-our $VERSION = 0.01;
+our $VERSION = 0.03002;
 
 use Modern::Perl;
 
@@ -30,7 +32,9 @@ close DATA;
 
 # $str = $lh->singularize($num, $plural);
 # $str = $lh->singularise($num, $plural);
+use subs qw( singularise );
 *singularise = \&singularize;
+
 sub singularize {
     my $self = shift;
 
