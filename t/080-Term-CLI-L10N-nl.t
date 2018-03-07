@@ -88,7 +88,30 @@ my @plural_map = (
     #[qw( blad bladeren )],
 );
 
+is(
+    Term::CLI::L10N->handle->numerate(1),
+    '',
+    "1 x [] -> ''"
+);
+
+is(
+    Term::CLI::L10N->handle->numerate(2),
+    '',
+    "2 x [] -> ''"
+);
+
 for my $pair (@plural_map) {
+    is(
+        Term::CLI::L10N->handle->numerate(2, reverse @$pair),
+        $$pair[1],
+        "2 x [$$pair[1], $$pair[0]] -> $$pair[1]"
+    );
+    is(
+        Term::CLI::L10N->handle->numerate(1, reverse @$pair),
+        $$pair[0],
+        "1 x [$$pair[1], $$pair[0]] -> $$pair[0]"
+    );
+
     is(
         Term::CLI::L10N->handle->numerate(2, $$pair[1]),
         $$pair[1],
