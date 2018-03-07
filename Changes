@@ -1,6 +1,14 @@
-0.03003_pre -- 2018-02-27
+0.03003_pre -- 2018-03-08
 
     [New Modules]
+
+    - Add Term::CLI::L10N
+    - Add Term::CLI::L10N::en
+    - Add Term::CLI::L10N::nl
+
+      Files: lib/Term/CLI/L10N.pm
+             lib/Term/CLI/L10N/en.pm
+             lib/Term/CLI/L10N/nl.pm
 
     - Add Term::CLI::Argument::Bool
 
@@ -8,14 +16,26 @@
 
     [Features]
 
+    - Multi-language support through Locale::Maketext.
+
     - Add min_len and max_len restrictions to
       Term::CLI::Argument::String.
 
       Files: lib/Term/CLI/Argument/String.pm
 
+    - Improve usage text formatting.
+
+      Files: lib/Term/CLI/Role/HelpText.pm
+
     [Bug Fixes]
 
-    - Check SUPER's validate with defined not boolean
+    - Fix various typos.
+
+    - Fix usage text with variable number of arguments.
+
+      Files: lib/Term/CLI/Role/HelpText.pm
+
+    - Check SUPER's validate with defined(), not boolean eval.
 
       Files: lib/Term/CLI/Argument/Enum.pm
 
@@ -39,6 +59,8 @@
       Files:
         t/065-Term-CLI-Command-Help.t
         t/075-Term-CLI-History.t
+
+    - Turn off "-T" for t/065-Term-CLI-Command-Help.t
 
 0.03002 -- 2018-02-26
 
