@@ -54,6 +54,9 @@ sub singularize {
     # aquaria -> aquarium
     s/([ei])a$/$1um/  and return $_;
 
+    # rijen -> rij
+    s/ijen$/ij/ and return $_;
+
     # leraren -> leraar
     s/([aeiou])([^aeiou])en$/$1$1$2/ and return $_;
     
