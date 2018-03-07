@@ -169,33 +169,32 @@ sub _too_few_args_error {
 
     if ($arg_spec->max_occur == $arg_spec->min_occur) {
         if ($arg_spec->min_occur == 1) {
-            return sprintf("missing '%s' argument", $arg_spec->name);
+            return loc("missing '[_1]' argument", $arg_spec->name);
         }
         else {
-            return sprintf("need %d '%s' arguments",
+            return loc("need [_1] '[_2]' [numerate,_1,argument]",
                 $arg_spec->min_occur, $arg_spec->name,
             );
         }
     }
     elsif ($arg_spec->max_occur - $arg_spec->min_occur == 1) {
-        return sprintf("need %d or %d '%s' arguments",
+        return loc("need [_1] or [_2] '[_3]' arguments",
             $arg_spec->min_occur,
             $arg_spec->max_occur,
             $arg_spec->name,
         );
     }
     elsif ($arg_spec->max_occur > 1) {
-        return sprintf("need between %d and %d '%s' arguments",
+        return loc("need between [_1] and [_2] '[_3]' arguments",
             $arg_spec->min_occur,
             $arg_spec->max_occur,
             $arg_spec->name,
         );
     }
     else {
-        return sprintf("need at least %d '%s' argument%s",
+        return loc("need at least [_1] '[_2]' [numerate,_1,argument]",
             $arg_spec->min_occur,
             $arg_spec->name,
-            $arg_spec->min_occur == 1 ? '' : 's'
         );
     }
 }
@@ -211,7 +210,7 @@ sub _check_arguments {
     if (@arg_spec == 0 and @$unparsed > 0) {
         return (%args,
             status => -1,
-            error => 'no arguments allowed',
+            error => loc('no arguments allowed'),
         );
     }
 
@@ -254,7 +253,7 @@ sub _check_arguments {
     if (@$unparsed > 0 and !$self->has_commands) {
         my $last_spec = $arg_spec[$#arg_spec];
         return (%args, status => -1,
-            error => sprintf("too many '%s' arguments (max. %d)",
+            error => loc("too many '[_1]' arguments (max. [_2])",
                 $last_spec->name,
                 $last_spec->max_occur,
             ),
@@ -273,10 +272,10 @@ sub _execute_command {
         if (scalar $self->commands == 1) {
             my ($cmd) = $self->commands;
             return (%args, status => -1,
-                error => "incomplete command: missing '".$cmd->name."'"
+                error => loc("incomplete command: missing '[_1]'", $cmd->name)
             );
         }
-        return (%args, status => -1, error => "missing sub-command");
+        return (%args, status => -1, error => loc("missing sub-command"));
     }
 
     my $cmd_name = $unparsed->[0];
@@ -287,11 +286,17 @@ sub _execute_command {
         if (scalar $self->commands == 1) {
             ($cmd) = $self->commands;
             return (%args, status => -1,
-                error => "expected '".$cmd->name
-                        ."' instead of '$cmd_name'"
+                error => loc(
+                    "expected '[_1]' instead of '[_2]'",
+                    $cmd->name,
+                    $cmd_name
+                ),
             );
         }
-        return (%args, status => -1, error => "unknown sub-command '$cmd_name'");
+        return (%args,
+            status => -1,
+            error => loc("unknown sub-command '[_1]'", $cmd_name)
+        );
     }
 
     shift @$unparsed;
