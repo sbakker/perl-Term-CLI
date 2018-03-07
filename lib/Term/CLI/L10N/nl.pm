@@ -99,13 +99,19 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lib/Term/CLI.pm:146
-msgid "ERROR"
-msgstr "FOUT"
+##############################################################################
+### lib/Term/CLI/Argument/Bool.pm ############################################
 
 #: lib/Term/CLI/Argument/Bool.pm:94
 msgid "invalid boolean value"
 msgstr "ongeldige booleaanse waarde"
+
+#: lib/Term/CLI/Argument/Bool.pm:83
+msgid "ambiguous boolean value (matches [%1] and [%2])"
+msgstr "geen eenduidige booleaanse waarde (komt overeen met zowel [%1] als [%2])"
+
+##############################################################################
+### lib/Term/CLI/Argument/Enum.pm ############################################
 
 #: lib/Term/CLI/Argument/Enum.pm:50
 msgid "not a valid value"
@@ -114,6 +120,9 @@ msgstr "geen geldige waarde"
 #:
 msgid "ambiguous value (matches: %1)"
 msgstr "geen eenduidige waarde (mogelijke waarden: %1)"
+
+##############################################################################
+### lib/Term/CLI/Argument/Number.pm ##########################################
 
 #: lib/Term/CLI/Argument/Number.pm
 msgid "not a valid number"
@@ -127,9 +136,15 @@ msgstr "getal te klein"
 msgid "too large"
 msgstr "getal te groot"
 
+##############################################################################
+### lib/Term/CLI/Argument.pm #################################################
+
 #: lib/Term/CLI/Argument.pm
 msgid "value cannot be empty"
 msgstr "waarde mag niet leeg zijn"
+
+##############################################################################
+### lib/Term/CLI/Argument/String.pm ##########################################
 
 #: lib/Term/CLI/Argument/String.pm
 msgid "value must be defined"
@@ -143,29 +158,7 @@ msgstr "te kort (min. lengte %1)"
 msgid "too long (max. length %1)"
 msgstr "te lang (max. lengte %1)"
 
-#:
-msgid "unknown command '%1'"
-msgstr "onbekend commando '%1'"
-
-#: lib/Term/CLI/Argument/Bool.pm:83
-msgid "ambiguous boolean value (matches [%1] and [%2])"
-msgstr "geen eenduidige booleaanse waarde (komt overeen met zowel [%1] als [%2])"
-
-#:
-msgid "ambiguous command '%1' (matches: %2)"
-msgstr "geen eenduidig commando '%1' (mogelijk: %2)"
-
-#:
-msgid "I counted %quant(%1,thing)"
-msgstr "Ik heb %quant(%1,dingen) geteld"
-
-#:
-msgid "I counted %quant(%1,car)"
-msgstr "Ik heb %quant(%1,auto's) geteld"
-
-#:
-msgid "for"
-msgstr "voor"
+#############################################################################
 
 #: lib/Term/CLI/Command/Help.pm
 msgid ""
@@ -200,3 +193,91 @@ msgstr "Sub-Commando's"
 #: lib/Term/CLI/Command/Help.pm
 msgid "cannot run '[_1]': [_2]"
 msgstr "kan programma '[_1]' niet starten: [_2]"
+
+#############################################################################
+
+#: lib/Term/CLI/Role/CommandSet.pm
+msgid "unknown command '%1'"
+msgstr "onbekend commando '%1'"
+
+#:
+msgid "ambiguous command '%1' (matches: %2)"
+msgstr "geen eenduidig commando '%1' (mogelijk: %2)"
+
+#:
+msgid "I counted %quant(%1,thing)"
+msgstr "Ik heb %quant(%1,dingen) geteld"
+
+#:
+msgid "I counted %quant(%1,car)"
+msgstr "Ik heb %quant(%1,auto's) geteld"
+
+##############################################################################
+### lib/Term/CLI/Command.pm ##################################################
+
+#: lib/Term/CLI/Command.pm
+msgid "for"
+msgstr "voor"
+
+#: lib/Term/CLI/Command.pm
+msgid "missing '%1' argument"
+msgstr "'%1' argument is niet ingevoerd"
+
+#: lib/Term/CLI/Command.pm
+msgid "need %1 '%2' %numerate(%1,argument)"
+msgstr "er zijn %1 '%2' %numerate(%1,argumenten) nodig"
+
+#: lib/Term/CLI/Command.pm
+msgid "need %1 or %2 '%3' arguments"
+msgstr "er zijn %1 of %2 '%3' argumenten nodig"
+
+#: lib/Term/CLI/Command.pm
+msgid "need between %1 and %2 '%3' arguments"
+msgstr "er zijn %1 t/m %2 '%3' argumenten nodig"
+
+#: lib/Term/CLI/Command.pm
+msgid "need at least %1 '%2' %numerate(%1,argument)"
+msgstr "er %numerate(%1,zijn,is) tenminste %1 '%2' %numerate(%1,argumenten) nodig"
+
+#: lib/Term/CLI/Command.pm
+msgid "no arguments allowed"
+msgstr "argumenten zijn niet toegestaan"
+
+#: lib/Term/CLI/Command.pm
+msgid "too many '%1' arguments (max. %2)"
+msgstr "teveel '%1' argumenten (max. %2)"
+
+#: lib/Term/CLI/Command.pm
+msgid "incomplete command: missing '%1'"
+msgstr "commando niet compleet: verwachte '%1' niet gezien"
+
+#: lib/Term/CLI/Command.pm
+msgid "missing sub-command"
+msgstr "commando niet compleet (sub-commando verwacht)"
+
+#: lib/Term/CLI/Command.pm
+msgid "expected '%1' instead of '%2'"
+msgstr "'%1' verwacht in plaats van '%2'"
+
+#: lib/Term/CLI/Command.pm
+msgid "unknown sub-command '%1'"
+msgstr "onbekend sub-commando '%1'"
+
+#############################################################################
+### TO DO
+
+#: lib/Term/CLI.pm:146
+msgid "ERROR"
+msgstr "FOUT"
+
+#: lib/Term/CLI.pm:372
+msgid "missing command"
+msgstr ""
+
+#: lib/Term/CLI/Role/CommandSet.pm:138
+msgid "unknown command '$partial'"
+msgstr ""
+
+#: lib/Term/CLI/Role/CommandSet.pm:142
+msgid "ambiguous command '%1' (matches: %2)"
+msgstr ""
