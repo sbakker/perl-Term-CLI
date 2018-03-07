@@ -39,7 +39,7 @@ my @PAGERS = (
     ['more'], ['pg'],
 );
 
-my @PAGER = 'cat';
+my @PAGER = '/bin/cat';
 if (my $pager = first { defined which($_->[0]) } @PAGERS) {
     @PAGER = @$pager;
 }
