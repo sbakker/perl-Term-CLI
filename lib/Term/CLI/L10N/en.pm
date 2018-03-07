@@ -15,9 +15,12 @@
 #
 #===============================================================================
 
-package Term::CLI::L10N::en  0.01 {
+use 5.014_001;
+
+package Term::CLI::L10N::en  0.03002 {
 
 use Modern::Perl;
+
 use parent qw( Term::CLI::L10N );
 
 our %Lexicon = (
