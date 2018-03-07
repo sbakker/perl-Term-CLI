@@ -23,10 +23,12 @@ use 5.014_001;
 package Term::CLI::Argument::String  0.03002 {
 
 use Modern::Perl;
-use Moo;
+
+use Term::CLI::L10N;
 
 use Types::Standard qw( Int );
 
+use Moo;
 use namespace::clean;
 
 extends 'Term::CLI::Argument';
