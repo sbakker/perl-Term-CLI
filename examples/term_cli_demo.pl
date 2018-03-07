@@ -12,6 +12,7 @@ use Term::CLI::Argument::Filename;
 use Term::CLI::Argument::Number::Float;
 use Term::CLI::Argument::Enum;
 use Term::CLI::Argument::String;
+use Term::CLI::L10N;
 
 my $test_1_cmd = Term::CLI::Command->new(
     name => 'test_1',
@@ -189,7 +190,7 @@ my $cli = Term::CLI->new(
         #say "path:", map { " ".$_->name } @$command_path;
 
         if ($args{status} < 0) {
-            say "** ERROR: $args{error}";
+            say "** ", loc("ERROR"), ": $args{error}";
             say "(status: $args{status})";
             $self->prompt("ERR[$args{status}]> ");
             return %args;
