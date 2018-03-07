@@ -191,8 +191,8 @@ msgid "Sub-Commands"
 msgstr "Sub-Commando's"
 
 #: lib/Term/CLI/Command/Help.pm
-msgid "cannot run '[_1]': [_2]"
-msgstr "kan programma '[_1]' niet starten: [_2]"
+msgid "cannot run '%1': %2"
+msgstr "kan programma '%1' niet starten: %2"
 
 #############################################################################
 
