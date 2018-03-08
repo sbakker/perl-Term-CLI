@@ -168,7 +168,7 @@ sub _default_split {
         $text =~ s/^[$delim]+//;
         my @words = parse_line(qr{[$delim]+}, 0, $text);
         pop @words if @words and not defined $words[-1];
-        my $error = @words ? '' : 'Unbalanced quotes in input';
+        my $error = @words ? '' : loc('unbalanced quotes in input');
         return ($error, @words);
     }
     else {
@@ -371,7 +371,7 @@ sub execute {
         if length $error;
 
     if (@cmd == 0) {
-        $args{error} = "missing command";
+        $args{error} = loc("missing command");
         $args{status} = -1;
     }
     elsif (my $cmd_ref = $self->find_command($cmd[0])) {
