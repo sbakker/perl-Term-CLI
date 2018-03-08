@@ -20,7 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Argument::Enum  0.03002 {
+package Term::CLI::Argument::Enum  0.04001 {
 
 use Modern::Perl;
 use Term::CLI::L10N;
