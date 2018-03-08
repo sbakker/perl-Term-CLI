@@ -10,6 +10,7 @@ requires "Moo" => "0";
 requires "Moo::Role" => "0";
 requires "POSIX" => "0";
 requires "Pod::Text::Termcap" => "0";
+requires "Scalar::Util" => "0";
 requires "Term::ReadLine" => "0";
 requires "Term::ReadLine::Gnu" => "0";
 requires "Text::ParseWords" => "0";

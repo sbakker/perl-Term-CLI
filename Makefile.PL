@@ -29,6 +29,7 @@ my %WriteMakefileArgs = (
     "Moo::Role" => 0,
     "POSIX" => 0,
     "Pod::Text::Termcap" => 0,
+    "Scalar::Util" => 0,
     "Term::ReadLine" => 0,
     "Term::ReadLine::Gnu" => 0,
     "Text::ParseWords" => 0,
@@ -50,7 +51,7 @@ my %WriteMakefileArgs = (
     "Test::Pod::Coverage" => 0,
     "strict" => 0
   },
-  "VERSION" => "0.03002",
+  "VERSION" => "0.04001",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -72,6 +73,7 @@ my %FallbackPrereqs = (
   "POSIX" => 0,
   "Pod::Coverage::TrustPod" => 0,
   "Pod::Text::Termcap" => 0,
+  "Scalar::Util" => 0,
   "Term::ReadLine" => 0,
   "Term::ReadLine::Gnu" => 0,
   "Test::Class" => 0,
