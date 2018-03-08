@@ -29,6 +29,7 @@ use Test::Output;
 use Test::Exception;
 use FindBin;
 use Term::CLI;
+use Term::CLI::L10N;
 
 # Untaint the PATH.
 $::ENV{PATH} = '/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin';
@@ -36,6 +37,8 @@ $::ENV{PATH} = '/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin';
 sub startup : Test(startup => 1) {
     my $self = shift;
     my @commands;
+
+    Term::CLI::L10N->set_language('en');
 
     push @commands,Term::CLI::Command->new(
         name => 'cp',

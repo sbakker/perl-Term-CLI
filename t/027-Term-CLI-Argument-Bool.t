@@ -28,6 +28,7 @@ use Test::More;
 use Test::Exception;
 use FindBin;
 use Term::CLI::Argument::Bool;
+use Term::CLI::L10N;
 
 my $ARG_NAME= 'test_bool';
 my @TRUE  = qw( 1 true  on  yes ok    );
@@ -38,6 +39,9 @@ $::ENV{PATH} = '/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin';
 
 sub startup : Test(startup => 1) {
     my $self = shift;
+
+    Term::CLI::L10N->set_language('en');
+
     my $arg = Term::CLI::Argument::Bool->new(
         name => $ARG_NAME,
         true_values => [@TRUE],
