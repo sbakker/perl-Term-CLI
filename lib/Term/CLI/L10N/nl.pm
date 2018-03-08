@@ -126,7 +126,7 @@ msgstr "geen geldige waarde"
 
 #:
 msgid "ambiguous value (matches: %1)"
-msgstr "geen eenduidige waarde (mogelijke waarden: %1)"
+msgstr "geen eenduidige waarde (komt overeen met: %1)"
 
 ##############################################################################
 ### lib/Term/CLI/Argument/Number.pm ##########################################
@@ -165,7 +165,8 @@ msgstr "te kort (min. lengte %1)"
 msgid "too long (max. length %1)"
 msgstr "te lang (max. lengte %1)"
 
-#############################################################################
+##############################################################################
+### lib/Term/CLI/Command/Help.pm #############################################
 
 #: lib/Term/CLI/Command/Help.pm
 msgid ""
@@ -201,23 +202,16 @@ msgstr "Sub-Commando's"
 msgid "cannot run '%1': %2"
 msgstr "kan programma '%1' niet starten: %2"
 
-#############################################################################
+##############################################################################
+### lib/Term/CLI/Role/CommandSet.pm ##########################################
 
-#: lib/Term/CLI/Role/CommandSet.pm
+#: lib/Term/CLI/Role/CommandSet.pm:138
 msgid "unknown command '%1'"
 msgstr "onbekend commando '%1'"
 
-#:
+#: lib/Term/CLI/Role/CommandSet.pm:142
 msgid "ambiguous command '%1' (matches: %2)"
-msgstr "geen eenduidig commando '%1' (mogelijk: %2)"
-
-#:
-msgid "I counted %quant(%1,thing)"
-msgstr "Ik heb %quant(%1,dingen) geteld"
-
-#:
-msgid "I counted %quant(%1,car)"
-msgstr "Ik heb %quant(%1,auto's) geteld"
+msgstr "geen eenduidig commando '%1' (komt overeen met: %2)"
 
 ##############################################################################
 ### lib/Term/CLI/Command.pm ##################################################
@@ -271,23 +265,19 @@ msgid "unknown sub-command '%1'"
 msgstr "onbekend sub-commando '%1'"
 
 #############################################################################
-### TO DO
+### lib/Term/CLI.pm #########################################################
 
 #: lib/Term/CLI.pm:146
 msgid "ERROR"
 msgstr "FOUT"
 
+#: lib/Term/CLI.pm:171
+msgid "unbalanced quotes in input"
+msgstr "invoer bevat ongebalanceerde aanhalingstekens"
+
 #: lib/Term/CLI.pm:372
 msgid "missing command"
-msgstr ""
-
-#: lib/Term/CLI/Role/CommandSet.pm:138
-msgid "unknown command '$partial'"
-msgstr ""
-
-#: lib/Term/CLI/Role/CommandSet.pm:142
-msgid "ambiguous command '%1' (matches: %2)"
-msgstr ""
+msgstr "commando ontbreekt"
 
 __END__
 
