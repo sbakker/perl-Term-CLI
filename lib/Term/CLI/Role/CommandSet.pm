@@ -23,6 +23,7 @@ use 5.014_001;
 package Term::CLI::Role::CommandSet  0.03002 {
 
 use Modern::Perl;
+use Term::CLI::L10N;
 
 use Types::Standard qw(
     ArrayRef
@@ -135,14 +136,14 @@ sub find_command {
         return $matches[0];
     }
     elsif (@matches == 0) {
-        return $self->set_error("unknown command '$partial'");
+        return $self->set_error(loc("unknown command '[_1]'", $partial));
     }
     else {
         return $self->set_error(
-            "ambiguous command '$partial'"
-                . " (matches: "
-                . join(' ', sort map {$_->name} @matches)
-                . ")"
+            loc("ambiguous command '[_1]' (matches: [_2])",
+                $partial,
+                join(', ', sort map {$_->name} @matches)
+            )
         );
     }
 }
