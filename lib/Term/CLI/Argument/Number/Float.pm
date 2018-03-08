@@ -24,13 +24,18 @@ package Term::CLI::Argument::Number::Float  0.03002 {
 
 use Modern::Perl;
 use POSIX qw( );
+use Scalar::Util qw( looks_like_number );
+
 use Moo;
 use namespace::clean;
 
 extends 'Term::CLI::Argument::Number';
 
 sub coerce_value {
-    return POSIX::strtod($_[1]);
+    if (looks_like_number($_[1])) {
+        return $_[1] + 0.0;
+    }
+    return undef;
 }
 
 }
@@ -88,13 +93,14 @@ Additionally:
 
 =item B<coerce_value> ( I<VALUE> )
 
-Overloaded to call L<POSIX::strtod|POSIX/strtod>.
+Overloaded to check for a valid numerical
+value (using L<Scalar::Util's looks_like_number|Scalar::Util/looks_like_number>).
 
 =back
 
 =head1 SEE ALSO
 
-L<POSIX>(3p),
+L<Scalar::Util>(3p),
 L<Term::CLI::Argument::Number::Int>(3p),
 L<Term::CLI::Argument::Number>(3p),
 L<Term::CLI::Argument>(3p),

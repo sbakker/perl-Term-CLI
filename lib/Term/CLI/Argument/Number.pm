@@ -45,9 +45,9 @@ sub validate {
         return $self->set_error(loc('not a valid number'));
     }
 
-    my ($num, $unparsed) = $self->coerce_value($value);
+    my $num = $self->coerce_value($value);
 
-    if ($unparsed) {
+    if (!defined $num) {
         return $self->set_error(loc('not a valid number'));
     }
 
@@ -192,16 +192,14 @@ a suitable number and then checks any boundaries.
 
 This method I<must> be overridden by sub-classes.
 
-Its function interface should be identical to that of L<POSIX>'s C<strtod>
-and C<strtol> functions. It will be called with a single argument (the
-I<VALUE>) and is supposed to return a list of two values: the converted
-number and the number of unparsed characters in I<VALUE>.
+It will be called with a single argument (the I<VALUE>) and is
+supposed to return the converted number. If the number is not
+valid, it should return C<undef>.
 
 =back
 
 =head1 SEE ALSO
 
-L<POSIX>(3p),
 L<Term::CLI::Argument>(3p),
 L<Term::CLI>(3p).
 
