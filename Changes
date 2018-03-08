@@ -1,47 +1,72 @@
 0.03003_pre -- 2018-03-08
 
+    [Features]
+
+    - Multi-language support through Locale::Maketext.
+
+      Files: many
+
+    - Add min_len and max_len restrictions to
+      Term::CLI::Argument::String.
+
+      Files:
+        lib/Term/CLI/Argument/String.pm
+
+    - Improve usage text formatting.
+
+      Files:
+        lib/Term/CLI/Role/HelpText.pm
+
     [New Modules]
 
     - Add Term::CLI::L10N
     - Add Term::CLI::L10N::en
     - Add Term::CLI::L10N::nl
 
-      Files: lib/Term/CLI/L10N.pm
-             lib/Term/CLI/L10N/en.pm
-             lib/Term/CLI/L10N/nl.pm
+      Files:
+        lib/Term/CLI/L10N.pm
+        lib/Term/CLI/L10N/en.pm
+        lib/Term/CLI/L10N/nl.pm
 
     - Add Term::CLI::Argument::Bool
 
-      Files: lib/Term/CLI/Argument/Bool.pm
-
-    [Features]
-
-    - Multi-language support through Locale::Maketext.
-
-    - Add min_len and max_len restrictions to
-      Term::CLI::Argument::String.
-
-      Files: lib/Term/CLI/Argument/String.pm
-
-    - Improve usage text formatting.
-
-      Files: lib/Term/CLI/Role/HelpText.pm
+      Files:
+        lib/Term/CLI/Argument/Bool.pm
 
     [Bug Fixes]
 
-    - Fix various typos.
+    - Fix various (POD and diagnostic message) typos.
+
+    - Don't use POSIX's strtod() and strtol() for number conversions;
+      rely on regex and looks_like_number() instead.
+
+      Files: 
+        lib/Term/CLI/Argument/Number.pm
+        lib/Term/CLI/Argument/Number/Float.pm
+        lib/Term/CLI/Argument/Number/Int.pm
+
+
+    - Tests now force the 'en' language where necessary.
+      Error messages are hard to verify without forcing
+      a particular language.
+
+      Files:
+        lib/Term/CLI/Role/HelpText.pm
 
     - Fix usage text with variable number of arguments.
 
-      Files: lib/Term/CLI/Role/HelpText.pm
+      Files:
+        lib/Term/CLI/Role/HelpText.pm
 
     - Check SUPER's validate with defined(), not boolean eval.
 
-      Files: lib/Term/CLI/Argument/Enum.pm
+      Files:
+        lib/Term/CLI/Argument/Enum.pm
 
     - Fix "=over" size in command summary to a maximum.
 
-      Files: lib/Term/CLI/Command/Help.pm
+      Files:
+        lib/Term/CLI/Command/Help.pm
 
     - Fix test on FreeBSD - closes #2
 
@@ -49,7 +74,8 @@
       Linux to FreeBSD. Just check for "cat:" in the error
       message instead.
 
-      Files: t/065-Term-CLI-Command-Help.t
+      Files:
+        t/065-Term-CLI-Command-Help.t
 
     - Fix tests for non-English locales - closes #3
 
@@ -60,7 +86,10 @@
         t/065-Term-CLI-Command-Help.t
         t/075-Term-CLI-History.t
 
-    - Turn off "-T" for t/065-Term-CLI-Command-Help.t
+    - Turn off "-T"
+
+      Files:
+        t/065-Term-CLI-Command-Help.t
 
 0.03002 -- 2018-02-26
 
