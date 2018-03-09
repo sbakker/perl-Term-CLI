@@ -20,7 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Role::CommandSet  0.04002 {
+package Term::CLI::Role::CommandSet  0.04003 {
 
 use Modern::Perl;
 use Term::CLI::L10N;

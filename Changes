@@ -1,3 +1,29 @@
+0.04003 -- 2018-03-09
+
+  [Bug Fixes]
+
+    - Use custom script for pager error exit.
+        Running external commands in tests is not as easy
+        as it seems...
+
+        Files added:
+            t/scripts/pager.pl
+
+        Files modified:
+            t/065-Term-CLI-Command-Help.t
+
+  [Other Changes]
+
+    - Copy MANIFEST from D::Z build.
+
+        Files modified:
+            dist.ini
+
+    - Add MANIFEST from D::Z build.
+
+        Files added:
+            MANIFEST
+
 0.04002 -- 2018-03-09
 
   [Bug Fixes]
