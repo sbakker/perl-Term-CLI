@@ -67,7 +67,11 @@ sub startup : Test(startup => 1) {
         ],
     );
 
-    push @commands,Term::CLI::Command::Help->new();
+    my $help = Term::CLI::Command::Help->new(
+        pager => [], # Prevent SIGPIPE by dumping to STDOUT directly.
+    );
+
+    push @commands, $help;
 
     my $cli = Term::CLI->new(
         prompt => 'test> ',
