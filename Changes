@@ -1,6 +1,42 @@
+0.04002 -- 2018-03-09
+
+  [Bug Fixes]
+
+    - Ignore SIGPIPE in _execute_help -- closes #5
+
+        Files modified:
+            lib/Term/CLI/Command/Help.pm
+
+    - Select raw STDOUT for help output.
+
+        Files modified:
+            t/065-Term-CLI-Command-Help.t
+
+    - Fix English-centred error message check.
+
+        Files modified:
+            t/075-Term-CLI-History.t
+
+  [Features]
+
+    - Allow empty "pager" (dump to STDOUT)
+        Instead of falling back to "cat", fall back to
+        raw STDOUT printing. An empty pager list will
+        select STDOUT as well.
+
+        Files modified:
+            lib/Term/CLI/Command/Help.pm
+
+  [Other Changes]
+
+    - Clean up commented-out code.
+
+        Files modified:
+            lib/Term/CLI/Command/Help.pm
+
 0.04001 -- 2018-03-08
 
-    [Features]
+  [Features]
 
     - Multi-language support through Locale::Maketext.
 
@@ -17,7 +53,7 @@
       Files:
         lib/Term/CLI/Role/HelpText.pm
 
-    [New Modules]
+  [New Modules]
 
     - Add Term::CLI::L10N
     - Add Term::CLI::L10N::en
@@ -33,7 +69,7 @@
       Files:
         lib/Term/CLI/Argument/Bool.pm
 
-    [Bug Fixes]
+  [Bug Fixes]
 
     - Fix various (POD and diagnostic message) typos.
 
@@ -44,7 +80,6 @@
         lib/Term/CLI/Argument/Number.pm
         lib/Term/CLI/Argument/Number/Float.pm
         lib/Term/CLI/Argument/Number/Int.pm
-
 
     - Tests now force the 'en' language where necessary.
       Error messages are hard to verify without forcing
@@ -93,7 +128,7 @@
 
 0.03002 -- 2018-02-26
 
-    [Bug Fixes]
+  [Bug Fixes]
 
     - Fix float comparision in test -- fixes #1
       On Perl installs compiled with -Duselongdouble,
@@ -101,20 +136,20 @@
 
     - dist.ini: add dependencies not picked up by AutoPrereqs
 
-    [Other Changes]
+  [Other Changes]
 
     - Update version and dependencies.
 
 0.03001 -- 2018-02-26
 
-    - Switch to using Dist::Zilla.
-    - Some code cleanups (remove unnecessary "use" clauses).
-    - Fix some POD pages.
+  - Switch to using Dist::Zilla.
+  - Some code cleanups (remove unnecessary "use" clauses).
+  - Fix some POD pages.
 
 0.02 -- 2018-02-24
-    
-    - Fix version numbers: package Foo 0.02 { ... }
+  
+  - Fix version numbers: package Foo 0.02 { ... }
 
 0.01 -- 2018-02-24
 
-    - First release.
+  - First release.
