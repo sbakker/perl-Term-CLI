@@ -30,7 +30,6 @@ lib/Term/CLI/Element.pm
 lib/Term/CLI/Intro.pod
 lib/Term/CLI/L10N.pm
 lib/Term/CLI/L10N/en.pm
-lib/Term/CLI/L10N/en.pm.orig
 lib/Term/CLI/L10N/nl.pm
 lib/Term/CLI/ReadLine.pm
 lib/Term/CLI/Role/ArgumentSet.pm
