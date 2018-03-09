@@ -84,9 +84,40 @@ sub startup : Test(startup => 1) {
     $self->{commands} = [@commands];
 }
 
-sub check_help : Test(17) {
+sub check_pager : Test(4) {
     my $self = shift;
     my $cli = $self->{cli};
+
+    my $n = 0;
+    my $pager = "$FindBin::Bin/scripts/does_not_exist";
+    while (-e $pager) {
+        $pager = "$FindBin::Bin/scripts/does_not_exist_".$n++;
+    }
+
+    $cli->find_command('help')->pager([ $pager ]);
+    my %args = $cli->execute('help');
+    ok($args{status} < 0, '"help" with non-existent pager results in an error');
+    like($args{error}, qr/cannot run '.*':/,
+        'error on non-existent pager is set correctly');
+
+    $pager = "$FindBin::Bin/scripts/pager.pl";
+    $cli->find_command('help')->pager([ 'perl', $pager, '-x' ]);
+
+    stderr_like(
+        sub { %args = $cli->execute('help') },
+        qr/: ERROR/,
+        '"help" with bad pager args results in an error',
+    );
+
+    ok($args{status} > 0, '"help" with bad pager args results in an error');
+}
+
+
+sub check_help : Test(13) {
+    my $self = shift;
+    my $cli = $self->{cli};
+
+    $cli->find_command('help')->pager( [] );
 
     stdout_like(
         sub { $cli->execute('help') },
@@ -140,22 +171,6 @@ sub check_help : Test(17) {
     %args = $cli->execute('help --bad foo');
     ok($args{status} < 0, '"help --bad foo" results in an error');
     like($args{error}, qr/Unknown option: bad/, 'error is set correctly');
-
-    $cli->find_command('help')->pager([ '/does/not/exist' ]);
-    %args = $cli->execute('help');
-    ok($args{status} < 0, '"help" with non-existent pager results in an error');
-    like($args{error}, qr/cannot run '.*':/,
-        'error on non-existent pager is set correctly');
-
-    $cli->find_command('help')->pager([ 'cat', '-x' ]);
-
-    stderr_like(
-        sub { %args = $cli->execute('help') },
-        qr/cat:/,
-        '"help" with bad pager args results in an error',
-    );
-
-    ok($args{status} > 0, '"help" with bad pager args results in an error');
 
 }
 
