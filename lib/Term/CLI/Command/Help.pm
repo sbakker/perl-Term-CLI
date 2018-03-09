@@ -293,6 +293,8 @@ sub _execute_help {
     my $pager_fh;
     my $pager_cmd = $self->pager;
 
+    local( $::SIG{PIPE} ) = 'IGNORE'; # Temporarily avoid accidents.
+
     if (@$pager_cmd) {
         no warnings 'exec';
         if (!open $pager_fh, "|-", @{$pager_cmd}) {
