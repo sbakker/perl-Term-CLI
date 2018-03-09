@@ -85,10 +85,6 @@ has '+summary' => (
     default => sub { loc('show help') },
 );
 
-#has '+usage' => (
-    #default => sub { 'B<help> [I<cmd> ...]' },
-#);
-
 has '+_arguments' => (
     default => sub { [
         Term::CLI::Argument::String->new(
