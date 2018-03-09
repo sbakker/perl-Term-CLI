@@ -49,7 +49,7 @@ sub check_history : Test(12) {
 
     ok(!$cli->read_history, 'read_history from non-existent file fails');
     like($cli->error,
-        qr/no such file or directory/i,
+        qr{/does/not/exist:}i,
         'error on failed read_history is set correctly'
     );
 
