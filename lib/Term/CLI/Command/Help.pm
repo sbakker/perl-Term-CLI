@@ -311,10 +311,6 @@ sub _execute_help {
         return %args;
     }
 
-    #my $parser = Pod::Text::Termcap->new( width => $self->term_width - 4 );
-    #$parser->output_fh($pager_fh);
-    #$parser->parse_string_document($args{text});
-    
     print $pager_fh $args{text};
 
     if (!$pager_fh->close) {
