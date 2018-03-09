@@ -267,9 +267,6 @@ sub complete_line {
         $cur_cmd_ref = $new_cmd_ref;
     }
 
-    #say STDERR "WORDS: <@words> (".int(@words)."); partial:<$partial>";
-    #say STDERR "CMDS: ".join(' ', $cur_cmd_ref->command_names);
-
     if (@words == 0) {
         return $cur_cmd_ref->name;
     }
