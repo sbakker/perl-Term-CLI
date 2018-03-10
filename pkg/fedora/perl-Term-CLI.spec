@@ -1,6 +1,6 @@
 Name:           perl-Term-CLI
 Version:        0.04004
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        CLI interpreter based on Term::ReadLine
 License:        GPL+ or Artistic
 Group:          Development/Libraries
@@ -8,13 +8,16 @@ URL:            http://search.cpan.org/dist/Term-CLI/
 Source0:        http://www.cpan.org/modules/by-module/Term/Term-CLI-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
-BuildRequires:  perl >= 0:5.014_001
+BuildRequires:  perl >= 0:5.014001
+BuildRequires:  perl(Exporter)
 BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  perl(File::Temp)
 BuildRequires:  perl(File::Which)
 BuildRequires:  perl(FindBin)
 BuildRequires:  perl(Getopt::Long)
 BuildRequires:  perl(List::Util)
+BuildRequires:  perl(Locale::Maketext)
+BuildRequires:  perl(Locale::Maketext::Lexicon::Gettext)
 BuildRequires:  perl(Modern::Perl)
 BuildRequires:  perl(Moo)
 BuildRequires:  perl(Moo::Role)
@@ -23,7 +26,9 @@ BuildRequires:  perl(parent)
 BuildRequires:  perl(Pod::Coverage::TrustPod)
 BuildRequires:  perl(Pod::Text::Termcap)
 BuildRequires:  perl(POSIX)
+BuildRequires:  perl(Scalar::Util)
 BuildRequires:  perl(strict)
+BuildRequires:  perl(subs)
 BuildRequires:  perl(Term::ReadLine)
 BuildRequires:  perl(Term::ReadLine::Gnu)
 BuildRequires:  perl(Test::Class)
@@ -36,10 +41,13 @@ BuildRequires:  perl(Test::Pod::Coverage)
 BuildRequires:  perl(Text::ParseWords)
 BuildRequires:  perl(Types::Standard)
 BuildRequires:  perl(warnings)
+Requires:       perl(Exporter)
 Requires:       perl(File::Which)
 Requires:       perl(FindBin)
 Requires:       perl(Getopt::Long)
 Requires:       perl(List::Util)
+Requires:       perl(Locale::Maketext)
+Requires:       perl(Locale::Maketext::Lexicon::Gettext)
 Requires:       perl(Modern::Perl)
 Requires:       perl(Moo)
 Requires:       perl(Moo::Role)
@@ -47,12 +55,35 @@ Requires:       perl(namespace::clean)
 Requires:       perl(parent)
 Requires:       perl(Pod::Text::Termcap)
 Requires:       perl(POSIX)
+Requires:       perl(Scalar::Util)
+Requires:       perl(subs)
 Requires:       perl(Term::ReadLine)
 Requires:       perl(Term::ReadLine::Gnu)
 Requires:       perl(Text::ParseWords)
 Requires:       perl(Types::Standard)
 Requires:       perl(warnings)
 Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+Provides:       perl(Term::CLI::Argument::Bool) = 0.04004
+Provides:       perl(Term::CLI::Argument::Enum) = 0.04004
+Provides:       perl(Term::CLI::Argument::Filename) = 0.04004
+Provides:       perl(Term::CLI::Argument::Number::Float) = 0.04004
+Provides:       perl(Term::CLI::Argument::Number::Int) = 0.04004
+Provides:       perl(Term::CLI::Argument::Number) = 0.04004
+Provides:       perl(Term::CLI::Argument) = 0.04004
+Provides:       perl(Term::CLI::Argument::String) = 0.04004
+Provides:       perl(Term::CLI::Base) = 0.04004
+Provides:       perl(Term::CLI::Command::Help) = 0.04004
+Provides:       perl(Term::CLI::Command) = 0.04004
+Provides:       perl(Term::CLI::Element) = 0.04004
+Provides:       perl(Term::CLI::L10N::en) = 0.04004
+Provides:       perl(Term::CLI::L10N::nl) = 0.04004
+Provides:       perl(Term::CLI::L10N::nl) = 0
+Provides:       perl(Term::CLI::L10N) = 0.04004
+Provides:       perl(Term::CLI) = 0.04004
+Provides:       perl(Term::CLI::ReadLine) = 0.04004
+Provides:       perl(Term::CLI::Role::ArgumentSet) = 0.04004
+Provides:       perl(Term::CLI::Role::CommandSet) = 0.04004
+Provides:       perl(Term::CLI::Role::HelpText) = 0.04004
 
 %description
 Implement an easy-to-use command line interpreter based on
@@ -83,7 +114,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc Changes cpanfile examples LICENSE META.json README tutorial
+%doc Changes cpanfile LICENSE META.json README
 %{perl_vendorlib}/*
 %{_mandir}/man3/*
 
