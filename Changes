@@ -1,3 +1,19 @@
+0.04004 -- 2018-03-10
+
+  [Bug Fixes]
+
+    - Don't check STDERR on pager error.
+        Something's off in checking STDERR when running an external
+        pager. Could be race condition? Anyway, we only care about
+        propagation of the exit status, so just test that.
+
+        Tests work in my dev. environment, but fail about 30-50% of
+        the time on CPAN testers.
+
+        Files modified:
+            t/065-Term-CLI-Command-Help.t
+            t/scripts/pager.pl
+
 0.04003 -- 2018-03-09
 
   [Bug Fixes]
