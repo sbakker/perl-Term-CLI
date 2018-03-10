@@ -5,3 +5,8 @@ dist\.ini
 .old$
 ^Makefile$
 ^MYMETA\.(?:json|yml)$
+^\.git/
+^\.gitignore$
+RELEASING
+^Term-CLI-\d+\.\d/
+^Term-CLI-\d+\.\d+\.tar\.gz$
