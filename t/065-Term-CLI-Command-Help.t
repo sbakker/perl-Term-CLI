@@ -84,7 +84,8 @@ sub startup : Test(startup => 1) {
     $self->{commands} = [@commands];
 }
 
-sub check_pager : Test(4) {
+
+sub check_pager : Test(3) {
     my $self = shift;
     my $cli = $self->{cli};
 
@@ -103,13 +104,8 @@ sub check_pager : Test(4) {
     $pager = "$FindBin::Bin/scripts/pager.pl";
     $cli->find_command('help')->pager([ 'perl', $pager, '-x' ]);
 
-    stderr_like(
-        sub { %args = $cli->execute('help') },
-        qr/: ERROR/,
-        '"help" with bad pager args results in an error',
-    );
-
-    ok($args{status} > 0, '"help" with bad pager args results in an error');
+    %args = $cli->execute('help');
+    ok($args{status} > 0, 'pager exit status propagates to status');
 }
 
 
