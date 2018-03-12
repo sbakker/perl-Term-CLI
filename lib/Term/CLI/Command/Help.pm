@@ -22,12 +22,12 @@ use 5.014_001;
 
 package Term::CLI::Command::Help  0.04004 {
 
-use Modern::Perl;
-use Pod::Text::Termcap;
-use List::Util qw( first );
-use File::Which;
-use Types::Standard qw( ArrayRef Str );
-use Getopt::Long qw( GetOptionsFromArray );
+use Modern::Perl 1.20140107;
+use Pod::Text::Termcap 2.08;
+use List::Util 1.38 qw( first );
+use File::Which 1.09;
+use Types::Standard 1.000005 qw( ArrayRef Str );
+use Getopt::Long 2.42 qw( GetOptionsFromArray );
 use Term::CLI::L10N;
 
 my @PAGERS = (
@@ -45,8 +45,8 @@ if (my $pager = first { defined which($_->[0]) } @PAGERS) {
     @PAGER = @$pager;
 }
 
-use Moo;
-use namespace::clean;
+use Moo 1.006001;
+use namespace::clean 0.25;
 
 extends 'Term::CLI::Command';
 

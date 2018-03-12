@@ -22,10 +22,10 @@ use 5.014_001;
 
 package Term::CLI  0.04004 {
 
-use Modern::Perl;
-use Text::ParseWords qw( parse_line );
+use Modern::Perl 1.20140107;
+use Text::ParseWords 3.29 qw( parse_line );
 use Term::CLI::ReadLine;
-use FindBin;
+use FindBin 1.51;
 
 use Term::CLI::L10N;
 
@@ -42,7 +42,7 @@ use Term::CLI::Argument::String;
 use Term::CLI::Command;
 use Term::CLI::Command::Help;
 
-use Types::Standard qw(
+use Types::Standard 1.000005 qw(
     ArrayRef
     CodeRef
     InstanceOf
@@ -52,8 +52,8 @@ use Types::Standard qw(
     Int
 );
 
-use Moo;
-use namespace::clean;
+use Moo 1.006001;
+use namespace::clean 0.25;
 
 extends 'Term::CLI::Base';
 

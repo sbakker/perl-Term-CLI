@@ -20,9 +20,9 @@ use 5.014_001;
 
 package Term::CLI::L10N  0.04004 {
 
-use Modern::Perl;
+use Modern::Perl 1.20140107;
 
-use parent qw( Locale::Maketext Exporter );
+use parent 0.228 qw( Locale::Maketext Exporter );
 
 BEGIN {
     our @EXPORT_OK   = qw( __ loc );

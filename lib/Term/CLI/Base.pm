@@ -22,15 +22,15 @@ use 5.014_001;
 
 package Term::CLI::Base  0.04004 {
 
-use Modern::Perl;
+use Modern::Perl 1.20140107;
 use Term::CLI::ReadLine;
 
-use Types::Standard qw(
+use Types::Standard 1.000005 qw(
     Str
 );
 
-use Moo;
-use namespace::clean;
+use Moo 1.006001;
+use namespace::clean 0.25;
 
 has name => ( is => 'ro', isa => Str, required => 1 );
 has error => ( is => 'rwp', isa => Str, default => sub {''} );

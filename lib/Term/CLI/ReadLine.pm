@@ -22,13 +22,13 @@ use 5.014_001;
 
 package Term::CLI::ReadLine  0.04004 {
 
-use Modern::Perl;
+use Modern::Perl 1.20140107;
 
-use parent qw( Term::ReadLine );
+use parent 0.228 qw( Term::ReadLine );
 
 use Term::ReadLine::Gnu;
 
-use namespace::clean;
+use namespace::clean 0.25;
 
 my $Term = undef;
 

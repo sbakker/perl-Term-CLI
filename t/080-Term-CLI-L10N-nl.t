@@ -7,10 +7,10 @@
 # of the licenses in the directory LICENSES.
 #
 
-use strict;
-use warnings;
+use strict 1.08;
+use warnings 1.23;
 
-use Test::More;
+use Test::More 1.001002;
 use Term::CLI::L10N;
 
 Term::CLI::L10N->set_language('nl');

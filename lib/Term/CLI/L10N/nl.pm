@@ -21,18 +21,18 @@ package Term::CLI::L10N::nl;
 
 our $VERSION = 0.04004;
 
-use Modern::Perl;
+use Modern::Perl 1.20140107;
 
-use parent qw( Term::CLI::L10N );
+use parent 0.228 qw( Term::CLI::L10N );
 
-use Locale::Maketext::Lexicon::Gettext;
+use Locale::Maketext::Lexicon::Gettext 1.00;
 
 our %Lexicon = %{ Locale::Maketext::Lexicon::Gettext->parse(<DATA>) };
 close DATA;
 
 # $str = $lh->singularize($num, $plural);
 # $str = $lh->singularise($num, $plural);
-use subs qw( singularise );
+use subs 1.02 qw( singularise );
 *singularise = \&singularize;
 
 sub singularize {

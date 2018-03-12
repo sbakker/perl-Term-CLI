@@ -8,8 +8,8 @@
 #
 
 use 5.014_001;
-use strict;
-use Modern::Perl;
+use strict 1.08;
+use Modern::Perl 1.20140107;
 
 sub Main {
     Term_CLI_Command_Help_test->SKIP_CLASS(
@@ -22,12 +22,12 @@ sub Main {
 
 package Term_CLI_Command_Help_test {
 
-use parent qw( Test::Class );
+use parent 0.228 qw( Test::Class );
 
-use Test::More;
-use Test::Output;
-use Test::Exception;
-use FindBin;
+use Test::More 1.001002;
+use Test::Output 1.03;
+use Test::Exception 0.35;
+use FindBin 1.51;
 use Term::CLI;
 use Term::CLI::L10N;
 

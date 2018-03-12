@@ -22,10 +22,10 @@ use 5.014_001;
 
 package Term::CLI::Role::CommandSet  0.04004 {
 
-use Modern::Perl;
+use Modern::Perl 1.20140107;
 use Term::CLI::L10N;
 
-use Types::Standard qw(
+use Types::Standard 1.000005 qw(
     ArrayRef
     CodeRef
     InstanceOf
@@ -33,8 +33,8 @@ use Types::Standard qw(
     Maybe
 );
 
-use Moo::Role;
-use namespace::clean;
+use Moo::Role 1.006001;
+use namespace::clean 0.25;
 
 has parent => (
     is       => 'rwp',

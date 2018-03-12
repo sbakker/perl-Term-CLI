@@ -22,13 +22,13 @@ use 5.014_001;
 
 package Term::CLI::Element  0.04004 {
 
-use Modern::Perl;
+use Modern::Perl 1.20140107;
 use Term::CLI::ReadLine;
 
-use Types::Standard qw( Str );
+use Types::Standard 1.000005 qw( Str );
 
-use Moo;
-use namespace::clean;
+use Moo 1.006001;
+use namespace::clean 0.25;
 
 extends 'Term::CLI::Base';
 

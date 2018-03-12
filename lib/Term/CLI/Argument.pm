@@ -22,14 +22,14 @@ use 5.014_001;
 
 package Term::CLI::Argument  0.04004 {
 
-use Modern::Perl;
-use Moo;
+use Modern::Perl 1.20140107;
+use Moo 1.006001;
 
 use Term::CLI::L10N;
 
-use Types::Standard qw( Int );
+use Types::Standard 1.000005 qw( Int );
 
-use namespace::clean;
+use namespace::clean 0.25;
 
 extends 'Term::CLI::Element';
 

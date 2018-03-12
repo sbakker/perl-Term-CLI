@@ -22,11 +22,11 @@ use 5.014_001;
 
 package Term::CLI::Argument::Number  0.04004 {
 
-use Modern::Perl;
+use Modern::Perl 1.20140107;
 use Term::CLI::L10N;
 
-use Moo;
-use namespace::clean;
+use Moo 1.006001;
+use namespace::clean 0.25;
 
 extends 'Term::CLI::Argument';
 
