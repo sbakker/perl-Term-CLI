@@ -1,3 +1,19 @@
+0.04006 -- 2018-03-12
+
+  [Other Changes]
+
+    - Lower min. version for Moo, drop Moo::Role version.
+
+        Files modified:
+            lib/**/*.pm
+
+    - Remove use of POSIX.
+
+        Files modified:
+            lib/Term/CLI/Argument/Number/Float.pm
+            Makefile.PL
+            cpanfile
+
 0.04005 -- 2018-03-12
 
   [Bug Fixes]
