@@ -8,7 +8,6 @@ requires "Locale::Maketext::Lexicon::Gettext" => "1.00";
 requires "Modern::Perl" => "1.20140107";
 requires "Moo" => "1.006001";
 requires "Moo::Role" => "1.006001";
-requires "POSIX" => "1.38_03";
 requires "Pod::Text::Termcap" => "2.08";
 requires "Scalar::Util" => "1.38";
 requires "Term::ReadLine" => "1.14";
