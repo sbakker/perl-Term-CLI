@@ -293,8 +293,6 @@ sub _execute_help {
     my $pager_fh;
     my $pager_cmd = $self->pager;
 
-    local( $::SIG{PIPE} ) = 'IGNORE'; # Temporarily avoid accidents.
-
     if (@$pager_cmd) {
         no warnings 'exec';
         if (!open $pager_fh, "|-", @{$pager_cmd}) {
@@ -302,18 +300,25 @@ sub _execute_help {
             $args{error} = loc("cannot run '[_1]': [_2]", $$pager_cmd[0], $!);
             return %args;
         }
-    }
-    elsif (!open $pager_fh, '>&', \*STDOUT) {
-        $args{status} = -1;
-        $args{error} = "dup(STDOUT): $!";
-        return %args;
-    }
 
-    print $pager_fh $args{text};
+        local( $::SIG{PIPE} ) = 'IGNORE'; # Temporarily avoid accidents.
+        print $pager_fh $args{text};
 
-    if (!$pager_fh->close) {
+        $pager_fh->close;
         $args{status} = $?;
-        $args{error} = $!;
+        $args{error} = $! if $args{status} != 0;
+    }
+    else { 
+        if (!open $pager_fh, '>&', \*STDOUT) {
+            $args{status} = -1;
+            $args{error} = "dup(STDOUT): $!";
+            return %args;
+        }
+        print $pager_fh $args{text};
+        if (!$pager_fh->close) {
+            $args{status} = -1;
+            $args{error} = $!;
+        }
     }
     return %args;
 }
