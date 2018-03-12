@@ -52,7 +52,7 @@ use Types::Standard 1.000005 qw(
     Int
 );
 
-use Moo 1.006001;
+use Moo 1.000001;
 use namespace::clean 0.25;
 
 extends 'Term::CLI::Base';

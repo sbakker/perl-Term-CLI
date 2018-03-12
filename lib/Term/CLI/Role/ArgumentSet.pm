@@ -30,7 +30,7 @@ use Types::Standard 1.000005 qw(
     Maybe
 );
 
-use Moo::Role 1.006001;
+use Moo::Role;
 use namespace::clean 0.25;
 
 has _arguments => (

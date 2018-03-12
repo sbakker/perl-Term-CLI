@@ -23,7 +23,7 @@ use 5.014_001;
 package Term::CLI::Argument::Filename  0.04005 {
 
 use Modern::Perl 1.20140107;
-use Moo 1.006001;
+use Moo 1.000001;
 use namespace::clean 0.25;
 
 extends 'Term::CLI::Argument';
