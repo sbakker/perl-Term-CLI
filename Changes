@@ -1,3 +1,42 @@
+0.04005 -- 2018-03-12
+
+  [Bug Fixes]
+    - Separate STDOUT/pager output for help a bit more.
+        Also, set "status" to $? regardless of close() result.
+        Some tests for status still fail, and I'm suspecting a
+        race condition, making close() return "true". If this
+        fails as well, then I'll just skip the test. :-(
+
+        Files modified:
+            lib/Term/CLI/Command/Help.pm
+
+  [Other Changes]
+    - Require specific versions of modules.
+        Minimal versions come from Debian jessie (8) install. Wheezy has
+        a version of "Moo" that is too old.
+
+        Files modified: (almost all)
+
+    - Use MetaProvides::Package in dist.ini
+
+        Files modified:
+            dist.ini
+
+    - Clean up MANIFEST and gitignore
+
+        Files modified:
+            MANIFEST.SKIP, MANIFEST, .gitignore
+
+    - Add script to extract RPM provides from PM files.
+
+        Files added:
+            scratch/get_rpm_provides.pl
+
+    - Fix dependencies and provides.
+
+        Files modified:
+            pkg/fedora/perl-Term-CLI.spec
+
 0.04004 -- 2018-03-10
 
   [Bug Fixes]
