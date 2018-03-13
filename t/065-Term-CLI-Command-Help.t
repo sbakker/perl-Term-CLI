@@ -105,7 +105,8 @@ sub check_pager : Test(3) {
     $cli->find_command('help')->pager([ 'perl', $pager, '-x' ]);
 
     %args = $cli->execute('help');
-    ok($args{status} > 0, 'pager exit status propagates to status');
+    ok($args{status} > 0, 'pager exit status propagates to status')
+        or diag("got status $args{status}, expected > 0 (error: '$args{error}')");
 }
 
 
