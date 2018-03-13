@@ -1,3 +1,19 @@
+0.04007 -- 2018-03-12
+
+  [Bug Fixes]
+
+    - Try to add a "diag" to failing test.
+
+        Files modified:
+            t/065-Term-CLI-Command-Help.t
+
+  [Other Changes]
+
+    - $SIG instead of $::SIG.
+
+        Files modified:
+            lib/Term/CLI/Command/Help.pm
+
 0.04006 -- 2018-03-12
 
   [Other Changes]
