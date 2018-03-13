@@ -1,4 +1,22 @@
-0.04007 -- 2018-03-12
+0.04008 -- 2018-03-13
+
+  [Bug Fixes]
+
+    - Fake pager should drain STDIN before exiting.
+      This should finally fix the failing test in 
+      t/065-Term-CLI-Command-Help.t
+
+        Files modified:
+            t/scripts/pager.pl
+
+  [Other Changes]
+
+    - Better check and diagnostics for pager error.
+
+        Files modified:
+            t/065-Term-CLI-Command-Help.t
+
+0.04007 -- 2018-03-13
 
   [Bug Fixes]
 

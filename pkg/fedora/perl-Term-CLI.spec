@@ -1,5 +1,5 @@
 Name:           perl-Term-CLI
-Version:        0.04007
+Version:        0.04008
 Release:        1%{?dist}
 Summary:        CLI interpreter based on Term::ReadLine
 License:        GPL+ or Artistic
@@ -61,26 +61,26 @@ Requires:       perl(Text::ParseWords) >= 3.29
 Requires:       perl(Types::Standard) >= 1.000005
 Requires:       perl(warnings) >= 1.23
 Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
-Provides:       perl(Term::CLI) = 0.04007
-Provides:       perl(Term::CLI::Argument) = 0.04007
-Provides:       perl(Term::CLI::Argument::Bool) = 0.04007
-Provides:       perl(Term::CLI::Argument::Enum) = 0.04007
-Provides:       perl(Term::CLI::Argument::Filename) = 0.04007
-Provides:       perl(Term::CLI::Argument::Number) = 0.04007
-Provides:       perl(Term::CLI::Argument::Number::Float) = 0.04007
-Provides:       perl(Term::CLI::Argument::Number::Int) = 0.04007
-Provides:       perl(Term::CLI::Argument::String) = 0.04007
-Provides:       perl(Term::CLI::Base) = 0.04007
-Provides:       perl(Term::CLI::Command) = 0.04007
-Provides:       perl(Term::CLI::Command::Help) = 0.04007
-Provides:       perl(Term::CLI::Element) = 0.04007
-Provides:       perl(Term::CLI::L10N) = 0.04007
-Provides:       perl(Term::CLI::L10N::en) = 0.04007
-Provides:       perl(Term::CLI::L10N::nl) = 0.04007
-Provides:       perl(Term::CLI::ReadLine) = 0.04007
-Provides:       perl(Term::CLI::Role::ArgumentSet) = 0.04007
-Provides:       perl(Term::CLI::Role::CommandSet) = 0.04007
-Provides:       perl(Term::CLI::Role::HelpText) = 0.04007
+Provides:       perl(Term::CLI) = 0.04008
+Provides:       perl(Term::CLI::Argument) = 0.04008
+Provides:       perl(Term::CLI::Argument::Bool) = 0.04008
+Provides:       perl(Term::CLI::Argument::Enum) = 0.04008
+Provides:       perl(Term::CLI::Argument::Filename) = 0.04008
+Provides:       perl(Term::CLI::Argument::Number) = 0.04008
+Provides:       perl(Term::CLI::Argument::Number::Float) = 0.04008
+Provides:       perl(Term::CLI::Argument::Number::Int) = 0.04008
+Provides:       perl(Term::CLI::Argument::String) = 0.04008
+Provides:       perl(Term::CLI::Base) = 0.04008
+Provides:       perl(Term::CLI::Command) = 0.04008
+Provides:       perl(Term::CLI::Command::Help) = 0.04008
+Provides:       perl(Term::CLI::Element) = 0.04008
+Provides:       perl(Term::CLI::L10N) = 0.04008
+Provides:       perl(Term::CLI::L10N::en) = 0.04008
+Provides:       perl(Term::CLI::L10N::nl) = 0.04008
+Provides:       perl(Term::CLI::ReadLine) = 0.04008
+Provides:       perl(Term::CLI::Role::ArgumentSet) = 0.04008
+Provides:       perl(Term::CLI::Role::CommandSet) = 0.04008
+Provides:       perl(Term::CLI::Role::HelpText) = 0.04008
 
 %description
 Implement an easy-to-use command line interpreter based on
@@ -116,6 +116,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Tue Mar 13 2018 Steven Bakker <sb@monkey-mind.net> 0.04008-1
+- New upstream release.
 * Tue Mar 13 2018 Steven Bakker <sb@monkey-mind.net> 0.04007-1
 - New upstream release.
 * Sat Mar 10 2018 Steven Bakker <sb@monkey-mind.net> 0.04004-1
