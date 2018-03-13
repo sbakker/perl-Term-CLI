@@ -301,7 +301,7 @@ sub _execute_help {
             return %args;
         }
 
-        local( $::SIG{PIPE} ) = 'IGNORE'; # Temporarily avoid accidents.
+        local( $SIG{PIPE} ) = 'IGNORE'; # Temporarily avoid accidents.
         print $pager_fh $args{text};
 
         $pager_fh->close;
