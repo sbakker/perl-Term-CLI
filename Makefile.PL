@@ -19,7 +19,7 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Exporter" => "5.71",
     "File::Which" => "1.09",
-    "FindBin" => "1.51",
+    "FindBin" => "1.50",
     "Getopt::Long" => "2.42",
     "List::Util" => "1.38",
     "Locale::Maketext" => "1.25",
@@ -35,8 +35,8 @@ my %WriteMakefileArgs = (
     "Types::Standard" => "1.000005",
     "namespace::clean" => "0.25",
     "parent" => "0.228",
-    "subs" => "1.02",
-    "warnings" => "1.23"
+    "subs" => "1.00",
+    "warnings" => "1.00"
   },
   "TEST_REQUIRES" => {
     "File::Temp" => "0.2304",
@@ -48,10 +48,10 @@ my %WriteMakefileArgs = (
     "Test::Output" => "1.03",
     "Test::Pod" => 0,
     "Test::Pod::Coverage" => 0,
-    "strict" => "1.08",
-    "warnings" => "1.23"
+    "strict" => "1.00",
+    "warnings" => "1.00"
   },
-  "VERSION" => "0.04008",
+  "VERSION" => "0.04009",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -62,7 +62,7 @@ my %FallbackPrereqs = (
   "Exporter" => "5.71",
   "File::Temp" => "0.2304",
   "File::Which" => "1.09",
-  "FindBin" => "1.51",
+  "FindBin" => "1.50",
   "Getopt::Long" => "2.42",
   "List::Util" => "1.38",
   "Locale::Maketext" => "1.25",
@@ -86,9 +86,9 @@ my %FallbackPrereqs = (
   "Types::Standard" => "1.000005",
   "namespace::clean" => "0.25",
   "parent" => "0.228",
-  "strict" => "1.08",
-  "subs" => "1.02",
-  "warnings" => "1.23"
+  "strict" => "1.00",
+  "subs" => "1.00",
+  "warnings" => "1.00"
 );
 
 

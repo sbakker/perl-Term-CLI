@@ -1,6 +1,6 @@
 requires "Exporter" => "5.71";
 requires "File::Which" => "1.09";
-requires "FindBin" => "1.51";
+requires "FindBin" => "1.50";
 requires "Getopt::Long" => "2.42";
 requires "List::Util" => "1.38";
 requires "Locale::Maketext" => "1.25";
@@ -17,8 +17,8 @@ requires "Types::Standard" => "1.000005";
 requires "namespace::clean" => "0.25";
 requires "parent" => "0.228";
 requires "perl" => "5.014_001";
-requires "subs" => "1.02";
-requires "warnings" => "1.23";
+requires "subs" => "1.00";
+requires "warnings" => "1.00";
 
 on 'test' => sub {
   requires "File::Temp" => "0.2304";
@@ -30,8 +30,8 @@ on 'test' => sub {
   requires "Test::Output" => "1.03";
   requires "Test::Pod" => "0";
   requires "Test::Pod::Coverage" => "0";
-  requires "strict" => "1.08";
-  requires "warnings" => "1.23";
+  requires "strict" => "1.00";
+  requires "warnings" => "1.00";
 };
 
 on 'configure' => sub {

@@ -1,3 +1,18 @@
+0.04009 -- 2018-03-14
+
+    - Use $^X to find current Perl interpreter.
+      Also, remove "#!" line from "fake pager".
+
+        Files modified:
+            t/065-Term-CLI-Command-Help.t
+            t/scripts/pager.pl
+
+    - Lower versions for FindBin, strict, subs, warnings.
+
+        Files modified:
+            t/*
+            lib/*
+
 0.04008 -- 2018-03-13
 
   [Bug Fixes]
