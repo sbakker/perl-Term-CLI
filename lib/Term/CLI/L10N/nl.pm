@@ -32,7 +32,7 @@ close DATA;
 
 # $str = $lh->singularize($num, $plural);
 # $str = $lh->singularise($num, $plural);
-use subs 1.02 qw( singularise );
+use subs 1.00 qw( singularise );
 *singularise = \&singularize;
 
 sub singularize {

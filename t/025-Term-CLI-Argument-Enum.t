@@ -8,7 +8,7 @@
 #
 
 use 5.014_001;
-use strict 1.08;
+use strict 1.00;
 use Modern::Perl 1.20140107;
 
 sub Main {
@@ -26,7 +26,7 @@ use parent 0.228 qw( Test::Class );
 
 use Test::More 1.001002;
 use Test::Exception 0.35;
-use FindBin 1.51;
+use FindBin 1.50;
 use Term::CLI::Argument::Enum;
 use Term::CLI::L10N;
 

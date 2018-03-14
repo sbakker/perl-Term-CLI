@@ -7,8 +7,8 @@
 # of the licenses in the directory LICENSES.
 #
 
-use strict 1.08;
-use warnings 1.23;
+use strict 1.00;
+use warnings 1.00;
 
 use Test::More 1.001002;
 use Term::CLI::L10N;

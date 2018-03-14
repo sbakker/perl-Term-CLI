@@ -24,7 +24,7 @@ package Term_CLI_Argument_test {
 use parent 0.228 qw( Test::Class );
 
 use Test::More 1.001002;
-use FindBin 1.51;
+use FindBin 1.50;
 use Term::CLI::Argument;
 use Term::CLI::L10N;
 
