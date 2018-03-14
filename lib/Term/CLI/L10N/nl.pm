@@ -305,7 +305,7 @@ L<Term::CLI::L10N>(3p) class to provide Dutch translations for
 the messages of the L<Term::CLI>(3p) library.
 
 It implements its own C<numerate> method that reverses the
-meaning of its "form" arguments (because its easier to derive
+meaning of its "form" arguments (because it's easier to derive
 the singular noun from the plural in Dutch).
 
 It defines its lexicon using L<Locale::Maketext::Lexicon::Gettext>(3p)
