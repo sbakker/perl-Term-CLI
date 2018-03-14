@@ -102,7 +102,7 @@ sub check_pager : Test(3) {
         'error on non-existent pager is set correctly');
 
     $pager = "$FindBin::Bin/scripts/pager.pl";
-    $cli->find_command('help')->pager([ 'perl', $pager, '1' ]);
+    $cli->find_command('help')->pager([ $^X, $pager, '1' ]);
 
     %args = $cli->execute('help');
     is($args{status}, 1<<8, 'pager exit status propagates to status')
