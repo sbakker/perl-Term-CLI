@@ -86,6 +86,9 @@ Term::CLI::L10N - localizations for Term::CLI
 
 =head1 DESCRIPTION
 
+The C<Term::CLI::L10N> module implements a localization mechanism based
+on L<Locale::Maketext>(3p).
+
 =head1 FUNCTIONS
 
 The module can export a few utility routines.
@@ -123,6 +126,12 @@ Dies with an error if no language can be loaded.
 
 =head1 EXAMPLES
 
+    use Term::CLI::L10N; # Initialise using current locale.
+
+    Term::CLI::L10N->set_language('nl'); # Force "nl" language.
+
+    say loc("ERROR"); # Should print "FOUT".
+
 =head1 SEE ALSO
 
 L<Term::CLI::L10N::en>(3p),
@@ -146,5 +155,3 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 =cut
-
-
