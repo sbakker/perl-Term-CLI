@@ -122,13 +122,12 @@ sub _make_command_summary {
     my $item_length = 0;
     for my $cmd_ref (@$commands) {
         for my $usage ($cmd_ref->usage_text(with_options => 'none')) {
-            my $item = "=item "
-                     . join(' ',
-                            (map { "B<$_>" } @$cmd_path),
-                            $usage
-                     ). "\n\n";
-            $full_pod .= $item;
-            my $l = length($item =~ s/[BCEIL]<([^>]*)>/$1/gr);
+            my $item_text = join(' ',
+                (map { "B<$_>" } @$cmd_path),
+                $usage
+            );
+            $full_pod .= "=item $item_text\n\n";
+            my $l = length($item_text =~ s/[BCEIL]<([^>]*)>/$1/gr);
             $item_length = $l if $l > $item_length;
         }
         $full_pod .= $cmd_ref->summary;
@@ -136,7 +135,7 @@ sub _make_command_summary {
     }
 
     my $max_over_width = int(($self->term->term_width - 4) / 2);
-    my $over_width = min($item_length, $max_over_width);
+    my $over_width = min($item_length+4, $max_over_width);
 
     $full_pod = $pod_prefix."=over $over_width\n\n$full_pod";
     $full_pod .= "=back\n\n";
