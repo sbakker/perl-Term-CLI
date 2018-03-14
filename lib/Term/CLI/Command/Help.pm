@@ -24,7 +24,7 @@ package Term::CLI::Command::Help  0.04009 {
 
 use Modern::Perl 1.20140107;
 use Pod::Text::Termcap 2.08;
-use List::Util 1.38 qw( first );
+use List::Util 1.38 qw( first min );
 use File::Which 1.09;
 use Types::Standard 1.000005 qw( ArrayRef Str );
 use Getopt::Long 2.42 qw( GetOptionsFromArray );
@@ -117,11 +117,9 @@ sub _make_command_summary {
     my $pod_prefix = $args{pod_prefix};
 
     my $text = '';
-    my $over_width = int(($self->term->term_width - 4) / 3);
-    $over_width = 40 if $over_width > 40;
+    my $full_pod = '';
 
-    my $full_pod = $pod_prefix."=over $over_width\n\n";
-
+    my $item_length = 0;
     for my $cmd_ref (@$commands) {
         for my $usage ($cmd_ref->usage_text(with_options => 'none')) {
             my $item = "=item "
@@ -130,11 +128,17 @@ sub _make_command_summary {
                             $usage
                      ). "\n\n";
             $full_pod .= $item;
+            my $l = length($item =~ s/[BCEIL]<([^>]*)>/$1/gr);
+            $item_length = $l if $l > $item_length;
         }
         $full_pod .= $cmd_ref->summary;
         $full_pod =~ s/\n*$/\n\n/s;
     }
 
+    my $max_over_width = int(($self->term->term_width - 4) / 2);
+    my $over_width = min($item_length, $max_over_width);
+
+    $full_pod = $pod_prefix."=over $over_width\n\n$full_pod";
     $full_pod .= "=back\n\n";
     $text = $self->_format_pod($full_pod);
     $text =~ s/\n\n+/\n/gs;
