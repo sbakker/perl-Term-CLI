@@ -441,7 +441,7 @@ Term::CLI - CLI interpreter based on Term::ReadLine
  # $cli will now recognise things like: 'copy --verbose a b'
 
  while ( my $input = $cli->readline(skip => qr/^\s*(?:#.*)?$/) ) {
-    $cli->execute(@input);
+    $cli->execute($input);
  }
 
 =head1 DESCRIPTION
@@ -741,19 +741,19 @@ Examples:
     $line = $cli->readline( skip => qr{^\s*(?:#.*)?$} );
     exit if !defined $line;
 
-=item B<execute> ( I<Str>, [ I<ArrayRef[Str]> ] )
+=item B<execute> ( I<Str> )
 X<execute>
 
-Parse and execute the command line consisting of I<Str>s
+Parse and execute the command line consisting of I<Str>
 (see the return value of L<readline|/readline> above).
 
-The first I<Str> should be the original command line string.
-
-By default, C<execute> will split the command line into words using
-L<Text::ParseWords::parse_line|Text::ParseWords/parse_line>, and then
-parse and execute the result accordingly.
-If L<parse_line|Text::ParseWords/parse_line> fails, then a parse error
-is generated.
+The command line is split into words using
+the L<split_function|/split_function>.
+If that succeeds, then the resulting list of words is
+parsed and executed, otherwise a parse error is generated
+(i.e. the object's L<callback|Term::CLI::Role::CommandSet/callback>
+function is called with a C<status> of C<-1> and a suitable C<error>
+field).
 
 For specifying a custom word splitting method, see
 L<split_function|/split_function>.
