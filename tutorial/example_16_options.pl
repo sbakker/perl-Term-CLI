@@ -211,6 +211,51 @@ sub do_show_clock {
 }
 
 push @commands, Term::CLI::Command->new(
+    name => 'set',
+    summary => 'set CLI parameters',
+    description => 'Set various CLI parameters.',
+    commands => [
+        Term::CLI::Command->new(
+            name => 'delimiters',
+            summary => 'set word delimiter(s)',
+            description =>
+                'Set the word delimiter(s) to I<string>.',
+            arguments => [
+                Term::CLI::Argument::String->new(name => 'string')
+            ],
+            callback => sub {
+                my ($self, %args) = @_;
+                return %args if $args{status} < 0;
+                my $delimiters = $args{arguments}->[0];
+                $self->root_node->word_delimiters($delimiters);
+                say "Delimiters set to [$delimiters]";
+                return %args;
+            }
+        ),
+        Term::CLI::Command->new(
+            name => 'verbose',
+            summary => 'set verbose flag',
+            description =>
+                'Set the verbose flag for the program.',
+            arguments => [
+                Term::CLI::Argument::Bool->new(name => 'bool',
+                    true_values  => [qw( 1 true on yes ok )],
+                    false_values => [qw( 1 false off no never )],
+                )
+
+            ],
+            callback => sub {
+                my ($self, %args) = @_;
+                return %args if $args{status} < 0;
+                my $bool = $args{arguments}->[0];
+                say "Setting verbose to $bool";
+                return %args;
+            }
+        ),
+    ],
+);
+
+push @commands, Term::CLI::Command->new(
     name => 'do',
     summary => 'Do I<action> while I<activity>',
     description => "Do I<action> while I<activity>.\n"
