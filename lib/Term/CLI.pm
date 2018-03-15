@@ -109,14 +109,6 @@ sub BUILD {
         $self->callback(\&_default_callback);
     }
 
-    # Set the signal hook to abort the current input line.
-    $term->Attribs->{signal_event_hook} = sub {
-        $term->crlf();
-        $term->Attribs->{line_buffer} = '';
-        $term->forced_update_display();
-        return 1;
-    };
-
     if (!exists $args->{history_file}) {
         my $hist_file = $self->name;
         $hist_file =~ s{^/}{}g;
@@ -271,33 +263,108 @@ sub complete_line {
 # %old_sig = CLI->_set_signal_handlers();
 #
 # Set signal handlers to ensure proper terminal/CLI handling in the
-# face of certain keyboard signals (^C ^\ ^Z).
+# face of various signals (^C ^\ ^Z).
 #
 sub _set_signal_handlers {
     my $self = shift;
 
     my %old_sig = %SIG;
 
-    # Install sig handler(s), if they haven't been installed yet.
-    for my $sig (qw( INT QUIT )) {
-        next if defined $SIG{$sig} && $SIG{$sig} !~ /^(?:DEFAULT|IGNORE)$/;
-        # Just set the signal handler to do nothing. Note that this
-        # is not the same as 'IGNORE'!
-        $SIG{$sig} = sub { return 1 };
-    }
+    # $last_signal is set by the signal handlers and is used
+    # in the term's "Attrib{signal_event_hook}" to determine
+    # what action to take.
+    my $last_signal = 'NONE';
 
-    # Handle TSTP, by resending the signal if necessary. If we don't
-    # do this, a keyboard suspend looks weird.
-    # In case we get suspended, make sure we redraw the CLI on wake up.
-    $SIG{CONT} = sub {
-        if (ref $old_sig{CONT}) {
-            $old_sig{CONT}->(@_);
+    # The generic signal handler will attempt to re-throw the signal, after
+    # putting the terminal in the correct state. Any previously set signal
+    # handlers should then be triggered.
+    my $generic_handler = sub {
+        my $signal = shift;
+
+        $last_signal = $signal;
+
+        if (defined $old_sig{$signal} && $old_sig{$signal} ne 'DEFAULT') {
+            $SIG{$signal} = $old_sig{$signal};
         }
+        else {
+            $SIG{$signal} = 'DEFAULT';
+        }
+
+        $self->term->Attribs->{catch_signals} = 0;
+
+        $self->term->free_line_state();
+        $self->term->cleanup_after_signal();
+        kill $signal, $$;
+        $self->term->Attribs->{catch_signals} = 1;
+        $self->term->reset_after_signal();
+        return 1;
+    };
+
+    # The WINCH signal handler.
+    # Tell ReadLine to resize the terminal.
+    my $winch_handler = sub {
+        $self->term->resize_terminal;
+        $last_signal = $_[0];
+        $old_sig{$_[0]}->(@_) if ref $old_sig{$_[0]};
+    };
+
+    # The CONT signal handler.
+    # In case we get suspended, make sure we redraw the CLI on wake-up.
+    my $cont_handler = sub {
+        $last_signal = $_[0];
+
+        $self->term->free_line_state();
+        $self->term->cleanup_after_signal();
+
+        $old_sig{$_[0]}->(@_) if ref $old_sig{$_[0]};
+
+        $self->term->Attribs->{line_buffer} = '';
+        $self->term->reset_after_signal();
         $self->term->forced_update_display();
+    };
+
+    # Install signal handler(s).
+    my $install_handlers = sub {
+        $self->term->Attribs->{catch_signals} = 1;
+
+        $SIG{WINCH} = $winch_handler;
+        $SIG{CONT} = $cont_handler;
+        $SIG{HUP}
+            = $SIG{INT}
+            = $SIG{QUIT}
+            = $SIG{ALRM}
+            #= $SIG{STOP}
+            = $SIG{TERM}
+            = $SIG{TTIN}
+            = $SIG{TTOU}
+            = $SIG{TSTP}
+                = $generic_handler;
+
+    };
+
+    $install_handlers->();
+
+    # Post-signal hook, called by ReadLine.
+    #
+    # Abort the current input line, except when the
+    # WINCH signal was received.
+    #
+    $self->term->Attribs->{signal_event_hook} = sub {
+        return if $last_signal eq 'WINCH'; # Nothing on WINCH.
+
+        # Move to a new line and clear input buffer.
+        $self->term->crlf();
+        $self->term->Attribs->{line_buffer} = '';
+        $self->term->forced_update_display();
+
+        $install_handlers->(); # Re-install handlers, if necessary.
+        $self->term->reset_after_signal();
+        return 1;
     };
 
     return %old_sig;
 }
+
 
 # See POD X<readline>
 sub readline {
