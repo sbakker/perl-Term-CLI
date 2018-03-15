@@ -897,12 +897,19 @@ be fed back up the parse tree (and eventually to the caller).
 
 =head1 SIGNAL HANDLING
 
-In case of C<INT>, C<HUP>, C<TERM>, or C<TSTP> signals, the current input
-line is always discarded.
+The C<Term::CLI> object sets its own signal handlers in the L<readline|/readline>
+function.
 
-If the application has not set its own handlers, the L<readline|/readline>
-method will set signal handlers for the C<INT> and C<QUIT> signals in such
-a way that they do not cause the application to terminate.
+The signal handlers will ensure the terminal is in a sane state.
+
+
+The following signal handlers discard the the current input line, restore
+any previous signal handler, and re-throw the signal:
+C<HUP>, C<INT>, C<QUIT>, C<ALRM>, C<TERM>, C<TTIN>, C<TTOU>, C<TSTP>.
+
+The C<CONT> and C<WINCH> signals are treated slightly different: they don't
+re-throw the signal, but rather just call any previous signal handler. The
+C<WINCH> signal handler will not discard the input line.
 
 It also makes sure that after a keyboard suspend (C<TSTP>) and
 subsequent continue (C<CONT>), the command prompt is redrawn:
