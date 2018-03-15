@@ -306,6 +306,7 @@ sub _set_signal_handlers {
         $self->term->resize_terminal;
         $last_signal = $_[0];
         $old_sig{$_[0]}->(@_) if ref $old_sig{$_[0]};
+        return 1;
     };
 
     # The CONT signal handler.
@@ -321,6 +322,7 @@ sub _set_signal_handlers {
         $self->term->Attribs->{line_buffer} = '';
         $self->term->reset_after_signal();
         $self->term->forced_update_display();
+        return 1;
     };
 
     # Install signal handler(s).
@@ -350,7 +352,7 @@ sub _set_signal_handlers {
     # WINCH signal was received.
     #
     $self->term->Attribs->{signal_event_hook} = sub {
-        return if $last_signal eq 'WINCH'; # Nothing on WINCH.
+        return 1 if $last_signal eq 'WINCH'; # Nothing on WINCH.
 
         # Move to a new line and clear input buffer.
         $self->term->crlf();
