@@ -1,4 +1,4 @@
-#===============================================================================
+#============================================================================
 #
 #       Module:  Term::CLI::Tutorial
 #
@@ -14,7 +14,7 @@
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
-#===============================================================================
+#============================================================================
 
 =head1 NAME
 
@@ -105,6 +105,10 @@ A silly command for illustration purposes.
 =item B<sleep> I<seconds>
 
 Sleep for I<seconds> seconds.
+
+=item B<show> {B<clock>|B<load>|B<terminal>}
+
+Show some system information.
 
 =item B<set> B<verbose> I<bool>
 
@@ -867,7 +871,7 @@ See it in action:
 You may have noticed that so far, we've only added commands with arguments.
 But what if we want to implement something like:
 
-S<    >B<show> { B<load>|B<clock> }
+S<    >B<show> { B<load>|B<clock>|B<terminal> }
 
 Well, as it turns out, L<Term::CLI::Command|Term::CLI::Command>(3p) can handle
 that as well: instead of specifying C<arguments> in the constructor, you can
@@ -905,6 +909,19 @@ The code for the C<show> command looks almost trivial:
                     return %args;
                 },
             ),
+            Term::CLI::Command->new( name => 'terminal',
+                summary => 'show terminal information',
+                description => 'Show terminal information.',
+                callback => sub {
+                    my ($self, %args) = @_;
+                    return %args if $args{status} < 0;
+                    my ($rows, $cols)
+                        = $self->root_node->term->get_screen_size;
+                    say "type $ENV{TERM}; rows $rows; columns $cols";
+                    $args{status} = 0;
+                    return %args;
+                },
+            ),
         ],
     );
 
@@ -915,19 +932,22 @@ Adding this to our ever-growing C<bssh> code, we get:
     [Welcome to BSSH]
     bssh> help show
       Usage:
-        show {clock|load}
+        show {clock|load|terminal}
 
       Description:
         Show some system-related information, such as the system clock or load
         average.
 
       Sub-Commands:
-        show clock                                   show system time
-        show load                                    show system load
+        show clock               show system time
+        show load                show system load
+        show terminal            show terminal information
     bssh> show clock
     Wed Feb 21 14:21:56 2018
     bssh> show load
      14:21:59 up 1 day, 15:30,  1 user,  load average: 0.19, 0.33, 0.40
+    bssh> show terminal
+    type gnome-256color; rows 25; columns 80
     bssh> ^D
     -- exit: 0
 
