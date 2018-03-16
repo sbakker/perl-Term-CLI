@@ -20,7 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Command::Help  0.051001 {
+package Term::CLI::Command::Help  0.051002 {
 
 use Modern::Perl 1.20140107;
 use Pod::Text::Termcap 2.08;

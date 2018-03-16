@@ -1,9 +1,9 @@
-0.051001 -- 2018-03-16
+0.051002 -- 2018-03-16
 
     - Fix version number.
         0.05002 might look like "0.05.2", but is in fact "0.50.20".
-        Insert a digit to make fix this: "0.051001" translates to
-        "0.51.1".
+        Insert a digit to make fix this: "0.051002" translates to
+        "0.51.2".
 
         Files modified:
             lib/**/*.pm
