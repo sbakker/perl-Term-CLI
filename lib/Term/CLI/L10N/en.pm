@@ -17,7 +17,7 @@
 
 use 5.014_001;
 
-package Term::CLI::L10N::en  0.05002 {
+package Term::CLI::L10N::en  0.051001 {
 
 use Modern::Perl 1.20140107;
 
