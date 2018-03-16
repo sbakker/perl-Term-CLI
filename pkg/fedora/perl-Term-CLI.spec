@@ -1,5 +1,5 @@
 Name:           perl-Term-CLI
-Version:        0.04008
+Version:        0.05002
 Release:        1%{?dist}
 Summary:        CLI interpreter based on Term::ReadLine
 License:        GPL+ or Artistic
@@ -13,7 +13,7 @@ BuildRequires:  perl(Exporter) >= 5.71
 BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  perl(File::Temp) >= 0.2304
 BuildRequires:  perl(File::Which) >= 1.09
-BuildRequires:  perl(FindBin) >= 1.51
+BuildRequires:  perl(FindBin) >= 1.50
 BuildRequires:  perl(Getopt::Long) >= 2.42
 BuildRequires:  perl(List::Util) >= 1.38
 BuildRequires:  perl(Locale::Maketext) >= 1.25
@@ -26,8 +26,8 @@ BuildRequires:  perl(parent) >= 0.228
 BuildRequires:  perl(Pod::Coverage::TrustPod)
 BuildRequires:  perl(Pod::Text::Termcap) >= 2.08
 BuildRequires:  perl(Scalar::Util) >= 1.38
-BuildRequires:  perl(strict) >= 1.08
-BuildRequires:  perl(subs) >= 1.02
+BuildRequires:  perl(strict) >= 1.00
+BuildRequires:  perl(subs) >= 1.00
 BuildRequires:  perl(Term::ReadLine) >= 1.14
 BuildRequires:  perl(Term::ReadLine::Gnu) >= 1.24
 BuildRequires:  perl(Test::Class)
@@ -39,10 +39,10 @@ BuildRequires:  perl(Test::Pod)
 BuildRequires:  perl(Test::Pod::Coverage)
 BuildRequires:  perl(Text::ParseWords) >= 3.29
 BuildRequires:  perl(Types::Standard) >= 1.000005
-BuildRequires:  perl(warnings) >= 1.23
+BuildRequires:  perl(warnings) >= 1.00
 Requires:       perl(Exporter) >= 5.71
 Requires:       perl(File::Which) >= 1.09
-Requires:       perl(FindBin) >= 1.51
+Requires:       perl(FindBin) >= 1.50
 Requires:       perl(Getopt::Long) >= 2.42
 Requires:       perl(List::Util) >= 1.38
 Requires:       perl(Locale::Maketext) >= 1.25
@@ -54,33 +54,33 @@ Requires:       perl(namespace::clean) >= 0.25
 Requires:       perl(parent) >= 0.228
 Requires:       perl(Pod::Text::Termcap) >= 2.08
 Requires:       perl(Scalar::Util) >= 1.38
-Requires:       perl(subs) >= 1.02
+Requires:       perl(subs) >= 1.00
 Requires:       perl(Term::ReadLine) >= 1.14
 Requires:       perl(Term::ReadLine::Gnu) >= 1.24
 Requires:       perl(Text::ParseWords) >= 3.29
 Requires:       perl(Types::Standard) >= 1.000005
-Requires:       perl(warnings) >= 1.23
+Requires:       perl(warnings) >= 1.00
 Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
-Provides:       perl(Term::CLI) = 0.04008
-Provides:       perl(Term::CLI::Argument) = 0.04008
-Provides:       perl(Term::CLI::Argument::Bool) = 0.04008
-Provides:       perl(Term::CLI::Argument::Enum) = 0.04008
-Provides:       perl(Term::CLI::Argument::Filename) = 0.04008
-Provides:       perl(Term::CLI::Argument::Number) = 0.04008
-Provides:       perl(Term::CLI::Argument::Number::Float) = 0.04008
-Provides:       perl(Term::CLI::Argument::Number::Int) = 0.04008
-Provides:       perl(Term::CLI::Argument::String) = 0.04008
-Provides:       perl(Term::CLI::Base) = 0.04008
-Provides:       perl(Term::CLI::Command) = 0.04008
-Provides:       perl(Term::CLI::Command::Help) = 0.04008
-Provides:       perl(Term::CLI::Element) = 0.04008
-Provides:       perl(Term::CLI::L10N) = 0.04008
-Provides:       perl(Term::CLI::L10N::en) = 0.04008
-Provides:       perl(Term::CLI::L10N::nl) = 0.04008
-Provides:       perl(Term::CLI::ReadLine) = 0.04008
-Provides:       perl(Term::CLI::Role::ArgumentSet) = 0.04008
-Provides:       perl(Term::CLI::Role::CommandSet) = 0.04008
-Provides:       perl(Term::CLI::Role::HelpText) = 0.04008
+Provides:       perl(Term::CLI) = 0.05002
+Provides:       perl(Term::CLI::Argument) = 0.05002
+Provides:       perl(Term::CLI::Argument::Bool) = 0.05002
+Provides:       perl(Term::CLI::Argument::Enum) = 0.05002
+Provides:       perl(Term::CLI::Argument::Filename) = 0.05002
+Provides:       perl(Term::CLI::Argument::Number) = 0.05002
+Provides:       perl(Term::CLI::Argument::Number::Float) = 0.05002
+Provides:       perl(Term::CLI::Argument::Number::Int) = 0.05002
+Provides:       perl(Term::CLI::Argument::String) = 0.05002
+Provides:       perl(Term::CLI::Base) = 0.05002
+Provides:       perl(Term::CLI::Command) = 0.05002
+Provides:       perl(Term::CLI::Command::Help) = 0.05002
+Provides:       perl(Term::CLI::Element) = 0.05002
+Provides:       perl(Term::CLI::L10N) = 0.05002
+Provides:       perl(Term::CLI::L10N::en) = 0.05002
+Provides:       perl(Term::CLI::L10N::nl) = 0.05002
+Provides:       perl(Term::CLI::ReadLine) = 0.05002
+Provides:       perl(Term::CLI::Role::ArgumentSet) = 0.05002
+Provides:       perl(Term::CLI::Role::CommandSet) = 0.05002
+Provides:       perl(Term::CLI::Role::HelpText) = 0.05002
 
 %description
 Implement an easy-to-use command line interpreter based on
@@ -116,6 +116,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Fri Mar 16 2018 Steven Bakker <sbakker@cpan.org> 0.05002-1
+- New upstream release.
 * Tue Mar 13 2018 Steven Bakker <sbakker@cpan.org> 0.04008-1
 - New upstream release.
 * Tue Mar 13 2018 Steven Bakker <sbakker@cpan.org> 0.04007-1

@@ -1,3 +1,12 @@
+0.05002 -- 2018-03-16
+
+    [Bug Fixes]
+
+    - Don't "reset_after_signal" after re-throwing.
+
+        Files modified:
+            lib/Term/CLI.pm
+
 0.05001 -- 2018-03-16
 
     [Bug Fixes]
