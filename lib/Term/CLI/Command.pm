@@ -20,7 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Command  0.04009 {
+package Term::CLI::Command  0.05001 {
 
 use Modern::Perl 1.20140107;
 use List::Util 1.38 qw( first min );

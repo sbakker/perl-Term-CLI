@@ -1,3 +1,55 @@
+0.05001 -- 2018-03-16
+
+    [Bug Fixes]
+
+    - Fix signal handling
+        - WINCH is now handled correctly.
+        - TTIN, TTOU, HUP, and TERM are now handled as well.
+
+        Files modified:
+            lib/Term/CLI.pm
+
+    - Fix heuristic =over determination.
+
+        Files modified:
+            lib/Term/CLI/Command/Help.pm
+
+    [Features]
+
+    - Expand tutorial(s).
+
+        Files modified:
+            tutorial/*.t
+            lib/Term/CLI/Tutorial.pod
+
+    [POD fixes]
+
+    - Term::CLI::L10N: Add EXAMPLES and DESCRIPTION.
+    - Term::CLI::Intro: Include L10N modules and Bool argument class.
+    - Term::CLI: Bring POD in line with code.
+    - Term::CLI::L10N::nl: its => it's
+
+    [Miscellaneous Changes]
+
+    - pkg/fedora/perl-Term-CLI.spec: Fix packager.
+
+    - lib/**/*.pm: Reduce length of "#==...==" lines.
+
+    - Update POD on signal handling.
+
+        Files modified:
+            lib/Term/CLI.pm
+
+    - Fix tutorial file names.
+
+        Files modified:
+            lib/Term/CLI/Tutorial.pod
+
+    - Update with dzil build.
+
+        Files modified:
+            MANIFEST
+
 0.04009 -- 2018-03-14
 
     - Use $^X to find current Perl interpreter.

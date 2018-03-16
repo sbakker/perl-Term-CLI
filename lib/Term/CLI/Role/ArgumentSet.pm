@@ -20,7 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Role::ArgumentSet  0.04009 {
+package Term::CLI::Role::ArgumentSet  0.05001 {
 
 use Modern::Perl 1.20140107;
 
