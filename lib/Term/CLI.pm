@@ -296,7 +296,6 @@ sub _set_signal_handlers {
         $self->term->cleanup_after_signal();
         kill $signal, $$;
         $self->term->Attribs->{catch_signals} = 1;
-        $self->term->reset_after_signal();
         return 1;
     };
 
