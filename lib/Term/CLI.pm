@@ -481,7 +481,7 @@ Term::CLI - CLI interpreter based on Term::ReadLine
         my ($self, %args) = @_;
         print Data::Dumper->Dump([\%args], ['args']);
         return %args;
-    }
+    },
     commands => [
         Term::CLI::Command->new(
             name => 'copy',
