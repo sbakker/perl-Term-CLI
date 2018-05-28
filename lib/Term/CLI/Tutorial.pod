@@ -243,7 +243,8 @@ L<Term::CLI>'s C<add_command> method.
         prompt   => 'bssh> ',           # A more descriptive prompt.
     );
 
-    $term->add_command, Term::CLI::Command->new(
+    $term->add_command(
+        Term::CLI::Command->new( ... ),
         ...
     );
 
@@ -275,8 +276,8 @@ You can also build a list first, and then call C<add_command>:
 
     $term->add_command(@commands);
 
-This is the method we'll use for this tutorial, and comes in
-handy further down the line.
+This is the method we'll use for this tutorial, and it coincidentally
+comes in handy further down the line.
 
 So, now that we have the basic mechanism out of the way, let's
 add our first command, the highly useful C<exit>.
