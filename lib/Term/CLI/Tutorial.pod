@@ -416,7 +416,7 @@ moment to look at the built-in help features of L<Term::CLI>.
 
 By default, there is no help available in a L<Term::CLI> application:
 
-    bss> help
+    bssh> help
     ERROR: unknown command 'help'
 
 However, there is a special L<Term::CLI::Command::Help> class (derived
