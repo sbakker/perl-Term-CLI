@@ -23,7 +23,7 @@ Term::CLI::Intro - introduction to Term::CLI class/module structure
 =head1 DESCRIPTION
 
 This manual entry provides information on the class and module
-structure of the L<Term::CLI> library.
+structure of the L<Term::CLI>(3p) library.
 
 For an introduction in the usage of this library, including code
 examples, see L<Term::CLI::Tutorial>(3p).
