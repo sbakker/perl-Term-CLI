@@ -20,7 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Role::HelpText  0.051002 {
+package Term::CLI::Role::HelpText  0.051003 {
 
 use Modern::Perl 1.20140107;
 

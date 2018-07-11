@@ -20,7 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Argument::Number::Float  0.051002 {
+package Term::CLI::Argument::Number::Float  0.051003 {
 
 use Modern::Perl 1.20140107;
 use Scalar::Util 1.38 qw( looks_like_number );
