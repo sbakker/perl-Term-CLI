@@ -6,7 +6,7 @@ Creating a new release:
 
     * Fix version in pkg/ files.
 
-    * Add entry in Changes.
+    * Add entry in Changes, use "git pl-changes"
 
     * Test build:
 
