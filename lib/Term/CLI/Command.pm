@@ -20,7 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Command  0.051002 {
+package Term::CLI::Command  0.051003 {
 
 use Modern::Perl 1.20140107;
 use List::Util 1.38 qw( first min );
@@ -359,7 +359,8 @@ L<Term::CLI::Role::HelpText>(3p).
 =item B<new> ( B<name> =E<gt> I<VARNAME> ... )
 X<new>
 
-Create a new Term::CLI::Command object and return a reference to it.
+Create a new C<Term::CLI::Command> object and return a reference
+to it.
 
 The B<name> attribute is required.
 
