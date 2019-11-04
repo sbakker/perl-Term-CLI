@@ -1,6 +1,6 @@
 Name:           perl-Term-CLI
 Version:        0.051003
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        CLI interpreter based on Term::ReadLine
 License:        GPL+ or Artistic
 Group:          Development/Libraries
@@ -9,6 +9,7 @@ Source0:        http://www.cpan.org/modules/by-module/Term/Term-CLI-%{version}.t
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 BuildRequires:  perl >= 0:5.014_001
+BuildRequires:  perl-generators
 BuildRequires:  perl(Exporter) >= 5.71
 BuildRequires:  perl(ExtUtils::MakeMaker)
 BuildRequires:  perl(File::Temp) >= 0.2304
