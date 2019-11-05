@@ -78,10 +78,20 @@ sub complete_line {
 
         my %parsed_opts;
 
-        my $has_terminator = first { $_ eq '--' } @words[0..$#words-1];
-
-        eval { GetOptionsFromArray(\@words, \%parsed_opts, @$opt_specs) };
-
+        my $has_terminator;
+        if ($Getopt::Long::VERSION < 2.51) {
+            # Getopt::Long before 2.51 removes '--' from word list;
+            # Try to work around the bug. Can still be fooled by
+            # "--foo --" if "--foo" takes an argument. :-/
+            my $has_terminator = first { $_ eq '--' } @words[0..$#words-1];
+            eval { GetOptionsFromArray(\@words, \%parsed_opts, @$opt_specs) };
+        }
+        else {
+            eval { GetOptionsFromArray(\@words, \%parsed_opts, @$opt_specs) };
+            if (@words > 1 && $words[0] eq '--') {
+                $has_terminator = shift @words;
+            }
+        }
         if (!$has_terminator && @words <= 1 && $partial =~ /^-/) {
             # We have to complete a command-line option.
             return grep { rindex($_, $partial, 0) == 0 } $self->option_names;
