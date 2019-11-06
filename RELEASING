@@ -18,7 +18,7 @@ Creating a new release:
 
     * If successful, commit & tag:
 
-        VERSION=v0.051004
+        VERSION=v0.051005
         git commit -a -m "Release $VERSION"
         git tag -m "Release $VERSION" $VERSION
         git push
