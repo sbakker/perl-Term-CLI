@@ -83,7 +83,7 @@ sub complete_line {
             # Getopt::Long before 2.51 removes '--' from word list;
             # Try to work around the bug. Can still be fooled by
             # "--foo --" if "--foo" takes an argument. :-/
-            my $has_terminator = first { $_ eq '--' } @words[0..$#words-1];
+            $has_terminator = first { $_ eq '--' } @words[0..$#words-1];
             eval { GetOptionsFromArray(\@words, \%parsed_opts, @$opt_specs) };
         }
         else {
