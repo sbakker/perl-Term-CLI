@@ -20,7 +20,7 @@
 
 use 5.014_001;
 
-package Term::CLI::Argument::String  0.051005 {
+package Term::CLI::Argument::String  0.051006 {
 
 use Modern::Perl 1.20140107;
 

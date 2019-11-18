@@ -2,7 +2,7 @@ Creating a new release:
 
     * Fix VERSION in modules:
 
-        perl scratch/fix_version_number.pl VERSION lib/**/*.pm
+        perl scratch/fix_version_number.pl +1 lib/**/*.pm
 
     * Fix version in pkg/ files.
 
@@ -18,7 +18,7 @@ Creating a new release:
 
     * If successful, commit & tag:
 
-        VERSION=v0.051005
+        VERSION=v$(perl scratch/get_version.pl Term::CLI)
         git commit -a -m "Release $VERSION"
         git tag -m "Release $VERSION" $VERSION
         git push
