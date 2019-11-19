@@ -154,7 +154,7 @@ L<Term::CLI> provides a framework to make this happen:
     while (defined (my $line = $term->readline)) {
         $term->execute($line);
     }
-    say "\nexit";
+    say "\n-- exit";
     exit 0;
 
 This example is pretty much non-functional, since the L<Term::CLI> object is
@@ -228,7 +228,7 @@ This gives us:
     bssh> # This is a comment!
     bssh> exit
     ERROR: unknown command 'exit'
-    bssh>
+    bssh> ^D
     -- exit
 
 =head1 ADDING COMMANDS
@@ -615,7 +615,7 @@ L<Term::CLI::Argument::Enum> objects:
                     .  "C<now>, C<never>, C<later>, or C<forever>.",
         arguments => [
             Term::CLI::Argument::Enum->new( name => 'target',
-                value_list => [qw( love money)],
+                value_list => [qw( love money )],
             ),
             Term::CLI::Argument::Enum->new( name => 'when',
                 value_list => [qw( now later never forever )],
