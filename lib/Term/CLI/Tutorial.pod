@@ -748,7 +748,7 @@ topic.
 
 For now, there's no other way than to specify a single
 L<Term::CLI::Argument::Filename>, with a minimum occurrence of 2, and no
-maximum. De distinction between I<src-path> and I<dst-path> needs to be
+maximum. The distinction between I<src-path> and I<dst-path> needs to be
 made in the callback code.
 
     push @commands, Term::CLI::Command->new(
@@ -1330,7 +1330,7 @@ the L<Term::CLI::Command> constructor call:
 The value should be an ArrayRef with the allowed options in
 L<Getopt::Long>(3p) format. The L<Term::CLI> code will turn
 on C<bundling> (allow grouping of single letter options, i.e. C<-a>
-nd C<-b> can be written as C<-ab>) and C<require_order> (no mixing of
+and C<-b> can be written as C<-ab>) and C<require_order> (no mixing of
 options and arguments).
 
 Above, we've added a C<--verbose> option to the C<show> command, and a
