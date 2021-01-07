@@ -438,12 +438,16 @@ If you add this to the application, you'll get:
     Usage:
         exit [excode]
     bssh> help h
-    Usage:
-        help [--pod] [-p] [cmd ...]
+      Usage:
+        help [--pod] [--all] [-pa] [cmd ...]
 
-    Description:
-        Show help for any given command sequence. The "--pod"
-        option (or "-p") will cause raw POD to be shown.
+      Description:
+        Show help for any given command sequence (or a command overview
+        if no argument is given.
+
+        The "--pod" ("-p") option will cause raw POD to be shown.
+
+        The "--all" ("-a") option will list help text for all commands.
 
 Note that we don't have to specify the full command to get help on:
 command abbreviation works here as well (C<help h>). Also, if you'd type
@@ -456,13 +460,18 @@ manual page:
 
     =head2 Usage:
 
-    B<help> [B<--pod>] [B<-p>] [I<cmd> ...]
+    B<help> [B<--pod>] [B<--all>] [B<-pa>] [I<cmd> ...]
 
     =head2 Description:
 
-    Show help for any given command sequence.
-    The C<--pod> option (or C<-p>) will cause raw POD
+    Show help for any given command sequence (or a command
+    overview if no argument is given.
+
+    The C<--pod> (C<-p>) option will cause raw POD
     to be shown.
+
+    The C<--all> (C<-a>) option will list help text for all
+    commands.
 
 =head2 Fleshing out help text
 
