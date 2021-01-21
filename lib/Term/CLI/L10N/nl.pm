@@ -19,7 +19,7 @@ use 5.014_001;
 
 package Term::CLI::L10N::nl;
 
-our $VERSION = 0.051007;
+our $VERSION = 0.052001;
 
 use Modern::Perl 1.20140107;
 
