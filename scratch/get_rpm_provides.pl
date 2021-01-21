@@ -23,16 +23,13 @@ use 5.014_001;
 use warnings;
 use strict;
 
-my $pkgname;
-my $version;
 
 @ARGV || die "usage: get_rpm_provides.pl pm-file ...\n";
 
 for my $fname (@ARGV) {
     if (open my $fh, '<', $fname) {
         my $in_pod = 0;
-        my $pkgname;
-        my $version;
+        my ($pkgname, $version);
 
         while (<$fh>) {
             last if /^__END__$/ or /^__DATA__$/;
@@ -48,19 +45,19 @@ for my $fname (@ARGV) {
             }
 
             if (/^package\s+([\w:]+)\s+([\d\.\_]+)/) {
-                print_pkg($pkgname, $version);
+                ($pkgname, $version) = print_pkg($pkgname, $version);
                 print_pkg($1, $2);
             }
             elsif (/^\s*package\s+([\w:]+)/) {
-                print_pkg($pkgname, $version);
+                ($pkgname, $version) = print_pkg($pkgname, $version);
                 $pkgname = $1;
             }
             elsif (/^\s*(?:our\s+)?\$VERSION\s*=\s*(['"]?)([\d\._]+)\1/) {
-                print_pkg($pkgname, $2);
+                ($pkgname, $version) = print_pkg($pkgname, $2);
             }
         }
         close $fh;
-        print_pkg($pkgname, $version);
+        ($pkgname, $version) = print_pkg($pkgname, $2);
     }
     else {
         say STDERR "Cannot read $fname: $!";
@@ -73,6 +70,5 @@ sub print_pkg {
         $vers //= 0;
         say "Provides:       perl($name) = $vers";
     }
-    $pkgname = undef;
-    $version = undef;
+    return;
 }
