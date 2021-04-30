@@ -41,6 +41,7 @@ BuildRequires:  perl(Test::Pod::Coverage)
 BuildRequires:  perl(Text::ParseWords) >= 3.29
 BuildRequires:  perl(Types::Standard) >= 1.000005
 BuildRequires:  perl(warnings) >= 1.00
+BuildRequires:  make >= 4.0
 Requires:       perl(Exporter) >= 5.71
 Requires:       perl(File::Which) >= 1.09
 Requires:       perl(FindBin) >= 1.50
