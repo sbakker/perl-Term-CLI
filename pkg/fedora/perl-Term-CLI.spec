@@ -63,26 +63,26 @@ Requires:       perl(Text::ParseWords) >= 3.29
 Requires:       perl(Types::Standard) >= 1.000005
 Requires:       perl(warnings) >= 1.00
 Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
-Provides:       perl(Term::CLI) = 0.052001
-Provides:       perl(Term::CLI::Argument) = 0.052001
-Provides:       perl(Term::CLI::Argument::Bool) = 0.052001
-Provides:       perl(Term::CLI::Argument::Enum) = 0.052001
-Provides:       perl(Term::CLI::Argument::Filename) = 0.052001
-Provides:       perl(Term::CLI::Argument::Number) = 0.052001
-Provides:       perl(Term::CLI::Argument::Number::Float) = 0.052001
-Provides:       perl(Term::CLI::Argument::Number::Int) = 0.052001
-Provides:       perl(Term::CLI::Argument::String) = 0.052001
-Provides:       perl(Term::CLI::Base) = 0.052001
-Provides:       perl(Term::CLI::Command) = 0.052001
-Provides:       perl(Term::CLI::Command::Help) = 0.052001
-Provides:       perl(Term::CLI::Element) = 0.052001
-Provides:       perl(Term::CLI::L10N) = 0.052001
-Provides:       perl(Term::CLI::L10N::en) = 0.052001
-Provides:       perl(Term::CLI::L10N::nl) = 0.052001
-Provides:       perl(Term::CLI::ReadLine) = 0.052001
-Provides:       perl(Term::CLI::Role::ArgumentSet) = 0.052001
-Provides:       perl(Term::CLI::Role::CommandSet) = 0.052001
-Provides:       perl(Term::CLI::Role::HelpText) = 0.052001
+Provides:       perl(Term::CLI) = %{version}
+Provides:       perl(Term::CLI::Argument) = %{version}
+Provides:       perl(Term::CLI::Argument::Bool) = %{version}
+Provides:       perl(Term::CLI::Argument::Enum) = %{version}
+Provides:       perl(Term::CLI::Argument::Filename) = %{version}
+Provides:       perl(Term::CLI::Argument::Number) = %{version}
+Provides:       perl(Term::CLI::Argument::Number::Float) = %{version}
+Provides:       perl(Term::CLI::Argument::Number::Int) = %{version}
+Provides:       perl(Term::CLI::Argument::String) = %{version}
+Provides:       perl(Term::CLI::Base) = %{version}
+Provides:       perl(Term::CLI::Command) = %{version}
+Provides:       perl(Term::CLI::Command::Help) = %{version}
+Provides:       perl(Term::CLI::Element) = %{version}
+Provides:       perl(Term::CLI::L10N) = %{version}
+Provides:       perl(Term::CLI::L10N::en) = %{version}
+Provides:       perl(Term::CLI::L10N::nl) = %{version}
+Provides:       perl(Term::CLI::ReadLine) = %{version}
+Provides:       perl(Term::CLI::Role::ArgumentSet) = %{version}
+Provides:       perl(Term::CLI::Role::CommandSet) = %{version}
+Provides:       perl(Term::CLI::Role::HelpText) = %{version}
 
 %description
 Implement an easy-to-use command line interpreter based on
