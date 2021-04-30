@@ -902,7 +902,7 @@ function.
 The signal handlers will ensure the terminal is in a sane state.
 
 
-The following signal handlers discard the the current input line, restore
+The following signal handlers discard the current input line, restore
 any previous signal handler, and re-throw the signal:
 C<HUP>, C<INT>, C<QUIT>, C<ALRM>, C<TERM>, C<TTIN>, C<TTOU>, C<TSTP>.
 
