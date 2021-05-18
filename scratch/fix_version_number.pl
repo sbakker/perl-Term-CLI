@@ -3,7 +3,7 @@
 # usage: perl fix_version_number.pl 0.02 lib/
 
 use 5.014_001;
-use Modern::Perl;
+use warnings;
 
 my $USAGE = "usage: $0 VERSION file ...\n";
 

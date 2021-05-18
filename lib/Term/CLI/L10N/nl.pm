@@ -15,13 +15,11 @@
 #
 #=============================================================================
 
-use 5.014_001;
-
 package Term::CLI::L10N::nl;
 
 our $VERSION = 0.052001;
 
-use Modern::Perl 1.20140107;
+use Term::CLI::PerlFeatures;
 
 use parent 0.228 qw( Term::CLI::L10N );
 

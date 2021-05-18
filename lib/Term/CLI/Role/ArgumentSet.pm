@@ -18,11 +18,9 @@
 #
 #=============================================================================
 
-use 5.014_001;
-
 package Term::CLI::Role::ArgumentSet  0.052001 {
 
-use Modern::Perl 1.20140107;
+use Term::CLI::PerlFeatures;
 
 use Types::Standard 1.000005 qw(
     ArrayRef

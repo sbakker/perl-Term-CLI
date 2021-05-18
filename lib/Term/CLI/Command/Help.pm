@@ -18,11 +18,9 @@
 #
 #=============================================================================
 
-use 5.014_001;
-
 package Term::CLI::Command::Help  0.052001 {
 
-use Modern::Perl 1.20140107;
+use Term::CLI::PerlFeatures;
 use Pod::Text::Termcap 2.08;
 use List::Util 1.38 qw( first min );
 use File::Which 1.09;

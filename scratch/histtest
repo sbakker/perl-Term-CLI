@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
-use Modern::Perl;
+use 5.014;
+use warnings;
 use Term::ReadLine;
 
 my $t = Term::ReadLine->new('jabba');

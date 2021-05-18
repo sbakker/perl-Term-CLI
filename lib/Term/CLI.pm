@@ -18,11 +18,9 @@
 #
 #=============================================================================
 
-use 5.014_001;
-
 package Term::CLI  0.052001 {
 
-use Modern::Perl 1.20140107;
+use Term::CLI::PerlFeatures;
 use Text::ParseWords 3.29 qw( parse_line );
 use Term::CLI::ReadLine;
 use FindBin 1.50;

@@ -1,5 +1,6 @@
-#!/usr/bin/perl
-use Modern::Perl;
+#!/usr/bin/env perl
+use 5.014;
+use warnings;
 
 my @files = qw(
 00-compile.t

@@ -19,7 +19,6 @@ BuildRequires:  perl(Getopt::Long) >= 2.42
 BuildRequires:  perl(List::Util) >= 1.38
 BuildRequires:  perl(Locale::Maketext) >= 1.25
 BuildRequires:  perl(Locale::Maketext::Lexicon::Gettext) >= 1.00
-BuildRequires:  perl(Modern::Perl) >= 1.20140107
 BuildRequires:  perl(Moo) >= 1.000001
 BuildRequires:  perl(Moo::Role)
 BuildRequires:  perl(namespace::clean) >= 0.25
@@ -49,7 +48,6 @@ Requires:       perl(Getopt::Long) >= 2.42
 Requires:       perl(List::Util) >= 1.38
 Requires:       perl(Locale::Maketext) >= 1.25
 Requires:       perl(Locale::Maketext::Lexicon::Gettext) >= 1.00
-Requires:       perl(Modern::Perl) >= 1.20140107
 Requires:       perl(Moo) >= 1.000001
 Requires:       perl(Moo::Role)
 Requires:       perl(namespace::clean) >= 0.25

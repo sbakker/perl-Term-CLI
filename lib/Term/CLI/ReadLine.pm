@@ -18,11 +18,9 @@
 #
 #=============================================================================
 
-use 5.014_001;
-
 package Term::CLI::ReadLine  0.052001 {
 
-use Modern::Perl 1.20140107;
+use Term::CLI::PerlFeatures;
 
 use Carp qw( confess );
 
