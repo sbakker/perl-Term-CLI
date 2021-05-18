@@ -26,6 +26,8 @@ use Modern::Perl 1.20140107;
 
 use Carp qw( confess );
 
+BEGIN { $::ENV{PERL_RL} = 'Gnu' }
+
 use parent 0.228 qw( Term::ReadLine );
 
 use namespace::clean 0.25;
