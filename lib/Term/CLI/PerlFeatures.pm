@@ -23,14 +23,12 @@ package Term::CLI::PerlFeatures  0.052001 {
     use strict;
     use warnings;
 
-    use mro     ();
     use feature ();
 
     sub import {
         warnings->import;
         strict->import;
         feature->import( ':5.14' );
-        mro::set_mro( scalar caller(), 'c3' );
     }
 
     sub unimport {
