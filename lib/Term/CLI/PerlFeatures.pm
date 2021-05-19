@@ -18,7 +18,7 @@
 #
 #===============================================================================
 
-package Term::CLI::PerlFeatures  0.052001 {
+package Term::CLI::PerlFeatures  0.052002 {
 
     use strict;
     use warnings;

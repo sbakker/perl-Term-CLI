@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI  0.052001 {
+package Term::CLI  0.052002 {
 
 use Term::CLI::PerlFeatures;
 use Text::ParseWords 3.29 qw( parse_line );

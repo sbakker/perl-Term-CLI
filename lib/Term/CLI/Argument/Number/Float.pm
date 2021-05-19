@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Number::Float  0.052001 {
+package Term::CLI::Argument::Number::Float  0.052002 {
 
 use Term::CLI::PerlFeatures;
 use Scalar::Util 1.38 qw( looks_like_number );

@@ -1,5 +1,5 @@
 Name:           perl-Term-CLI
-Version:        0.052001
+Version:        0.052002
 Release:        1%{?dist}
 Summary:        CLI interpreter based on Term::ReadLine
 License:        GPL+ or Artistic
@@ -63,6 +63,7 @@ Requires:       perl(warnings) >= 1.00
 Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Provides:       perl(Term::CLI) = %{version}
 Provides:       perl(Term::CLI::Argument) = %{version}
+Provides:       perl(Term::CLI::PerlFeatures) = %{version}
 Provides:       perl(Term::CLI::Argument::Bool) = %{version}
 Provides:       perl(Term::CLI::Argument::Enum) = %{version}
 Provides:       perl(Term::CLI::Argument::Filename) = %{version}
@@ -116,7 +117,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
-* Thu Jan 21 2021 Steven Bakker <sbakker@cpan.org> 0.052001-1
+* Thu May 19 2021 Steven Bakker <sbakker@cpan.org> 0.052002-1
+- New upstream release.
+* Fri Apr 30 2021 Steven Bakker <sbakker@cpan.org> 0.052001-1
 - New upstream release.
 * Mon Nov 18 2019 Steven Bakker <sbakker@cpan.org> 0.051007-1
 - New upstream release.

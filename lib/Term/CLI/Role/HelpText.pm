@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Role::HelpText  0.052001 {
+package Term::CLI::Role::HelpText  0.052002 {
 
 use Term::CLI::PerlFeatures;
 

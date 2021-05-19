@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Role::CommandSet  0.052001 {
+package Term::CLI::Role::CommandSet  0.052002 {
 
 use Term::CLI::PerlFeatures;
 use Term::CLI::L10N;

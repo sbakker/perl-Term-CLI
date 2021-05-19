@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Command::Help  0.052001 {
+package Term::CLI::Command::Help  0.052002 {
 
 use Term::CLI::PerlFeatures;
 use Pod::Text::Termcap 2.08;

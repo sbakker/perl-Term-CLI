@@ -17,7 +17,7 @@
 
 package Term::CLI::L10N::nl;
 
-our $VERSION = 0.052001;
+our $VERSION = 0.052002;
 
 use Term::CLI::PerlFeatures;
 

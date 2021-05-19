@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Command  0.052001 {
+package Term::CLI::Command  0.052002 {
 
 use Term::CLI::PerlFeatures;
 use List::Util 1.38 qw( first min );

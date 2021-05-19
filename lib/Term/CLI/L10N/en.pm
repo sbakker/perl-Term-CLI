@@ -15,7 +15,7 @@
 #
 #=============================================================================
 
-package Term::CLI::L10N::en  0.052001 {
+package Term::CLI::L10N::en  0.052002 {
 
 use Term::CLI::PerlFeatures;
 

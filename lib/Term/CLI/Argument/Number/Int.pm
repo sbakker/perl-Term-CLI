@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Number::Int  0.052001 {
+package Term::CLI::Argument::Number::Int  0.052002 {
 
 use Term::CLI::PerlFeatures;
 use Moo 1.000001;
