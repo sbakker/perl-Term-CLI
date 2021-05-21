@@ -1422,7 +1422,7 @@ By default, if the application is named C<bssh>, the history will
 be read/written to/from C<~/.bssh_history>, and L<Term::CLI> will
 remember 1000 lines of input history.
 
-See the L<HISTORY CONTROL|Term::CLI/HISTORY CONTROL> 
+See the L<History Control|Term::CLI/History Control> 
 section in the L<Term::CLI> documentation for more information
 on how to change the defaults.
 
