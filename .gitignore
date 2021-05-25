@@ -2,6 +2,7 @@
 *.tar.gz
 *.bak
 *.old
+*.lock
 .build/
 _build/
 blib/
