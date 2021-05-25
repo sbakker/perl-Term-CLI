@@ -109,7 +109,7 @@ sub check_pager : Test(3) {
 }
 
 
-sub check_help : Test(13) {
+sub check_help : Test(14) {
     my $self = shift;
     my $cli = $self->{cli};
 
@@ -160,6 +160,30 @@ sub check_help : Test(13) {
         qr/=head\d Usage:.*B<mv> I<path1> I<path2>/sm,
         "'help --pod mv' returns POD command summary'",
     );
+
+
+    stdout_like(
+        sub { $cli->execute('help --pod --all') },
+        qr{
+            =head\d \s COMMAND \s SUMMARY \n{2,}
+            =over [^\n]*\n{2,}
+            =item \s B<cp>   .*\n{2,}
+            =item \s B<help> .*\n{2,}
+            =item \s B<mv>   .*\n{2,}
+            =item \s B<show> .*\n{2,}
+            =back\n{2,}
+            =head\d \s COMMANDS \n{2,}
+            =over [^\n]*\n{2,}
+            =item \s B<cp>   .*\n{2,}
+            =item \s B<help> .*\n{2,}
+            =item \s B<mv>   .*\n{2,}
+            =item \s B<show> .*\n{2,}
+            =back\n
+        }smx,
+        '"help --pod --all" returns POD command help'
+    );
+    my $x=q{
+        };
 
     my %args = $cli->execute('help xp');
     ok($args{status} < 0, '"help xp" results in an error');
