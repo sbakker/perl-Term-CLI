@@ -17,9 +17,11 @@
 
 package Term::CLI::L10N::nl;
 
-our $VERSION = 0.052002;
+use 5.014;
+use strict;
+use warnings;
 
-use Term::CLI::PerlFeatures;
+our $VERSION = 0.052002;
 
 use parent 0.228 qw( Term::CLI::L10N );
 

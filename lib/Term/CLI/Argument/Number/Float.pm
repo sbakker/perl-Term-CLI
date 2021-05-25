@@ -20,7 +20,10 @@
 
 package Term::CLI::Argument::Number::Float  0.052002 {
 
-use Term::CLI::PerlFeatures;
+use 5.014;
+use strict;
+use warnings;
+
 use Scalar::Util 1.38 qw( looks_like_number );
 
 use Moo 1.000001;

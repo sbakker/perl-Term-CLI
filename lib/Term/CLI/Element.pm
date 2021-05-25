@@ -20,7 +20,10 @@
 
 package Term::CLI::Element  0.052002 {
 
-use Term::CLI::PerlFeatures;
+use 5.014;
+use strict;
+use warnings;
+
 use Term::CLI::ReadLine;
 
 use Types::Standard 1.000005 qw( Str );

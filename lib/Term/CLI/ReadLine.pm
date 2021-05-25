@@ -20,7 +20,9 @@
 
 package Term::CLI::ReadLine  0.052002 {
 
-use Term::CLI::PerlFeatures;
+use 5.014;
+use strict;
+use warnings;
 
 use Carp qw( confess );
 

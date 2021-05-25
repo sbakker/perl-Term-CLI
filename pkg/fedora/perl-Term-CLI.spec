@@ -63,7 +63,6 @@ Requires:       perl(warnings) >= 1.00
 Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Provides:       perl(Term::CLI) = %{version}
 Provides:       perl(Term::CLI::Argument) = %{version}
-Provides:       perl(Term::CLI::PerlFeatures) = %{version}
 Provides:       perl(Term::CLI::Argument::Bool) = %{version}
 Provides:       perl(Term::CLI::Argument::Enum) = %{version}
 Provides:       perl(Term::CLI::Argument::Filename) = %{version}

@@ -20,7 +20,10 @@
 
 package Term::CLI::Argument::Filename  0.052002 {
 
-use Term::CLI::PerlFeatures;
+use 5.014;
+use strict;
+use warnings;
+
 use Moo 1.000001;
 use namespace::clean 0.25;
 

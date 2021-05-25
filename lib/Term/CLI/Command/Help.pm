@@ -20,7 +20,10 @@
 
 package Term::CLI::Command::Help  0.052002 {
 
-use Term::CLI::PerlFeatures;
+use 5.014;
+use strict;
+use warnings;
+
 use Pod::Text::Termcap 2.08;
 use List::Util 1.38 qw( first min );
 use File::Which 1.09;

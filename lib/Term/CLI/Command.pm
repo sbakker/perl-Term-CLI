@@ -20,7 +20,10 @@
 
 package Term::CLI::Command  0.052002 {
 
-use Term::CLI::PerlFeatures;
+use 5.014;
+use strict;
+use warnings;
+
 use List::Util 1.38 qw( first min );
 use Getopt::Long 2.42 qw( GetOptionsFromArray );
 use Types::Standard 1.000005 qw(

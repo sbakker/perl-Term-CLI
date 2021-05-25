@@ -18,7 +18,9 @@
 
 package Term::CLI::L10N  0.052002 {
 
-use Term::CLI::PerlFeatures;
+use 5.014;
+use strict;
+use warnings;
 
 use parent 0.228 qw( Locale::Maketext Exporter );
 

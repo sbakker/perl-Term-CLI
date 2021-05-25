@@ -20,7 +20,10 @@
 
 package Term::CLI::Argument::Number  0.052002 {
 
-use Term::CLI::PerlFeatures;
+use 5.014;
+use strict;
+use warnings;
+
 use Term::CLI::L10N;
 
 use Moo 1.000001;
