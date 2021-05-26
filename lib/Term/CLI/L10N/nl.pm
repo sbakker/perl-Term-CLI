@@ -21,7 +21,7 @@ use 5.014;
 use strict;
 use warnings;
 
-our $VERSION = 0.052002;
+our $VERSION = 0.052003;
 
 use parent 0.228 qw( Term::CLI::L10N );
 

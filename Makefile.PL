@@ -33,7 +33,6 @@ my %WriteMakefileArgs = (
     "Term::ReadLine::Gnu" => "1.24",
     "Text::ParseWords" => "3.29",
     "Types::Standard" => "1.000005",
-    "feature" => 0,
     "namespace::clean" => "0.25",
     "parent" => "0.228",
     "strict" => "1.00",
@@ -53,7 +52,7 @@ my %WriteMakefileArgs = (
     "strict" => "1.00",
     "warnings" => "1.00"
   },
-  "VERSION" => "0.052002",
+  "VERSION" => "0.052003",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -86,7 +85,6 @@ my %FallbackPrereqs = (
   "Test::Pod::Coverage" => 0,
   "Text::ParseWords" => "3.29",
   "Types::Standard" => "1.000005",
-  "feature" => 0,
   "namespace::clean" => "0.25",
   "parent" => "0.228",
   "strict" => "1.00",
