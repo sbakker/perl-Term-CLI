@@ -144,6 +144,7 @@ The basic design of an interactive interface follows the well-established REPL
 L<Term::CLI> provides a framework to make this happen:
 
     use 5.014_001;
+    use warnings;
     use Term::CLI;
 
     my $term = Term::CLI->new(
@@ -1438,7 +1439,8 @@ The "naive" implementation uses no fancy modules, just a loop
 reading from F<STDIN> and some explicit C<if> statements matching
 the commands:
 
-    use Modern::Perl;
+    use 5.014_001;
+    use warnings;
     use Text::ParseWords qw( shellwords );
     use Term::ReadLine;
 
@@ -1500,7 +1502,8 @@ This performs the basic actions, but does not offer anything else.
 
 Replacing the REPL above by a L<Term::ReadLine>(3p) construction, we get:
 
-    use Modern::Perl;
+    use 5.014_001;
+    use warnings;
     use Text::ParseWords qw( shellwords );
     use Term::ReadLine;
 
