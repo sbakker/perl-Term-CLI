@@ -45,6 +45,7 @@ my %WriteMakefileArgs = (
     "Test::Class" => 0,
     "Test::Compile" => "1.2.0",
     "Test::Exception" => "0.35",
+    "Test::MockModule" => "0.171",
     "Test::More" => "1.001002",
     "Test::Output" => "1.03",
     "Test::Pod" => 0,
@@ -52,7 +53,7 @@ my %WriteMakefileArgs = (
     "strict" => "1.00",
     "warnings" => "1.00"
   },
-  "VERSION" => "0.052003",
+  "VERSION" => "0.052004",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -79,6 +80,7 @@ my %FallbackPrereqs = (
   "Test::Class" => 0,
   "Test::Compile" => "1.2.0",
   "Test::Exception" => "0.35",
+  "Test::MockModule" => "0.171",
   "Test::More" => "1.001002",
   "Test::Output" => "1.03",
   "Test::Pod" => 0,

@@ -6,6 +6,7 @@ MANIFEST
 MANIFEST.SKIP
 META.json
 META.yml
+MYMETA.json.lock
 Makefile.PL
 README
 cpanfile

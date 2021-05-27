@@ -30,6 +30,7 @@ on 'test' => sub {
   requires "Test::Class" => "0";
   requires "Test::Compile" => "v1.2.0";
   requires "Test::Exception" => "0.35";
+  requires "Test::MockModule" => "0.171";
   requires "Test::More" => "1.001002";
   requires "Test::Output" => "1.03";
   requires "Test::Pod" => "0";
