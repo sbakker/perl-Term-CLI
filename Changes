@@ -1,3 +1,26 @@
+0.052005 -- 2021-05-27
+
+    - Increase coverage of Term::CLI.
+
+        Files modified:
+            lib/Term/CLI.pm
+            t/055-Term-CLI.t
+
+    - Remove reference to Modern::Perl
+
+        Files modified:
+            lib/Term/CLI/Tutorial.pod
+
+    - Clean up `use` statements and `#!` in examples and tutorials.
+
+        Files modified:
+            examples/*
+            tutorial/*
+
+0.052004 -- 2021-05-27
+
+    - Ignore; tagged without changelog, see 0.052005 instead.
+
 0.052003 -- 2021-05-26
 
     - Packaging fixes

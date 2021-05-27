@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Filename  0.052004 {
+package Term::CLI::Argument::Filename  0.052005 {
 
 use 5.014;
 use strict;
