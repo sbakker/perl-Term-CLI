@@ -215,14 +215,21 @@ sub _split_line {
 }
 
 
+# Dumb wrapper around "Attrib" that allows mocking the
+# `completion_quote_character` state.
+sub _rl_completion_quote_character {
+    my ($self) = @_;
+    my $c = $self->term->Attribs->{completion_quote_character} // '';
+    return $c =~ s/\000//gr;
+}
+
 # See POD X<complete_line>
 sub complete_line {
     my ($self, $text, $line, $start) = @_;
 
     $self->_set_completion_attribs;
 
-    my $quote_char
-        = $self->term->Attribs->{completion_quote_character} =~ s/\000//gr;
+    my $quote_char = $self->_rl_completion_quote_character;
 
     my @words;
 
@@ -335,7 +342,6 @@ sub _set_signal_handlers {
             = $SIG{INT}
             = $SIG{QUIT}
             = $SIG{ALRM}
-            #= $SIG{STOP}
             = $SIG{TERM}
             = $SIG{TTIN}
             = $SIG{TTOU}
