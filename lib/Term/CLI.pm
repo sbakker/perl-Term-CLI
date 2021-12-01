@@ -65,6 +65,12 @@ has '+name' => (
     default => sub { $FindBin::Script }
 );
 
+has cleanup => (
+    is        => 'rw',
+    isa       => Maybe[CodeRef],
+    predicate => 1
+);
+
 has prompt => (
     is => 'rw',
     isa => Str,
@@ -120,6 +126,13 @@ sub BUILD {
 
     # Set ReadLine history size...
     $self->term->StifleHistory($self->history_lines);
+}
+
+sub DEMOLISH {
+    my ($self) = @_;
+    if ($self->has_cleanup) {
+        $self->cleanup->($self);
+    }
 }
 
 sub _trigger_history_lines {
@@ -484,6 +497,11 @@ Term::CLI - CLI interpreter based on Term::ReadLine
  my $cli = Term::CLI->new(
     name => 'myapp',
     prompt => 'myapp> ',
+    cleanup => sub {
+        my ($cli) = @_;
+        $cli->write_history;
+            or warn "cannot write history: ".$cli->error."\n";
+    },
     callback => sub {
         my ($self, %args) = @_;
         print Data::Dumper->Dump([\%args], ['args']);
@@ -557,6 +575,11 @@ Valid attributes:
 Reference to a subroutine that should be called when the command
 is executed, or C<undef>.
 
+=item B<cleanup> =E<gt> I<CodeRef>
+
+Reference to a subroutine that should be called when the object
+is destroyed (i.e. in L<Moo> terminology, when C<DEMOLISH> is called).
+
 =item B<commands> =E<gt> I<ArrayRef>
 
 Reference to an array containing L<Term::CLI::Command> object
@@ -614,6 +637,12 @@ X<has_callback>
 See
 L<has_callback in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/has_callback>.
 
+=item B<callback> ( [ I<CodeRef> ] )
+X<callback>
+
+See
+L<callback in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/callback>.
+
 =item B<has_commands>
 X<has_commands>
 
@@ -628,18 +657,34 @@ L<commands in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/commands>.
 
 I<ArrayRef> with C<Term::CLI::Command> object instances.
 
-=item B<callback> ( [ I<CodeRef> ] )
-X<callback>
-
-See
-L<callback in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/callback>.
-
 =back
 
 =head2 Others
 
 =over
 
+=item B<has_cleanup>
+X<has_cleanup>
+
+Predicate function that returns whether or not the C<cleanup> attribute has been set.
+
+=item B<cleanup> ( [ I<CodeRef> ] )
+
+Gets or sets a reference to a subroutine that should be called when the object
+is destroyed (i.e. in L<Moo> terminology, when C<DEMOLISH> is called).
+
+The code is called with one parameter: the object to be destroyed. One typical
+use of C<cleanup> is to ensure that the history gets saved upon exit:
+
+  my $cli = Term::CLI->new(
+    ...
+    cleanup => sub {
+      my ($cli) = @_;
+      $cli->write_history
+        or warn "cannot write history: ".$cli->error."\n";
+    }
+  );
+    
 =item B<find_command> ( I<Str> )
 X<find_command>
 
@@ -844,6 +889,9 @@ L<Term::CLI::Command>(3p) encountered, that object's
 L<callback|Term::CLI::Role::CommandSet/callback> function
 is executed (see
 L<callback in Term::CLI::Role::Command|Term::CLI::Role::CommandSet/callback>).
+
+The C<execute> function returns the results of the last called callback
+function.
 
 =over
 
