@@ -15,6 +15,11 @@ my $term = Term::CLI->new(
     name     => 'bssh',             # A basically simple shell.
     skip     => qr/^\s*(?:#.*)?$/,  # Skip comments and empty lines.
     prompt   => 'bssh> ',           # A more descriptive prompt.
+    cleanup  => sub {
+        my ($term) = @_;
+        $term->write_history()
+            or warn "cannot write history: " . $term->error . "\n";
+    },
 );
 
 my @commands;
@@ -27,7 +32,7 @@ push @commands, Term::CLI::Command->new(
     callback => sub {
         my ($cmd, %args) = @_;
         return %args if $args{status} < 0;
-        execute_exit($cmd->name, @{$args{arguments}});
+        execute_exit($cmd, @{$args{arguments}});
         return %args;
     },
     arguments => [
@@ -44,7 +49,7 @@ push @commands, Term::CLI::Command->new(
 sub execute_exit {
     my ($cmd, $excode) = @_;
     $excode //= 0;
-    say "-- $cmd: $excode";
+    say "-- exit: $excode";
     exit $excode;
 }
 
@@ -357,9 +362,11 @@ push @commands, Term::CLI::Command->new(
 
 $term->add_command(@commands);
 
+$term->read_history();
+
 say "\n[Welcome to BSSH]";
 while ( defined(my $line = $term->readline) ) {
     $term->execute($line);
 }
 print "\n";
-execute_exit('exit', 0);
+execute_exit($term, 0);
