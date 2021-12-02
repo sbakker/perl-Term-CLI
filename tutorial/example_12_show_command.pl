@@ -26,7 +26,7 @@ push @commands, Term::CLI::Command->new(
     callback => sub {
         my ($cmd, %args) = @_;
         return %args if $args{status} < 0;
-        execute_exit($cmd->name, @{$args{arguments}});
+        execute_exit($cmd, @{$args{arguments}});
         return %args;
     },
     arguments => [
@@ -43,7 +43,7 @@ push @commands, Term::CLI::Command->new(
 sub execute_exit {
     my ($cmd, $excode) = @_;
     $excode //= 0;
-    say "-- $cmd: $excode";
+    say "-- exit: $excode";
     exit $excode;
 }
 
@@ -222,4 +222,4 @@ while ( defined(my $line = $term->readline) ) {
     $term->execute($line);
 }
 print "\n";
-execute_exit('exit', 0);
+execute_exit($term, 0);
