@@ -124,8 +124,12 @@ sub BUILD {
         $self->history_file("$::ENV{HOME}/.${hist_file}_history");
     }
 
-    # Set ReadLine history size...
-    $self->term->StifleHistory($self->history_lines);
+    # Ensure that the history_lines trigger is called.
+    # If history_lines is given as a parameter, the trigger
+    # *is* called, but it happens *before* the `$term` is
+    # initialised; and if no history_lines is given, the
+    # trigger is not called for the default.
+    $self->history_lines($self->history_lines);
 }
 
 sub DEMOLISH {
@@ -138,8 +142,10 @@ sub DEMOLISH {
 sub _trigger_history_lines {
     my ($self, $arg) = @_;
 
-    # the ReadLine object may not have been initialised yet...
-    $self->term->StifleHistory($arg) if $self->term;
+    # Terminal may not be initialiased yet...
+    return if !$self->term;
+
+    $self->term->stifle_history($arg);
 }
 
 # %args = $self->_default_callback(%args);
@@ -303,14 +309,32 @@ sub read_history {
 
     my $hist_file = @_ ? shift @_ : $self->history_file;
 
-    if ($self->term->ReadHistory($hist_file)) {
+    if ($self->term->can('ReadHistory')) {
+        $self->term->ReadHistory($hist_file)
+            or return $self->set_error("$hist_file: $!");
         $self->history_file($hist_file);
         $self->set_error('');
         return 1;
     }
-    else {
-        return $self->set_error("$hist_file: $!");
+
+    open my $fh, '<', $hist_file
+        or return $self->set_error("$hist_file: $!");
+    chomp(my @history = (<$fh>));
+    $fh->close;
+
+    splice(@history, 0, -$self->history_lines)
+        if @history > $self->history_lines;
+
+    if ($self->term->can('SetHistory')) {
+        $self->term->SetHistory(@history);
     }
+    else {
+        return $self->set_error("no history enabled");
+    }
+
+    $self->set_error('');
+    $self->history_file($hist_file);
+    return 1;
 }
 
 
@@ -319,14 +343,32 @@ sub write_history {
 
     my $hist_file = @_ ? shift @_ : $self->history_file;
 
-    if ($self->term->WriteHistory($hist_file)) {
+    if ($self->term->can('WriteHistory')) {
+        $self->term->WriteHistory($hist_file)
+            or return $self->set_error("$hist_file: $!");
         $self->history_file($hist_file);
         $self->set_error('');
         return 1;
     }
-    else {
-        return $self->set_error("$hist_file: $!");
+
+    my @history;
+    if ($self->term->can('GetHistory')) {
+        @history = $self->term->GetHistory;
     }
+    else {
+        return $self->set_error("no history enabled");
+    }
+
+    open my $fh, '>', $hist_file
+        or return $self->set_error("$hist_file: $!");
+    print $fh map { "$_\n" } @history
+        or return $self->set_error("$hist_file: $!");
+    $fh->close
+        or return $self->set_error("$hist_file: $!");
+
+    $self->set_error('');
+    $self->history_file($hist_file);
+    return 1;
 }
 
 
@@ -574,7 +616,7 @@ use of C<cleanup> is to ensure that the history gets saved upon exit:
         or warn "cannot write history: ".$cli->error."\n";
     }
   );
-    
+
 =item B<find_command> ( I<Str> )
 X<find_command>
 
