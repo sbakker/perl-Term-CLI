@@ -26,8 +26,6 @@ use warnings;
 
 use Carp qw( confess );
 
-#BEGIN { $::ENV{PERL_RL} = 'Gnu' }
-
 use parent 0.228 qw( Term::ReadLine );
 
 use Term::ReadKey ();
@@ -38,19 +36,19 @@ my $Term = undef;
 
 sub new {
     my $class = shift;
+
+    return $Term if $Term;
+
     $Term = Term::ReadLine->new(@_);
-    my $rlmodule = lc $Term->ReadLine =~ s/.*Term::ReadLine:://r;
-    if (0 && $rlmodule ne 'gnu' && $rlmodule ne 'perl') {
-        my $err = "** No 'Term::ReadLine::Gnu' support loaded\n";
-        if ($::ENV{PERL_RL} && lc $::ENV{PERL_RL} ne 'gnu') {
-            $err .= "** Either unset the PERL_RL environment"
-                 .  " variable or set it to 'Gnu'\n";
-        }
-        else {
-            $err .= "** Make sure the Term::ReadLine::Gnu module is installed"
-                 .  " and either unset the\n"
-                 .  "** PERL_RL environment variable or set it to 'Gnu'\n";
-        }
+    my $rl = $Term->ReadLine;
+    if ($rl !~ /::(?:Gnu|Perl)$/i) {
+        my $err =<<EOF;
+** No supported 'Term::ReadLine' interface loaded.
+** Got:  $rl
+** Need: Term::ReadLine::Gnu or Term::ReadLine::Perl
+** Make sure one of the above is installed and either unset the
+** PERL_RL environment variable or set it to 'Gnu' or 'Perl'
+EOF
         confess $err;
     }
     $Term->Attribs->{catch_signals} = 1;
