@@ -29,24 +29,48 @@ use namespace::clean 0.25;
 
 extends 'Term::CLI::Argument';
 
+use File::Glob ':bsd_glob';
+
+use namespace::clean;
+
 sub complete {
     my $self = shift;
     my $partial = shift;
 
     my $func_ref = $self->term->Attribs->{filename_completion_function}
-        or return;
+        or return $self->_glob_complete($partial);
 
-    my $state = 0;
-    my @list;
-    while (my $f = $func_ref->($partial, $state)) {
-        push @list, $f;
-        $state = 1;
+    if ($func_ref) {
+        my $state = 0;
+        my @list;
+        while (my $f = $func_ref->($partial, $state)) {
+            push @list, $f;
+            $state = 1;
+        }
+        return @list;
+    }
+}
+
+sub _glob_complete {
+    my ($self, $partial) = @_;
+    my @list = bsd_glob("$partial*");
+    return @list if @list <= 1;
+
+    foreach (@list) {
+        if (-l $_) {
+            $_ .= '@';
+        } elsif (-d _) {
+            $_ .= '/';
+        } elsif (-x _) {
+            $_ .= '*';
+        } elsif (-S _ || -p _) {
+            $_ .= '=';
+        }
     }
     return @list;
 }
 
 }
-
 1;
 
 __END__
