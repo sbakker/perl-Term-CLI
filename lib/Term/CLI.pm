@@ -319,7 +319,13 @@ sub read_history {
 
     open my $fh, '<', $hist_file
         or return $self->set_error("$hist_file: $!");
-    chomp(my @history = (<$fh>));
+
+    my @history;
+    while (<$fh>) {
+        chomp;
+        next if /^$/;
+        push @history, $_;
+    }
     $fh->close;
 
     splice(@history, 0, -$self->history_lines)
