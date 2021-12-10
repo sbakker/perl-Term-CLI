@@ -178,7 +178,6 @@ sub _set_signal_handlers {
 
     $self->Attribs->{signal_event_hook} = sub {
         if ($last_sig eq 'CONT') {
-            $self->prep_terminal(1);
             $self->forced_update_display();
         }
         return 1;
