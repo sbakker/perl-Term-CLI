@@ -640,7 +640,7 @@ L<find_matches in Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/find_m
 =item B<name>
 X<name>
 
-The application name. 
+The application name.
 See
 L<name in Term::CLI::Base|Term::CLI::Base/name>.
 
