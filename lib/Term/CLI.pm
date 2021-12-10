@@ -281,113 +281,6 @@ sub complete_line {
 }
 
 
-# %old_sig = CLI->_set_signal_handlers();
-#
-# Set signal handlers to ensure proper terminal/CLI handling in the
-# face of various signals (^C ^\ ^Z).
-#
-sub _set_signal_handlers {
-    my $self = shift;
-
-    my %old_sig = %SIG;
-
-    # $last_signal is set by the signal handlers and is used
-    # in the term's "Attrib{signal_event_hook}" to determine
-    # what action to take.
-    my $last_signal = 'NONE';
-
-    # The generic signal handler will attempt to re-throw the signal, after
-    # putting the terminal in the correct state. Any previously set signal
-    # handlers should then be triggered.
-    my $generic_handler = sub {
-        my $signal = shift;
-
-        $last_signal = $signal;
-
-        if (defined $old_sig{$signal} && $old_sig{$signal} ne 'DEFAULT') {
-            $SIG{$signal} = $old_sig{$signal};
-        }
-        else {
-            $SIG{$signal} = 'DEFAULT';
-        }
-
-        $self->term->Attribs->{catch_signals} = 0;
-
-        $self->term->free_line_state();
-        $self->term->cleanup_after_signal();
-        kill $signal, $$;
-        $self->term->Attribs->{catch_signals} = 1;
-        return 1;
-    };
-
-    # The WINCH signal handler.
-    # Tell ReadLine to resize the terminal.
-    my $winch_handler = sub {
-        $self->term->resize_terminal;
-        $last_signal = $_[0];
-        $old_sig{$_[0]}->(@_) if ref $old_sig{$_[0]};
-        return 1;
-    };
-
-    # The CONT signal handler.
-    # In case we get suspended, make sure we redraw the CLI on wake-up.
-    my $cont_handler = sub {
-        $last_signal = $_[0];
-
-        $self->term->free_line_state();
-        $self->term->cleanup_after_signal();
-
-        $old_sig{$_[0]}->(@_) if ref $old_sig{$_[0]};
-
-        $self->term->Attribs->{line_buffer} = '';
-        $self->term->reset_after_signal();
-        $self->term->forced_update_display();
-        return 1;
-    };
-
-    # Install signal handler(s).
-    my $install_handlers = sub {
-        $self->term->Attribs->{catch_signals} = 1;
-
-        $SIG{WINCH} = $winch_handler;
-        $SIG{CONT} = $cont_handler;
-        $SIG{HUP}
-            = $SIG{INT}
-            = $SIG{QUIT}
-            = $SIG{ALRM}
-            = $SIG{TERM}
-            = $SIG{TTIN}
-            = $SIG{TTOU}
-            = $SIG{TSTP}
-                = $generic_handler;
-
-    };
-
-    $install_handlers->();
-
-    # Post-signal hook, called by ReadLine.
-    #
-    # Abort the current input line, except when the
-    # WINCH signal was received.
-    #
-    $self->term->Attribs->{signal_event_hook} = sub {
-        return 1 if $last_signal eq 'WINCH'; # Nothing on WINCH.
-
-        # Move to a new line and clear input buffer.
-        $self->term->crlf();
-        $self->term->Attribs->{line_buffer} = '';
-        $self->term->forced_update_display();
-
-        $install_handlers->(); # Re-install handlers, if necessary.
-        $self->term->reset_after_signal();
-        return 1;
-    };
-
-    return %old_sig;
-}
-
-
-# See POD X<readline>
 sub readline {
     my ($self, %args) = @_;
 
@@ -395,15 +288,12 @@ sub readline {
     my $skip   = exists $args{skip} ? $args{skip} : $self->skip;
 
     $self->_set_completion_attribs;
-    my %old_sig = $self->_set_signal_handlers;
 
     my $input;
     while (defined ($input = $self->term->readline($prompt))) {
         next if defined $skip && $input =~ $skip;
         last;
     }
-
-    %SIG = %old_sig; # Restore signal handlers.
     return $input;
 }
 
@@ -951,30 +841,136 @@ be fed back up the parse tree (and eventually to the caller).
 
 =head1 SIGNAL HANDLING
 
-The C<Term::CLI> object sets its own signal handlers in the L<readline|/readline>
-function.
+The C<Term::CLI> object sets its own signal handlers in the
+L<readline|/readline> function.
 
 The signal handlers will ensure the terminal is in a sane state.
 
+The following signals are caught:
+C<HUP>, C<INT>, C<QUIT>, C<ALRM>, C<TERM>.
 
-The following signal handlers discard the current input line, restore
-any previous signal handler, and re-throw the signal:
-C<HUP>, C<INT>, C<QUIT>, C<ALRM>, C<TERM>, C<TTIN>, C<TTOU>, C<TSTP>.
+The signal handler will restore the terminal to a "sane" state (the
+state it was in before C<readline> was called), re-throw the signal,
+and, if control returns to the point it was left off, set the terminal
+back to the state that C<readline> expects it to be in.
 
-The C<CONT> and C<WINCH> signals are treated slightly different: they don't
-re-throw the signal, but rather just call any previous signal handler. The
-C<WINCH> signal handler will not discard the input line.
+Note that "re-throwing" a signal in Perl is tricky, see also
+L<CAVEATS|/CAVEATS> below.
 
-It also makes sure that after a keyboard suspend (C<TSTP>) and
-subsequent continue (C<CONT>), the command prompt is redrawn:
+The C<INT> signal will also discard the current input line.
 
-    bash$ perl tutorial/term_cli.pl
-    > foo
-    > ^Z
-    [1]+  Stopped                 perl tutorial/term_cli.pl
-    bash$ fg
-    perl tutorial/term_cli.pl
-    > _
+=head1 CAVEATS
+
+=head2 Re-throwing Signals
+
+Re-throwing a signal in Perl from within a signal handler is tricky
+because "safe" signals do not guarantee that the actual signal is
+generated exactly at the time that C<kill> is called.
+
+Consider this program:
+
+    sub other_handler {
+        my ($signal) = @_;
+        say "other handler for $signal";
+    }
+
+    sub handler {
+        my ($signal) = @_;
+
+        say "handler for $signal";
+
+        $SIG{$signal} = \&other_handler;
+        kill $signal, $$;
+        $SIG{$signal} = \&handler;
+    }
+
+    $SIG{HUP} = \&handler;
+    kill 'HUP', $$;
+
+    say "done";
+
+The code reads like:
+
+=over
+
+=item 1.
+
+Upon a C<HUP> signal, the C<handler> subroutine will be called.
+
+=item 2.
+
+The C<handler> will:
+
+=over
+
+=item a.
+
+Print a message.
+
+=item b.
+
+Set the C<HUP> signal hander to C<other_handler>.
+
+=item c.
+
+Re-throw the signal, which should pass control to C<other_handler>,
+resulting in another message.
+
+=item d.
+
+Re-set the C<HUP> signal handler to itself.
+
+=back
+
+Control passes back to the program, which will print a final message.
+
+=back
+
+So, you'd expect:
+
+    handler for HUP
+    other handler for HUP
+    done
+
+However, the output of this program will actually read:
+
+    handler for HUP
+    handler for HUP
+    done
+    handler for HUP
+
+That's because a call to C<kill> in a signal handler does not immediately
+generate a signal. Rather, the interpreter keeps running until it finds
+a point where it is "safe" to actually send the signal. Unfortunately,
+at that point, the signal handler is no longer set to C<other_handler>,
+but has reverted back to C<handler>. As a result, we create a signal
+loop. Had the program contained more instructions beyond the "done"
+message, it would have continued to send signals to itself and generate
+C<handler for HUP> messages.
+
+C<Term::CLI> deals with this depending on the value of the signal handler
+in the C<%SIG> hash I<before> the call to C<readline>:
+
+=over
+
+=item C<DEFAULT>, C<undef>, or empty ("").
+
+Set the value in C<%SIG> to C<DEFAULT> and re-throw the signal. Since
+the signals we catch here all have a default action that results in
+process termination, this will typically terminate the program, but
+leave the terminal in a sane state.
+
+=item C<IGNORE>
+
+Do nothing (i.e. don't re-throw the signal).
+
+=item I<CODEREF>
+
+Set the value in C<%SIG> to C<CODEREF>,
+call the code ref as C<CODEREF-E<gt>(I<SIGNAL>)>, and
+restore the C<%SIG> value.
+
+=back
 
 =head1 SEE ALSO
 
