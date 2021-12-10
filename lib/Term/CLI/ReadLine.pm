@@ -53,7 +53,7 @@ sub new {
         }
         confess $err;
     }
-    $Term->Attribs->{catch_signals} = 0;
+    $Term->Attribs->{catch_signals} = 1;
     bless $Term, $class;
     return $Term->_install_stubs;
 }
@@ -121,6 +121,8 @@ sub _set_signal_handlers {
 
     my %old_sig = %SIG;
 
+    my $last_sig = '';
+
     # The generic signal handler will attempt to re-throw the signal, after
     # putting the terminal in the correct state. Any previously set signal
     # handlers should then be triggered.
@@ -143,7 +145,15 @@ sub _set_signal_handlers {
         $self->forced_update_display();
         return 1;
     };
-    $SIG{HUP} = $SIG{QUIT} = $SIG{ALRM} = $SIG{TERM} = $generic_handler;
+
+    if ($self->ReadLine =~ /::Gnu$/) {
+        for my $sig (qw( HUP QUIT ALRM TERM )) {
+            $SIG{$sig} = $generic_handler if ref $old_sig{$sig};
+        }
+    }
+    else {
+        $SIG{HUP} = $SIG{QUIT} = $SIG{ALRM} = $SIG{TERM} = $generic_handler;
+    }
 
     # The INT signal handler; slightly different from
     # the generic one: we abort the current input line.
@@ -159,12 +169,18 @@ sub _set_signal_handlers {
 
     # The CONT signal handler.
     # In case we get suspended, make sure we redraw the CLI on wake-up.
-    #$SIG{CONT} = sub {
-    #    $old_sig{$_[0]}->(@_) if ref $old_sig{$_[0]};
-    #    return 1;
-    #};     
-    #
+    $SIG{CONT} = sub {
+        my ($signal) = @_;
+        $last_sig = $signal;
+        $old_sig{$signal}->(@_) if ref $old_sig{$signal};
+        return 1;
+    };     
+
     $self->Attribs->{signal_event_hook} = sub {
+        if ($last_sig eq 'CONT') {
+            $self->prep_terminal(1);
+            $self->forced_update_display();
+        }
         return 1;
     };
 
