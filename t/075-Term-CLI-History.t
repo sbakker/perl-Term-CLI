@@ -61,7 +61,7 @@ sub check_history : Test(12) {
 
     $fh->seek(0,0);
     $fh->autoflush(1);
-    my $history = "command 1\ncommand 2\ncommand 3\n";
+    my $history = "   \ncommand 1\ncommand 2\ncommand 3\n";
     say $fh $history;
 
     ok($cli->read_history($filename), 'read_history from new file works')
