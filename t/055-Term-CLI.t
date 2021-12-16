@@ -308,7 +308,9 @@ sub check__is_escaped: Test(6) {
 
     my $bs = '\\';
     my $line = 'foo bar';
-    ok(!$cli->term->Attribs->{char_is_quoted_p}->($line, index($line, ' ')),
+
+    #ok(!$cli->term->Attribs->{char_is_quoted_p}->($line, index($line, ' ')),
+    ok(!$cli->_is_escaped($line, index($line, ' ')),
         qq{_is_escaped on '$line' returns false});
 
     $line = "foo$bs bar";
@@ -378,7 +380,8 @@ sub check_complete_line: Test(12) {
     $line = '';
     $text = '';
     $start = length($line);
-    @got = $cli->term->Attribs->{completion_function}->($text, $line.$text, $start);
+    #@got = $cli->term->Attribs->{completion_function}->($text, $line.$text, $start);
+    @got = $cli->complete_line($text, $line.$text, $start);
     @expected = $cli->command_names();
 
     is_deeply(\@got, \@expected,
