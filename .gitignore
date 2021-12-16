@@ -17,3 +17,7 @@ debian/*.debhelper.log
 debian/*.substvars
 debian/*/
 Term-CLI-*/
+experiments/
+noarch/
+perl-Term-CLI-*.tar.gz
+perl-Term-CLI-*.rpm
