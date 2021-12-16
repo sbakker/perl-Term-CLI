@@ -31,6 +31,8 @@ use Types::Standard 1.000005 qw(
 );
 
 use Moo 1.000001;
+use List::Util 1.38 qw( first );
+
 use namespace::clean 0.25;
 
 extends 'Term::CLI::Argument';
@@ -51,15 +53,16 @@ sub validate {
     if (@found == 0) {
         return $self->set_error(loc("not a valid value"));
     }
-    elsif (@found == 1) {
+
+    if (@found == 1) {
         return $found[0];
     }
-    else {
-        @found = sort @found;
-        return $self->set_error(
-            loc("ambiguous value (matches: [_1])", join(", ", @found))
+
+    my $match = first { $_ eq $value } @found
+        or return $self->set_error(
+            loc("ambiguous value (matches: [_1])", join(", ", sort @found))
         );
-    }
+    return $match;
 }
 
 
