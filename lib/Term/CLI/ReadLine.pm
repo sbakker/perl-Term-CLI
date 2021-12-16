@@ -98,10 +98,65 @@ sub echo_signal_char {
     return;
 }
 
+sub _escape_str {
+    my ($self, $str) = @_;
+    $str =~ s/\t/\\t/g;
+    $str =~ s/\n/\\n/g;
+    $str =~ s/\r/\\r/g;
+    $str =~ s/([\177-\377])/sprintf("\\%03o", ord($1))/ge;
+    $str =~ s/([\000-\037])/'^'.chr(ord($1)+ord('@'))/ge;
+    return $str;
+}
+
+# The GNU readline implementation will just slap the prompt between the
+# ornament-start/ornament-end sequences, but this looks ugly if there
+# are leading/trailing spaces and the ornament is set to underline
+# (or standout). The following will bring it in line with how the Perl
+# implementation handles it, by inserting start/end sequences where
+# necessary.
+sub _prepare_prompt {
+    my ($self, $prompt) = @_;
+
+    return $prompt if $self->ReadLine !~ /::Gnu$/;
+    return $prompt if length $self->Attribs->{term_set}[0] == 0;
+
+    my ($head, $body, $tail) = $prompt =~ /^(\s*)(.*?)(\s*)$/;
+    return $prompt if ($head eq '' and $tail eq '');
+
+    #say "prompt:       ", $self->_escape_str("<$head><$body><$tail>");
+    #say "start_ignore: ", $self->_escape_str($self->RL_PROMPT_START_IGNORE);
+    #say "end_ignore:   ", $self->_escape_str($self->RL_PROMPT_END_IGNORE);
+    #say "term_set 0:   ", $self->_escape_str($self->Attribs->{term_set}[0]);
+    #say "term_set 1:   ", $self->_escape_str($self->Attribs->{term_set}[1]);
+
+    $prompt = '';
+    if (length $head) {
+        $prompt .= $self->Attribs->{term_set}[1]
+                . $head
+                . $self->Attribs->{term_set}[0]
+                ;
+    }
+    #say $self->_escape_str($prompt);
+
+    $prompt .= $body;
+    #say $self->_escape_str($prompt);
+    
+    if (length $tail) {
+        $prompt .= $self->Attribs->{term_set}[1]
+                . $tail
+                ;
+    }
+    #say $self->_escape_str($prompt);
+
+    return $prompt;
+}
+
 sub readline {
     my ($self, $prompt) = @_;
 
     my %old_sig = $self->_set_signal_handlers;
+
+    $prompt = $self->_prepare_prompt($prompt);
 
     my $input = $self->SUPER::readline($prompt);
 
