@@ -32,7 +32,11 @@ use Term::ReadKey ();
 
 use namespace::clean 0.25;
 
+my $DFL_HIST_SIZE = 500;
 my $Term = undef;
+
+my $History_Size = $DFL_HIST_SIZE;
+my @History      = ();
 
 sub new {
     my $class = shift;
@@ -41,16 +45,6 @@ sub new {
 
     $Term = Term::ReadLine->new(@_);
     my $rl = $Term->ReadLine;
-    if ($rl !~ /::(?:Gnu|Perl)$/i) {
-        my $err =<<EOF;
-** No supported 'Term::ReadLine' interface loaded.
-** Got:  $rl
-** Need: Term::ReadLine::Gnu or Term::ReadLine::Perl
-** Make sure one of the above is installed and either unset the
-** PERL_RL environment variable or set it to 'Gnu' or 'Perl'
-EOF
-        confess $err;
-    }
     $Term->Attribs->{catch_signals} = 1;
     bless $Term, $class;
     return $Term->_install_stubs;
@@ -161,6 +155,12 @@ sub readline {
     my $input = $self->SUPER::readline($prompt);
 
     %SIG = %old_sig; # Restore signal handlers.
+
+    if (!$self->Features->{autohistory}) {
+        if (defined $input && length($input)) {
+            $self->AddHistory($input);
+        }
+    }
     return $input;
 }
 
@@ -259,7 +259,6 @@ sub _install_stubs {
     if ($self->ReadLine !~ /::Perl$/) {
         *{replace_line} = 
         *{prep_terminal} =
-        *{stifle_history} =
         *{deprep_terminal} =
         *{forced_update_display} = sub { };
 
@@ -268,7 +267,6 @@ sub _install_stubs {
 
     *{replace_line} = \&_perl_replace_line;
     *{prep_terminal} = \&_perl_prep_terminal;
-    *{stifle_history} = \&_perl_stifle_history;
     *{deprep_terminal} = \&_perl_deprep_terminal;
     *{forced_update_display} = \&_perl_forced_update_display;
 
@@ -288,15 +286,99 @@ sub _perl_replace_line {
     return;
 }
 
-sub _perl_stifle_history {
-    my ($self, $max) = @_;
-    return if $max <= 0;
-    $readline::rl_MaxHistorySize = $max;
-    my $cur = int @readline::rl_History;
-    if ($cur > $max) {
-        splice(@readline::rl_History, 0, -$max);
-        $readline::rl_HistoryIndex -= ($cur - $max);
+sub ReadHistory {
+    my ($self, $hist_file) = @_;
+
+    if ($self->Features->{'readHistory'}) {
+        return $self->SUPER::ReadHistory($hist_file);
     }
+
+    open my $fh, '<', $hist_file or return;
+
+    my @history;
+    while (<$fh>) {
+        next if /^$/;
+        chomp;
+        shift @history if @history == $History_Size;
+        push @history, $_;
+    }
+    $fh->close;
+
+    $self->term->SetHistory(@history);
+    return 1;
+}
+
+sub WriteHistory {
+    my ($self, $hist_file) = @_;
+
+    if ($self->Features->{'writeHistory'}) {
+        return $self->SUPER::WriteHistory($hist_file);
+    }
+
+    open my $fh, '>', $hist_file or return;
+    print $fh map { "$_\n" } $self->term->GetHistory or return;
+    $fh->close or return;
+    return 1;
+}
+
+*{stifle_history} = \&StifleHistory;
+sub StifleHistory {
+    my ($self, $max) = @_;
+
+    if ($self->Features->{'stiflehistory'}) {
+        return $self->SUPER::StifleHistory($max);
+    }
+
+    $max //= 1e12;
+    $max = 0 if $max <= 0;
+
+    if ($self->ReadLine =~ /::Perl$/) {
+        $readline::rl_MaxHistorySize = $max;
+        my $cur = int @readline::rl_History;
+        if ($cur > $max) {
+            splice(@readline::rl_History, 0, -$max);
+            $readline::rl_HistoryIndex -= ($cur - $max);
+        }
+        return $max;
+    }
+
+    splice(@History, 0, -$max) if @History > $max;
+    $History_Size = $max;
+    return $max;
+}
+
+sub GetHistory {
+    my ($self) = @_;
+
+    if ($self->Features->{'getHistory'}) {
+        return $self->SUPER::GetHistory();
+    }
+    return @History;
+}
+
+sub SetHistory {
+    my ($self, @l) = @_;
+
+    splice(@l, 0, -$History_Size) if @l > $History_Size;
+
+    if ($self->Features->{'setHistory'}) {
+        return $self->SUPER::SetHistory(@l);
+    }
+
+    @History = @l;
+
+    return int(@History);
+}
+
+sub AddHistory {
+    my ($self, @lines) = @_;
+
+    if ($self->Features->{'addHistory'}) {
+        return $self->SUPER::AddHistory(@lines);
+    }
+
+    push @History, @lines;
+    splice(@History, 0, -$History_Size) if int(@History) > $History_Size;
     return;
 }
 
@@ -383,7 +465,9 @@ X<readline>
 
 Wrap around the original L<Term::ReadLine's readline|Term::ReadLine/readline>
 with custom signal handling, see the
-L<CAVEATS section in Term::CLI|Term::CLI/CAVEATS>
+L<CAVEATS section in Term::CLI|Term::CLI/CAVEATS>.
+
+This also calls C<AddHistory> if C<autohistory> is not set in C<Features>.
 
 =item B<term_width>
 X<term_width>
@@ -396,6 +480,39 @@ X<term_height>
 
 Return the height of the terminal in characters, as given by
 L<Term::ReadLine>.
+
+=item B<AddHistory> ( I<line>, ... )
+X<AddHistory>
+
+=item B<GetHistory>
+X<GetHistory>
+
+=item B<ReadHistory> ( I<file> )
+X<ReadHistory>
+
+=item B<SetHistory> ( I<line>, ... )
+X<SetHistory>
+
+=item B<StifleHistory> ( I<max_lines> )
+X<StifleHistory>
+
+=item B<stifle_history> ( I<max_lines> )
+X<stifle_history>
+
+=item B<WriteHistory> ( I<file> )
+X<WriteHistory>
+
+Depending on the underlying C<Term::ReadLine> implementation, these will
+either call the parent class's method, or implement a proper emulation.
+
+In the case of C<Term::ReadLine::Perl>, this means that C<ReadHistory>
+and C<WriteHistory> implement their own file I/O read/write (because
+C<Term::ReadLine::Perl> doesn't provide them); furthermore, C<StifleHistory>
+uses knowledge of C<Term::ReadLine::Perl>'s internals to manipulate the
+history.
+
+In cases where history is not supported at all (e.g. C<Term::ReadLine::Stub>,
+the history list is kept in this object and manipulated.
 
 =back
 
@@ -440,12 +557,6 @@ the ReadLine libraries usually take care if this themselves.
 
 One exception to this is in signal handlers: L<Term::CLI> calls these
 methods during its signal handling.
-
-=item B<stifle_history> ( I<max_lines> )
-X<stifle_history>
-
-If L<Term::ReadLine::Perl> is loaded, this will use knowledge of
-its internals to cap the size of the history.
 
 =item B<get_screen_size>
 X<get_screen_size>

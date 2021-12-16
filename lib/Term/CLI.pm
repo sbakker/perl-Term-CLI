@@ -145,7 +145,7 @@ sub _trigger_history_lines {
     # Terminal may not be initialiased yet...
     return if !$self->term;
 
-    $self->term->stifle_history($arg);
+    $self->term->StifleHistory($arg);
 }
 
 # %args = $self->_default_callback(%args);
@@ -195,8 +195,8 @@ sub _default_split {
 # character. Check if it is perhaps escaped.
 #
 sub _is_escaped {
-    my ($self,$line, $index) = @_;
-    return 0 if $index <= 0;
+    my ($self, $line, $index) = @_;
+    return 0 if !$index or $index < 0;
     return 0 if substr($line, $index-1, 1) ne '\\';
     return !$self->_is_escaped($line, $index-1);
 }
@@ -309,37 +309,10 @@ sub read_history {
 
     my $hist_file = @_ ? shift @_ : $self->history_file;
 
-    if ($self->term->can('ReadHistory')) {
-        $self->term->ReadHistory($hist_file)
-            or return $self->set_error("$hist_file: $!");
-        $self->history_file($hist_file);
-        $self->set_error('');
-        return 1;
-    }
-
-    open my $fh, '<', $hist_file
+    $self->term->ReadHistory($hist_file)
         or return $self->set_error("$hist_file: $!");
-
-    my @history;
-    while (<$fh>) {
-        chomp;
-        next if /^$/;
-        push @history, $_;
-    }
-    $fh->close;
-
-    splice(@history, 0, -$self->history_lines)
-        if @history > $self->history_lines;
-
-    if ($self->term->can('SetHistory')) {
-        $self->term->SetHistory(@history);
-    }
-    else {
-        return $self->set_error("no history enabled");
-    }
-
-    $self->set_error('');
     $self->history_file($hist_file);
+    $self->set_error('');
     return 1;
 }
 
@@ -349,31 +322,10 @@ sub write_history {
 
     my $hist_file = @_ ? shift @_ : $self->history_file;
 
-    if ($self->term->can('WriteHistory')) {
-        $self->term->WriteHistory($hist_file)
-            or return $self->set_error("$hist_file: $!");
-        $self->history_file($hist_file);
-        $self->set_error('');
-        return 1;
-    }
-
-    my @history;
-    if ($self->term->can('GetHistory')) {
-        @history = $self->term->GetHistory;
-    }
-    else {
-        return $self->set_error("no history enabled");
-    }
-
-    open my $fh, '>', $hist_file
+    $self->term->WriteHistory($hist_file)
         or return $self->set_error("$hist_file: $!");
-    print $fh map { "$_\n" } @history
-        or return $self->set_error("$hist_file: $!");
-    $fh->close
-        or return $self->set_error("$hist_file: $!");
-
-    $self->set_error('');
     $self->history_file($hist_file);
+    $self->set_error('');
     return 1;
 }
 
@@ -550,7 +502,7 @@ Specify the file to read/write input history to/from.
 The default is I<name> + C<_history> in the user's
 I<HOME> directory.
 
-=item B<history_lines> =E<gt> I<Str>
+=item B<history_lines> =E<gt> I<Int>
 
 Maximum number of lines to keep in the input history.
 Default is 1000.
