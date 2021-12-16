@@ -391,7 +391,7 @@ __END__
 
 =head1 NAME
 
-Term::CLI::ReadLine - maintain a single Term::ReadLine object
+Term::CLI::ReadLine - Term::ReadLine compatibility layer for Term::CLI
 
 =head1 SYNOPSIS
 
@@ -412,16 +412,17 @@ Term::CLI::ReadLine - maintain a single Term::ReadLine object
 
 =head1 DESCRIPTION
 
-Even though L<Term::ReadLine>(3p) has an object-oriented interface,
-the L<Term::ReadLine::Gnu>(3p) library really only keeps a single
-instance around (if you create multiple L<Term::ReadLine> objects,
-all parameters and history are shared).
+This class provides a compatibility layer between L<Term::ReadLine>(3p)
+and L<Term::CLI>(3p). It compensates for missing functionality in some
+C<Term::ReadLine>(3p) backends and tries to behave as as consistently
+as possible.
 
-This class inherits from L<Term::ReadLine> and keeps a single
-instance around with a class accessor to access that single instance.
-
-It also generates stubs for some methods if the underlying module is
-not L<Term::ReadLine::Gnu>.
+This class inherits from L<Term::ReadLine> and keeps a single instance
+around with a class accessor to access that single instance, because
+even though L<Term::ReadLine>(3p) has an object-oriented interface,
+the L<Term::ReadLine::Gnu>(3p) and L<Term::ReadLine::Perl>(3p) modules
+really only keeps a single instance around (if you create multiple
+L<Term::ReadLine> objects, all parameters and history are shared).
 
 =head1 CONSTRUCTORS
 
@@ -431,10 +432,6 @@ not L<Term::ReadLine::Gnu>.
 X<new>
 
 Create a new L<Term::CLI::ReadLine>(3p) object and return a reference to it.
-
- Check that the newly created newly created L<Term::ReadLine> object is
- of the L<Term::ReadLine::Gnu>(3p) variety. If not, it will call throw a fatal
- exception (using L<Carp::confess|Carp/confess>).
 
 Arguments are identical to L<Term::ReadLine>(3p) and
 L<Term::ReadLine::Gnu>(3p).
@@ -579,13 +576,14 @@ Return the latest C<Term::CLI::ReadLine> object created.
 
 =head1 SEE ALSO
 
-L<Term::CLI>(3p).
+L<Term::CLI>(3p),
 L<Term::ReadLine>(3p),
-L<Term::ReadLine::Gnu>(3p).
+L<Term::ReadLine::Gnu>(3p),
+L<Term::ReadLine::Perl>(3p).
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sbakker@cpan.orgE<gt>, 2018.
+Steven Bakker E<lt>sbakker@cpan.orgE<gt>, 2018-2021.
 
 =head1 COPYRIGHT AND LICENSE
 
