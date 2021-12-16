@@ -12,6 +12,7 @@ MYMETA.json
 Makefile
 Build
 cover_db/
+cover_db_*/
 debian/files
 debian/*.debhelper.log
 debian/*.substvars
