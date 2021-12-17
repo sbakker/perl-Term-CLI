@@ -28,10 +28,12 @@ use Term::CLI::L10N;
 
 use Types::Standard 1.000005 qw(
     ArrayRef
+    CodeRef
 );
 
 use Moo 1.000001;
 use List::Util 1.38 qw( first );
+use Scalar::Util 'reftype';
 
 use namespace::clean 0.25;
 
@@ -39,7 +41,7 @@ extends 'Term::CLI::Argument';
 
 has value_list => (
     is => 'ro',
-    isa => ArrayRef,
+    isa => ArrayRef | CodeRef,
     required => 1,
 );
 
@@ -49,7 +51,12 @@ sub validate {
 
     defined $self->SUPER::validate($value) or return;
 
-    my @found = grep { rindex($_, $value, 0) == 0 } @{$self->value_list};
+    my $value_list
+      = 'CODE' eq reftype( $self->value_list )
+      ? $self->value_list->()
+      : $self->value_list;
+
+    my @found = grep { rindex($_, $value, 0) == 0 } @{$value_list};
     if (@found == 0) {
         return $self->set_error(loc("not a valid value"));
     }
@@ -69,13 +76,18 @@ sub validate {
 sub complete {
     my ($self, $value) = @_;
 
+    my $value_list
+      = 'CODE' eq reftype( $self->value_list )
+      ? $self->value_list->()
+      : $self->value_list;
+
     if (!length $value) {
-        return sort @{$self->value_list};
+        return sort @{$value_list};
     }
     else {
         return sort grep
                 { substr($_, 0, length($value)) eq $value }
-                @{$self->value_list};
+                @{$value_list};
     }
 }
 
@@ -95,9 +107,16 @@ Term::CLI::Argument::Enum - class for "enum" string arguments in Term::CLI
 
  use Term::CLI::Argument::Enum;
 
+ # static value list
  my $arg = Term::CLI::Argument::Enum->new(
      name => 'arg1',
      value_list => [qw( foo bar baz )],
+ );
+
+ # dynamic value list
+ my $arg = Term::CLI::Argument::Enum->new(
+     name => 'arg1',
+     value_list => sub {  my @values = (...); \@values },
  );
 
 =head1 DESCRIPTION
@@ -136,7 +155,8 @@ See also L<Term::CLI::Argument>(3p).
 
 =item B<value_list>
 
-A reference to a list of valid values for the argument.
+A reference to a either a list of valid values for the argument or a
+subroutine which returns a reference to such a list.
 
 =back
 
