@@ -5,7 +5,7 @@
 #  Description:  Class for "enum" arguments in Term::CLI
 #
 #       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
-#      Created:  22/01/18
+#      Created:  22/Jan/2018
 #
 #   Copyright (c) 2018 Steven Bakker
 #
@@ -45,16 +45,21 @@ has value_list => (
     required => 1,
 );
 
+# Helper for fetching the actual list of values since
+# "value_list" can be a CODEREF.
+sub _fetch_values {
+    my ($self) = @_;
+
+    my $l = $self->value_list;
+    return reftype($l) eq 'CODE' ? $l->($self) : $l;
+}
 
 sub validate {
     my ($self, $value) = @_;
 
     defined $self->SUPER::validate($value) or return;
 
-    my $value_list
-      = 'CODE' eq reftype( $self->value_list )
-      ? $self->value_list->()
-      : $self->value_list;
+    my $value_list = $self->_fetch_values;
 
     my @found = grep { rindex($_, $value, 0) == 0 } @{$value_list};
     if (@found == 0) {
@@ -76,19 +81,10 @@ sub validate {
 sub complete {
     my ($self, $value) = @_;
 
-    my $value_list
-      = 'CODE' eq reftype( $self->value_list )
-      ? $self->value_list->()
-      : $self->value_list;
+    my $value_list = $self->_fetch_values;
 
-    if (!length $value) {
-        return sort @{$value_list};
-    }
-    else {
-        return sort grep
-                { substr($_, 0, length($value)) eq $value }
-                @{$value_list};
-    }
+    return sort @{$value_list} if !length $value;
+    return sort grep { substr($_,0,length($value)) eq $value } @{$value_list};
 }
 
 }
@@ -140,10 +136,19 @@ None.
 
 =over
 
-=item B<new> ( B<name> =E<gt> I<STRING>, B<value_list> =E<gt> I<ARRAYREF> )
+=item B<new>
+
+    OBJ = Term::CLI::Argument::Enum(
+        name => STRING,
+        value_list => ARRAYREF | CODEREF
+    );
 
 See also L<Term::CLI::Argument>(3p). The B<value_list> argument is
-mandatory.
+mandatory and can either be a reference to an array, or a code refrerence.
+
+A value list consisting of a code reference can be used to implement dynamic
+values. The code reference will be called with a single argument consisting
+of the reference to the C<Term::CLI::Argument::Enum> object.
 
 =back
 
@@ -173,6 +178,45 @@ The following methods are added or overloaded:
 =item B<complete>
 
 =back
+
+=head1 EXAMPLES
+
+Return values depending on the time of day:
+
+    # Valid values for 'at' depend on the current time of day.
+    # Before 1pm, 'today' is possible, otherwise only 'tomorrow'.
+    my $arg = Term::CLI::Argument::Enum(
+        name => 'at',
+        value_list => sub {
+            my ($self) = @_;
+            my $hr = (localtime)[2];
+            return ($hr < 13) ? ['today', 'tomorrow'] : ['tomorrow'];
+        }
+    );
+
+Return values based on a predefined list of values that can be
+(temporarily) overridden with C<local()>:
+
+    my @LIST = qw( one two three );
+
+    my $arg = Term::CLI::Argument::Enum(
+        name => 'arg',
+        value_list => sub { return \@LIST }
+    );
+
+    ...
+
+    # Will allow 'one', 'two', 'three' for 'arg'.
+    $cli->execute($cli->readline);
+
+    {
+        local(@LIST) = qw( four five six );
+        # Now allow 'four', 'five', 'six' for 'arg'.
+        $cli->execute($cli->readline);
+    }
+
+    # Allow 'one', 'two', 'three' for 'arg' again.
+    $cli->execute($cli->readline);
 
 =head1 SEE ALSO
 
