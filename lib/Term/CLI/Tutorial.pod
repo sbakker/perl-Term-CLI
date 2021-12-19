@@ -75,6 +75,14 @@ The F<tutorial> directory in the module's source tree has source code
 for all examples (F<example_01_basic_repl.pl>, F<example_02.pl>, etc.), that
 progressively build the final application.
 
+=head1 NOTE ON TERM::READLINE
+
+Although L<Term::CLI> has been created to work with L<Term::ReadLine> in
+general, it works best when either L<Term::ReadLine::Gnu>(3p), or
+L<Term::ReadLine::Perl>(3p) is also present. If not, then L<Term::ReadLine>
+will load a "stub" interface (C<Term::ReadLine::Stub>), which supports neither
+command line editing nor completion.
+
 =head1 THE BSSH CONCEPT
 
 The Basically Simple SHell (BS Shell), is a command-line interpreter with a

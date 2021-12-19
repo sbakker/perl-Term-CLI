@@ -5,7 +5,7 @@
 #  Description:  Class for Term::CLI and Term::ReadLine glue
 #
 #       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
-#      Created:  23/01/18
+#      Created:  23/Jan/2018
 #
 #   Copyright (c) 2018 Steven Bakker
 #
@@ -413,9 +413,13 @@ Term::CLI::ReadLine - Term::ReadLine compatibility layer for Term::CLI
 =head1 DESCRIPTION
 
 This class provides a compatibility layer between L<Term::ReadLine>(3p)
-and L<Term::CLI>(3p). It compensates for missing functionality in some
-C<Term::ReadLine>(3p) backends and tries to behave as as consistently
-as possible.
+and L<Term::CLI>(3p). If L<Term::ReadLine::Gnu>(3p) is not loaded as the
+C<Term::ReadLine> implementation, this class will compensate for the lack
+of certain functions by replacing or wrapping methods that are needed
+by the rest of the L<Term::CLI>(3p) classes.
+
+The ultimate purpose is to behave as consistently as possible regardless
+of the C<Term::ReadLine> interface that has been loaded.
 
 This class inherits from L<Term::ReadLine> and keeps a single instance
 around with a class accessor to access that single instance, because
@@ -433,8 +437,7 @@ X<new>
 
 Create a new L<Term::CLI::ReadLine>(3p) object and return a reference to it.
 
-Arguments are identical to L<Term::ReadLine>(3p) and
-L<Term::ReadLine::Gnu>(3p).
+Arguments are identical to L<Term::ReadLine>(3p).
 
 A reference to the newly created object is stored internally and can be
 retrieved later with the L<term|/term> class method. Note that repeated calls
@@ -444,18 +447,25 @@ to C<new> will reset this internal reference.
 
 =head1 METHODS
 
-See L<Term::ReadLine>(3p) and L<Term::ReadLine::Gnu>(3p) for the
-inherited methods.
+See L<Term::ReadLine>(3p), L<Term::ReadLine::Gnu>(3p) and/or
+L<Term::ReadLine::Perl> for the inherited methods.
 
 =over
 
 =item B<echo_signal_char> ( I<signal> )
 X<echo_signal_char>
 
-Wrapper around the method of the same name in L<Term::ReadLine::Gnu>. This
-method also accepts a signal name instead of a signal number. It only
+Print the character that generates a particular signal when entered from
+the keyboard (e.g. C<^C> for keyboard interrupt).
+
+This method also accepts a signal name instead of a signal number. It only
 works for C<INT> (2), C<QUIT> (3), and C<TSTP> (20) signals as these are
 the only ones that can be entered from a keyboard.
+
+If L<Term::ReadLine::Gnu> is loaded, this method wraps around the method of
+the same name in C<Term::ReadLine::Gnu> (translating a signal name to a
+number first). For other C<Term::ReadLine> implementations, it emulates the
+C<Term::ReadLine::Gnu> behaviour.
 
 =item B<readline> ( I<prompt> )
 X<readline>

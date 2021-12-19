@@ -54,8 +54,11 @@ sub complete {
 sub _glob_complete {
     my ($self, $partial) = @_;
     my @list = bsd_glob("$partial*");
+
     return @list if @list <= 1;
 
+    # If there is more than one possible completion,
+    # add filetype suffixes.
     foreach (@list) {
         if (-l $_) {
             $_ .= '@';
@@ -118,7 +121,14 @@ See L<Term::CLI::Argument>(3p). Additionally:
 
 =item B<complete> ( I<PARTIAL> )
 
-Use L<Term::ReadLine::Gnu>'s file name completion function.
+If present, use the C<filename_completion_function> function listed
+in L<Term::ReadLine>'s C<Attribs>, otherwise use L<bsd_glob from
+File::Glob|File::Glob/bsd_glob>.
+
+Not every C<Term::ReadLine> implementation implements its own
+filename completion function. The ones that do will ave the
+C<Attrib-E<gt>{filename_completion_function}> attribute set.
+L<Term::ReadLine::Gnu> does this, while L<Term::ReadLine::Perl> doesn't.
 
 =back
 
@@ -126,6 +136,7 @@ Use L<Term::ReadLine::Gnu>'s file name completion function.
 
 L<Term::CLI::Argument>(3p),
 L<Term::ReadLine::Gnu>(3p),
+L<File::Glob>(3p),
 L<Term::CLI>(3p).
 
 =head1 AUTHOR

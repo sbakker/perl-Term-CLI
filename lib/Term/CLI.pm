@@ -430,7 +430,9 @@ Term::CLI - CLI interpreter based on Term::ReadLine
 =head1 DESCRIPTION
 
 Implement an easy-to-use command line interpreter based on
-L<Term::ReadLine>(3p) and L<Term::ReadLine::Gnu>(3p).
+L<Term::ReadLine>(3p). Although primarily aimed at use with
+the L<Term::ReadLine::Gnu>(3p) implementation, it also supports
+L<Term::ReadLine::Perl>(3p).
 
 First-time users may want to read L<Term::CLI::Tutorial>(3p)
 and L<Term::CLI::Intro>(3p) first, and peruse the example
@@ -983,7 +985,10 @@ L<Term::CLI::Intro>(3p),
 L<Term::CLI::Role::CommandSet>(3p),
 L<Term::CLI::Tutorial>(3p),
 L<Text::ParseWords>(3p),
-L<Types::Standard>(3p).
+L<Types::Standard>(3p),
+L<Term::ReadLine>(3p),
+L<Term::ReadLine::Gnu>(3p),
+L<Term::ReadLine::Perl>(3p).
 
 Inspiration for the custom completion came from:
 L<https://robots.thoughtbot.com/tab-completion-in-gnu-readline>.
