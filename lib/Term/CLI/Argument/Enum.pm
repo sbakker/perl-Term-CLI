@@ -140,7 +140,7 @@ None.
 
     OBJ = Term::CLI::Argument::Enum(
         name => STRING,
-        value_list => ARRAYREF | CODEREF
+        value_list => ArrayRef | CodeRef
     );
 
 See also L<Term::CLI::Argument>(3p). The B<value_list> argument is
