@@ -568,7 +568,13 @@ from another terminal.
 Disabling the C<INT> key will cause I<Ctrl-C> to no longer discard the
 input line under L<Term::ReadLine::Gnu>; it I<will> discard it under
 L<Term::ReadLine::Perl>! It is therefore recommended to just set
-C<$SIG{INT}> to C<IGNORE>.
+C<$SIG{INT}> to C<IGNORE> instead.
+
+=item 3.
+
+Disabling the C<TSTP> key works under L<Term::ReadLine::Gnu>, but
+not under L<Term::ReadLine::Perl>. The latter maps the key in raw
+mode and explicitly sends a C<TSTP> signal to itself.
 
 =back
 
