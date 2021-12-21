@@ -1409,6 +1409,99 @@ specify it explicitly in its options:
         ...
     ),
 
+=head1 SIGNAL HANDLING
+
+As you may have noticed, we disable the interrupt (I<INT>) signal
+in the beginning of the program. This is because we want I<Ctrl-C>
+to abort the input line, but not exit the program.
+
+There are other signals that can be entered via the command line,
+namely C<QUIT> and C<TSTP> (suspend).
+
+If you run any of the previous examples and enter I<Ctrl-\> or
+I<Ctrl-Z>, you'll notice that the program quits or suspends.
+
+This may not be what you want, though (especially an accidental
+C<QUIT> signal can be annoying).
+
+You can easily set those signals to C<IGNORE> like we did with C<INT>,
+but you may not necessarily want to do that; perhaps you just want to
+prevent these signals to be accidentally generated from the keyboard,
+but still allow the reception of the signals themselves.
+
+Fortunately, there is a way to do this, via the C<ignore_keyboard_signals>
+attribute:
+
+    my $term = Term::CLI->new(
+        name => 'bssh',             # A basically simple shell.
+        ...
+        ignore_keyboard_signals => [qw( QUIT TSTP )],
+    );
+
+(If you want to know why it's not a good idea to disable the C<INT>
+key signal, see
+L<ignore_keyboard_signals in Term::CLI::ReadLine|Term::CLI::ReadLine/ignore_keyboard_signals>.)
+
+=head2 A C<suspend> command
+
+Since we just disabled suspension via I<Ctrl-Z>, we should
+add a C<suspend> command:
+
+	push @commands, Term::CLI::Command->new(
+		name => 'suspend',
+		summary => 'suspend the program',
+		description => "Suspend the program by sending a C<TSTP>\n"
+					.  "signal and return control to the shell.",
+		callback => sub {
+			my ($cmd, %args) = @_;
+			kill 'TSTP', $$;
+			return %args;
+		}
+	);
+
+Now do this:
+
+=over
+
+=item 1.
+
+perl tutorial/example_16_options.pl
+    
+=item 2.
+
+Enter I<Ctrl-Z>; this should suspend the program. Type C<fg> + I<ENTER> to
+continue again.
+
+=item 3.
+
+Enter I<Ctrl-\>; this should kill the program.
+
+=back
+
+Compare that to the version with C<suspend>:
+
+=over
+
+=item 1.
+
+perl tutorial/example_17_signals.pl
+    
+=item 2.
+
+Enter I<Ctrl-Z>; nothing should happen (unless you have
+C<Term::ReadLine::Perl> loaded).
+
+=item 3.
+
+Enter the C<suspend> command. This should suspend the program.
+Enter C<fg> + I<ENTER> to continue again.
+
+=item 4.
+
+Enter I<Ctrl-\>; this should not have any effect.
+
+=back
+
 =head1 DEALING WITH HISTORY
 
 By default, the L<Term::CLI> objects do not try to read or write
@@ -1790,7 +1883,7 @@ and command history.
 The full-blown L<Term::CLI> implementation with all of the
 features of F<tutorial/readline_cli.pl>, adding all the goodness.
 
-=item F<tutorial/example_01.pl> ... F<tutorial/example_16.pl>
+=item F<tutorial/example_*.pl>
 
 The tutorial code.
 
