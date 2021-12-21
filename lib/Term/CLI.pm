@@ -107,6 +107,11 @@ sub BUILD {
     my ($self, $args) = @_;
 
     my $term = Term::CLI::ReadLine->new($self->name)->term;
+
+    if (my $sig_list = $args->{ignore_keyboard_signals}) {
+        $term->ignore_keyboard_signals(@$sig_list);
+    }
+
     $term->Attribs->{completion_function} = sub { $self->complete_line(@_) };
     $term->Attribs->{char_is_quoted_p} = sub { $self->_is_escaped(@_) };
 
@@ -387,6 +392,7 @@ Term::CLI - CLI interpreter based on Term::ReadLine
  my $cli = Term::CLI->new(
     name => 'myapp',
     prompt => 'myapp> ',
+    ignore_keyboard_signals => ['QUIT'],
     cleanup => sub {
         my ($cli) = @_;
         $cli->write_history;
@@ -477,6 +483,16 @@ is destroyed (i.e. in L<Moo> terminology, when C<DEMOLISH> is called).
 Reference to an array containing L<Term::CLI::Command> object
 instances that describe the commands that C<Term::CLI> recognises,
 or C<undef>.
+
+=item B<ignore_keyboard_signals> =E<gt> I<ArrayRef>
+
+Specify a list of signals for which the keyboard generation should be
+turned off during a C<readline> operation.
+
+The list of signals should be a combination of C<INT>, C<QUIT>, or
+C<TSTP>. See also
+L<ignore_keyboard_signals|Term::CLI::ReadLine/ignore_keyboard_signals>
+in L<Term::CLI::ReadLine>(3p).
 
 =item B<name> =E<gt> I<Str>
 

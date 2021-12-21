@@ -24,24 +24,34 @@ use 5.014;
 use strict;
 use warnings;
 
-use Carp qw( confess );
-
 use parent 0.228 qw( Term::ReadLine );
 
-use Term::ReadKey ();
+use Term::ReadKey 2.34 ();
 
 use namespace::clean 0.25;
 
 my $DFL_HIST_SIZE = 500;
 my $Term = undef;
 
-my $History_Size = $DFL_HIST_SIZE;
-my @History      = ();
+# Since we cannot be sure what type the Term::ReadLine object
+# is (HASH or ARRAY), we'll have to keep some state here.
+
+my $History_Size             = $DFL_HIST_SIZE;
+my @History                  = ();
+my %Restore_Keyboard_Signals = ();
+my %Ignore_Keyboard_Signals  = ();
+my %Interrupt_KeyName_Map    = (
+    'INT'  => 'INTERRUPT',
+    'QUIT' => 'QUIT',
+    'TSTP' => 'SUSPEND',
+);
 
 sub new {
     my $class = shift;
 
     return $Term if $Term;
+
+    %Restore_Keyboard_Signals = Term::ReadKey::GetControlChars();
 
     $Term = Term::ReadLine->new(@_);
     my $rl = $Term->ReadLine;
@@ -51,6 +61,35 @@ sub new {
 }
 
 sub term { return $Term }
+
+sub ignore_keyboard_signals {
+    my ($self, @args) = @_;
+    foreach my $signame (@args) {
+        my $charname = $Interrupt_KeyName_Map{$signame} or next;
+        $Ignore_Keyboard_Signals{$charname} = '';
+    }
+}
+
+sub no_ignore_keyboard_signals {
+    my ($self, @args) = @_;
+    foreach my $signame (@args) {
+        my $charname = $Interrupt_KeyName_Map{$signame} or next;
+        delete $Ignore_Keyboard_Signals{$charname};
+    }
+}
+
+sub _set_ignore_keyboard_signals {
+    Term::ReadKey::SetControlChars(%Ignore_Keyboard_Signals);
+}
+
+sub _restore_keyboard_signals {
+    Term::ReadKey::SetControlChars(%Restore_Keyboard_Signals);
+}
+
+sub clear_ignore_keyboard_signals {
+    my ($self, %args) = @_;
+    %Ignore_Keyboard_Signals = ();
+}
 
 sub term_width {
     my $self = shift;
@@ -73,22 +112,23 @@ sub echo_signal_char {
         'TSTP' => 20
     );
 
-    state %sigchar = (
-        2 => '^C',
-        3 => '^\\',
-        20 => '^Z',
-    );
-
-    if ($sig_arg =~ /\D/) {
-        $sig_arg = $name2int{uc $sig_arg} or return;
-    }
+    state %int2name = reverse %name2int;
 
     if ($self->ReadLine =~ /::Gnu$/) {
+        if ($sig_arg =~ /\D/) {
+            $sig_arg = $name2int{uc $sig_arg} or return;
+        }
         return $self->SUPER::echo_signal_char($sig_arg);
     }
 
-    my $char = $sigchar{$sig_arg} or return;
+    if ($sig_arg =~ /^\d+$/) {
+        $sig_arg = $int2name{$sig_arg} or return;
+    }
+    $sig_arg = $Interrupt_KeyName_Map{$sig_arg} // $sig_arg;
+    my $char = $Restore_Keyboard_Signals{$sig_arg} or return;
+    $char =~ s/([\000-\037])/'^'.chr(ord($1)+ord('@'))/ge;
     $self->OUT->print($char);
+
     return;
 }
 
@@ -134,7 +174,7 @@ sub _prepare_prompt {
 
     $prompt .= $body;
     #say $self->_escape_str($prompt);
-    
+
     if (length $tail) {
         $prompt .= $self->Attribs->{term_set}[1]
                 . $tail
@@ -151,8 +191,9 @@ sub readline {
     my %old_sig = $self->_set_signal_handlers;
 
     $prompt = $self->_prepare_prompt($prompt);
-
+    $self->_set_ignore_keyboard_signals();
     my $input = $self->SUPER::readline($prompt);
+    $self->_restore_keyboard_signals();
 
     %SIG = %old_sig; # Restore signal handlers.
 
@@ -186,17 +227,30 @@ sub _set_signal_handlers {
         my $handler = $old_sig{$signal} // '';
 
         $self->deprep_terminal();
+        $self->_restore_keyboard_signals();
+
+        if ($handler eq '' or $handler eq 'DEFAULT') {
+            # We've de-prepped the terminal, now reset the signal handler
+            # and re-issue the signal. Since we're inside a signal handler
+            # the re-thrown signal will be deferred until we return from
+            # this. For HUP, QUIT, ALRM, and TERM, this will result in
+            # termination of the process, so leave the terminal in a
+            # de-prepped state.
+            $SIG{$signal} = 'DEFAULT';
+            kill $signal, $$;
+            return;
+        }
+
         if (ref $handler) {
+            # Call old signal handler and re-prep the terminal.
             local($SIG{$signal}) = $handler;
             $handler->($signal, @_);
         }
-        elsif ($handler eq '' or $handler eq 'DEFAULT') {
-            local($SIG{$signal}) = $handler;
-            kill $signal, $$;
-        }
+
         $self->prep_terminal(1);
+        $self->_set_ignore_keyboard_signals();
         $self->forced_update_display();
-        return 1;
+        return;
     };
 
     if ($self->ReadLine =~ /::Gnu$/) {
@@ -226,8 +280,9 @@ sub _set_signal_handlers {
         my ($signal) = @_;
         $last_sig = $signal;
         $old_sig{$signal}->(@_) if ref $old_sig{$signal};
+        $self->_set_ignore_keyboard_signals();
         return 1;
-    };     
+    };
 
     $self->Attribs->{signal_event_hook} = sub {
         if ($last_sig eq 'CONT') {
@@ -257,7 +312,7 @@ sub _install_stubs {
     };
 
     if ($self->ReadLine !~ /::Perl$/) {
-        *{replace_line} = 
+        *{replace_line} =
         *{prep_terminal} =
         *{deprep_terminal} =
         *{forced_update_display} = sub { };
@@ -488,6 +543,47 @@ X<term_height>
 Return the height of the terminal in characters, as given by
 L<Term::ReadLine>.
 
+=item B<ignore_keyboard_signals> ( I<SIGNAME>, ... )
+X<ignore_keyboard_signals>
+
+Ensure that I<SIGNAME> signals cannot be entered from the
+keyboard. I<SIGNAME> should be the name of a signal that
+can be entered from the keyboard, i.e. one of:
+C<INT>, C<QUIT>, C<TSTP>.
+
+Notes:
+
+=over
+
+=item 1.
+
+This will only disable the keys for the given signals
+during a C<readline> operation. Outside of that, they will still
+generate signals. Also, this only disables the keyboard sequences,
+not the actual signals themselves (i.e. you can still C<kill -3 PID>
+from another terminal.
+
+=item 2.
+
+Disabling the C<INT> key will cause I<Ctrl-C> to no longer discard the
+input line under L<Term::ReadLine::Gnu>; it I<will> discard it under
+L<Term::ReadLine::Perl>! It is therefore recommended to just set
+C<$SIG{INT}> to C<IGNORE>.
+
+=back
+
+=item B<no_ignore_keyboard_signals> ( I<SIGNAME>, ... )
+X<no_ignore_keyboard_signals>
+
+(Re-)Enable keyboard generation for I<SIGNAME> signals.
+See L<ignore_keyboard_signals|/ignore_keyboard_signals> above for
+valid I<SIGNAME> values.
+
+=item B<clear_ignore_keyboard_signals>
+X<clear_ignore_keyboard_signals>
+
+Reset all keyboard signal generation to their original settings.
+
 =item B<AddHistory> ( I<line>, ... )
 X<AddHistory>
 
@@ -569,7 +665,7 @@ methods during its signal handling.
 X<get_screen_size>
 
 Use C<Term::ReadKey::GetTerminalSize> to get the appropriate
-dimensions and return them is (I<height>, I<width>).
+dimensions and return them as (I<height>, I<width>).
 
 =back
 
