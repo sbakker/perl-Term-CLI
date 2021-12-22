@@ -33,6 +33,16 @@ and more.
 For an introduction in the object class structure, see
 L<Term::CLI::Intro>(3p).
 
+=head2 Note on Term::ReadLine
+
+Although L<Term::CLI> has been created to work with L<Term::ReadLine> in
+general, it works best when either L<Term::ReadLine::Gnu>(3p) is present;
+failing that, L<Term::ReadLine::Perl>(3p) will also suffice, although there
+are some subtle differences (especially in signal handling).
+If neither is present on your system, L<Term::ReadLine> will load a "stub"
+interface (C<Term::ReadLine::Stub>), which supports neither command line
+editing nor completion.
+
 =head1 INTRODUCTION
 
 If you have ever found yourself needing to write a command-line
@@ -74,14 +84,6 @@ shell with a few basic commands, but one that looks quite polished.
 The F<tutorial> directory in the module's source tree has source code
 for all examples (F<example_01_basic_repl.pl>, F<example_02.pl>, etc.), that
 progressively build the final application.
-
-=head1 NOTE ON TERM::READLINE
-
-Although L<Term::CLI> has been created to work with L<Term::ReadLine> in
-general, it works best when either L<Term::ReadLine::Gnu>(3p), or
-L<Term::ReadLine::Perl>(3p) is also present. If not, then L<Term::ReadLine>
-will load a "stub" interface (C<Term::ReadLine::Stub>), which supports neither
-command line editing nor completion.
 
 =head1 THE BSSH CONCEPT
 
@@ -296,7 +298,11 @@ X<exit_command>
 
 From L<THE BSSH CONCEPT|/THE BSSH CONCEPT> section above:
 
-S<    >B<exit> [ I<code> ]
+=over
+
+B<exit> [ I<code> ]
+
+=back
 
 This illustrates the use of a single, optional argument. Here's the code:
 
@@ -578,7 +584,11 @@ The C<sleep> command demonstrates a numerical argument
 Next up, the C<echo> command.
 From L<THE BSSH CONCEPT|/THE BSSH CONCEPT> section above:
 
-S<    >B<echo> [ I<arg> ... ]
+=over
+
+B<echo> [ I<arg> ... ]
+
+=back
 
 That is, the C<echo> command takes zero or more arbitrary
 string arguments.
@@ -619,7 +629,11 @@ same prefix (C<e>), so let's see what happens with the abbreviations:
 
 From L<THE BSSH CONCEPT|/THE BSSH CONCEPT> section above:
 
-S<    >B<make> {B<love>|B<money>} {B<now|later|never|forever>}
+=over
+
+B<make> {B<love>|B<money>} {B<now|later|never|forever>}
+
+=back
 
 Arguments with fixed set of values can be specified with
 L<Term::CLI::Argument::Enum> objects:
@@ -674,7 +688,11 @@ fail because C<n> is ambiguous:
 The C<ls> command takes zero or more file name arguments.
 From L<THE BSSH CONCEPT|/THE BSSH CONCEPT> section above:
 
-S<    >B<ls> [ I<path> ... ]
+=over
+
+B<ls> [ I<path> ... ]
+
+=back
 
 The code for this:
 
@@ -729,7 +747,11 @@ about the arguments it gets, juost so long as they are not empty:
 
 From L<THE BSSH CONCEPT|/THE BSSH CONCEPT> section above:
 
-S<    >B<cp> I<src-path> ... I<dst-path>
+=over
+
+B<cp> I<src-path> ... I<dst-path>
+
+=back
 
 Ideally, we would like to specify this as:
 
@@ -820,7 +842,11 @@ be passed as regular arguments.
 
 From L<THE BSSH CONCEPT|/THE BSSH CONCEPT> section above:
 
-S<    >B<sleep> I<seconds>
+=over
+
+S<sleep> I<seconds>
+
+=back
 
 This is an almost trivial implementation:
 
@@ -891,7 +917,11 @@ See it in action:
 You may have noticed that so far, we've only added commands with arguments.
 But what if we want to implement something like:
 
-S<    >B<show> { B<load>|B<clock>|B<terminal> }
+=over
+
+B<show> { B<load>|B<clock>|B<terminal> }
+
+=back
 
 Well, as it turns out, L<Term::CLI::Command|Term::CLI::Command>(3p) can handle
 that as well: instead of specifying C<arguments> in the constructor, you can
@@ -975,9 +1005,13 @@ Adding this to our ever-growing C<bssh> code, we get:
 
 The specification says:
 
-S<    >B<set> B<verbose> I<bool>
+=over
 
-S<    >B<set> B<delimiters> I<string>
+B<set> B<verbose> I<bool>
+
+B<set> B<delimiters> I<string>
+
+=back
 
 Code:
 
@@ -1081,7 +1115,11 @@ sub-commands (the C<interface> command), or to create syntactic sugar
 
 The specification says:
 
-S<    >B<do> {B<something>|B<nothing>} B<while> {B<working>|B<sleeping>}
+=over
+
+B<do> {B<something>|B<nothing>} B<while> {B<working>|B<sleeping>}
+
+=back
 
 Code:
 
@@ -1121,7 +1159,11 @@ Code:
 
 The specification says:
 
-S<    >B<interface> I<iface> {B<up>|B<down>}
+=over
+
+B<interface> I<iface> {B<up>|B<down>}
+
+=back
 
 The I<iface> argument is used by both sub-commands.
 
@@ -1418,46 +1460,38 @@ to abort the input line, but not exit the program.
 There are other signals that can be entered via the command line,
 namely C<QUIT> and C<TSTP> (suspend).
 
-If you run any of the previous examples and enter I<Ctrl-\> or
-I<Ctrl-Z>, you'll notice that the program quits or suspends.
+Normally, I<Ctrl-\> will generate a C<QUIT> signal (3) to the
+application. You usually don't want this during keyboard input
+(having an accidental I<Ctrl-\> kill your session can be annoying),
+so L<Term::CLI> will disable this for you already.
 
-This may not be what you want, though (especially an accidental
-C<QUIT> signal can be annoying).
+However, if you run any of the previous examples and enter 
+I<Ctrl-Z>, you'll notice that the program suspends and you are
+dropped back into the shell you started from.
 
-You can easily set those signals to C<IGNORE> like we did with C<INT>,
-but you may not necessarily want to do that; perhaps you just want to
-prevent these signals to be accidentally generated from the keyboard,
-but still allow the reception of the signals themselves.
+What if you don't want to suspend on I<Ctrl-Z>, but add a C<suspend>
+command instead?
 
-Fortunately, there is a way to do this, via the C<ignore_keyboard_signals>
-attribute:
+=head2 The C<suspend> command
 
-    my $term = Term::CLI->new(
-        name => 'bssh',             # A basically simple shell.
-        ...
-        ignore_keyboard_signals => [qw( QUIT TSTP )],
+The F<tutorial/example_17_suspend.pl> file adds the following code:
+
+    $SIG{INT} = $SIG{TSTP} = 'IGNORE';
+
+    ...
+
+    push @commands, Term::CLI::Command->new(
+        name => 'suspend',
+        summary => 'suspend the program',
+        description => "Suspend the program by sending a C<TSTP>\n"
+                    .  "signal and return control to the shell.",
+        callback => sub {
+            my ($cmd, %args) = @_;
+            local($SIG{TSTP}) = 'DEFAULT';
+            kill 'TSTP', $$;
+            return %args;
+        }
     );
-
-(If you want to know why it's not a good idea to disable the C<INT>
-key signal, see
-L<ignore_keyboard_signals in Term::CLI::ReadLine|Term::CLI::ReadLine/ignore_keyboard_signals>.)
-
-=head2 A C<suspend> command
-
-Since we just disabled suspension via I<Ctrl-Z>, we should
-add a C<suspend> command:
-
-	push @commands, Term::CLI::Command->new(
-		name => 'suspend',
-		summary => 'suspend the program',
-		description => "Suspend the program by sending a C<TSTP>\n"
-					.  "signal and return control to the shell.",
-		callback => sub {
-			my ($cmd, %args) = @_;
-			kill 'TSTP', $$;
-			return %args;
-		}
-	);
 
 Now do this:
 
@@ -1469,12 +1503,11 @@ perl tutorial/example_16_options.pl
     
 =item 2.
 
-Enter I<Ctrl-Z>; this should suspend the program. Type C<fg> + I<ENTER> to
-continue again.
+Enter I<Ctrl-Z>; this should suspend the program.
 
-=item 3.
+=item 3. 
 
-Enter I<Ctrl-\>; this should kill the program.
+Type C<fg> + I<ENTER> to continue again.
 
 =back
 
@@ -1484,7 +1517,7 @@ Compare that to the version with C<suspend>:
 
 =item 1.
 
-perl tutorial/example_17_signals.pl
+perl tutorial/example_17_suspend.pl
     
 =item 2.
 
@@ -1494,13 +1527,16 @@ C<Term::ReadLine::Perl> loaded).
 =item 3.
 
 Enter the C<suspend> command. This should suspend the program.
-Enter C<fg> + I<ENTER> to continue again.
 
 =item 4.
 
-Enter I<Ctrl-\>; this should not have any effect.
+Type C<fg> + I<ENTER> to continue again.
 
 =back
+
+For more details on the dirty secrets of signal handling, see the
+L<SIGNAL HANDLING section|Term::CLI::ReadLine|/SIGNAL HANDLING>
+in L<Term::CLI::ReadLine>(3p).
 
 =head1 DEALING WITH HISTORY
 
@@ -1557,7 +1593,7 @@ L<Term::CLI's cleanup|Term::CLI/cleanup> attribute:
 This ensures that the command history will be saved before the C<$term> object
 is destroyed.
 
-For completeness' sake, here are a number of alternative options:
+For completeness' sake, here are a number of alternative options, YMMV:
 
 =over
 
@@ -1656,10 +1692,10 @@ This is preferable to the previous two, since it doesn't require global flags
 or magic values. It also allows us to call C<execute_exit> at the end of the
 loop.
 
-Still, this is not perfect, as you have to remember to call C<execute_exit>,
-instead of C<exit>, in other places of your program. Some of these places may
-not have access to a valid L<Term::CLI> or L<Term::CLI::CommandSet> object, so 
-this adds further complications.
+Still, this is not perfect, as you have to remember to call C<execute_exit>
+instead of C<exit> in other places of your program as well. Some of these
+places may not have access to a valid L<Term::CLI> or L<Term::CLI::CommandSet>
+object, so this adds further complications.
 
 =item 4.
 
@@ -1714,7 +1750,7 @@ correct scope:
     }
     exit 0;
 
-The above not have the desired effect of writing the history to file upon
+The above will not have the desired effect of writing the history to file upon
 exit.
 
 =back
