@@ -392,7 +392,6 @@ Term::CLI - CLI interpreter based on Term::ReadLine
  my $cli = Term::CLI->new(
     name => 'myapp',
     prompt => 'myapp> ',
-    ignore_keyboard_signals => ['QUIT'],
     cleanup => sub {
         my ($cli) = @_;
         $cli->write_history;
@@ -492,7 +491,8 @@ turned off during a C<readline> operation.
 The list of signals should be a combination of C<INT>, C<QUIT>, or
 C<TSTP>. See also
 L<ignore_keyboard_signals|Term::CLI::ReadLine/ignore_keyboard_signals>
-in L<Term::CLI::ReadLine>(3p).
+in L<Term::CLI::ReadLine>(3p). If this is not specified, C<QUIT>
+keyboard generation is turned off by default.
 
 =item B<name> =E<gt> I<Str>
 
@@ -859,153 +859,32 @@ be fed back up the parse tree (and eventually to the caller).
 
 =head1 SIGNAL HANDLING
 
-The C<Term::CLI> object sets its own signal handlers in the
-L<readline|/readline> function.
+The C<Term::CLI> object (through L<Term::CLI::ReadLine>) will make sure that
+signals are handled "correctly". This especially means that if a signal is
+not ignored, the terminal is left in a "sane" state before any signal
+handler is called or the program exits.
 
-The signal handlers will ensure the terminal is in a sane state.
-
-The following signals are caught:
-C<HUP>, C<INT>, C<QUIT>, C<ALRM>, C<TERM>.
-
-The signal handler will restore the terminal to a "sane" state (the
-state it was in before C<readline> was called), re-throw the signal,
-and, if control returns to the point it was left off, set the terminal
-back to the state that C<readline> expects it to be in.
-
-Note that "re-throwing" a signal in Perl is tricky, see also
-L<CAVEATS|/CAVEATS> below.
-
-The C<INT> signal will also discard the current input line.
-
-=head1 CAVEATS
-
-=head2 Re-throwing Signals
-
-Re-throwing a signal in Perl from within a signal handler is tricky
-because "safe" signals do not guarantee that the actual signal is
-generated exactly at the time that C<kill> is called.
-
-Consider this program:
-
-    sub other_handler {
-        my ($signal) = @_;
-        say "other handler for $signal";
-    }
-
-    sub handler {
-        my ($signal) = @_;
-
-        say "handler for $signal";
-
-        $SIG{$signal} = \&other_handler;
-        kill $signal, $$;
-        $SIG{$signal} = \&handler;
-    }
-
-    $SIG{HUP} = \&handler;
-    kill 'HUP', $$;
-
-    say "done";
-
-The code reads like:
-
-=over
-
-=item 1.
-
-Upon a C<HUP> signal, the C<handler> subroutine will be called.
-
-=item 2.
-
-The C<handler> will:
-
-=over
-
-=item a.
-
-Print a message.
-
-=item b.
-
-Set the C<HUP> signal hander to C<other_handler>.
-
-=item c.
-
-Re-throw the signal, which should pass control to C<other_handler>,
-resulting in another message.
-
-=item d.
-
-Re-set the C<HUP> signal handler to itself.
-
-=back
-
-Control passes back to the program, which will print a final message.
-
-=back
-
-So, you'd expect:
-
-    handler for HUP
-    other handler for HUP
-    done
-
-However, the output of this program will actually read:
-
-    handler for HUP
-    handler for HUP
-    done
-    handler for HUP
-
-That's because a call to C<kill> in a signal handler does not immediately
-generate a signal. Rather, the interpreter keeps running until it finds
-a point where it is "safe" to actually send the signal. Unfortunately,
-at that point, the signal handler is no longer set to C<other_handler>,
-but has reverted back to C<handler>. As a result, we create a signal
-loop. Had the program contained more instructions beyond the "done"
-message, it would have continued to send signals to itself and generate
-C<handler for HUP> messages.
-
-C<Term::CLI> deals with this depending on the value of the signal handler
-in the C<%SIG> hash I<before> the call to C<readline>:
-
-=over
-
-=item C<DEFAULT>, C<undef>, or empty ("").
-
-Set the value in C<%SIG> to C<DEFAULT> and re-throw the signal. Since
-the signals we catch here all have a default action that results in
-process termination, this will typically terminate the program, but
-leave the terminal in a sane state.
-
-=item C<IGNORE>
-
-Do nothing (i.e. don't re-throw the signal).
-
-=item I<CODEREF>
-
-Set the value in C<%SIG> to C<CODEREF>,
-call the code ref as C<CODEREF-E<gt>(I<SIGNAL>)>, and
-restore the C<%SIG> value.
-
-=back
+See also
+L<SIGNAL HANDLING in Term::CLI::ReadLine|Term::CLI::ReadLine/SIGNAL HANDLING>.
 
 =head1 SEE ALSO
 
 L<FindBin>(3p),
+L<Moo>(3p),
 L<Getopt::Long>(3p),
-L<Term::CLI>(3p),
 L<Term::CLI::Argument>(3p),
+L<Term::CLI::Base>(3p),
 L<Term::CLI::Command>(3p),
 L<Term::CLI::Intro>(3p),
+L<Term::CLI::ReadLine>(3p),
 L<Term::CLI::Role::CommandSet>(3p),
 L<Term::CLI::Tutorial>(3p),
-L<Text::ParseWords>(3p),
-L<Types::Standard>(3p),
-L<Term::ReadLine>(3p),
 L<Term::ReadLine::Gnu>(3p),
-L<Term::ReadLine::Perl>(3p).
-
+L<Term::ReadLine::Perl>(3p),
+L<Term::ReadLine>(3p),
+L<Text::ParseWords>(3p),
+L<Types::Standard>(3p).
+ 
 Inspiration for the custom completion came from:
 L<https://robots.thoughtbot.com/tab-completion-in-gnu-readline>.
 This is an excellent tutorial into the completion mechanics
