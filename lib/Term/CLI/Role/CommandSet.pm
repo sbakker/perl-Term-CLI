@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Role::CommandSet  0.052005 {
+package Term::CLI::Role::CommandSet  0.053001 {
 
 use 5.014;
 use strict;

@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::ReadLine  0.052005 {
+package Term::CLI::ReadLine  0.053001 {
 
 use 5.014;
 use strict;
