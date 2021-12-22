@@ -17,7 +17,6 @@ my %WriteMakefileArgs = (
   "MIN_PERL_VERSION" => "5.014001",
   "NAME" => "Term::CLI",
   "PREREQ_PM" => {
-    "Carp" => 0,
     "Exporter" => "5.71",
     "File::Glob" => 0,
     "File::Which" => "1.09",
@@ -30,9 +29,8 @@ my %WriteMakefileArgs = (
     "Moo::Role" => 0,
     "Pod::Text::Termcap" => "2.08",
     "Scalar::Util" => "1.38",
-    "Term::ReadKey" => 0,
+    "Term::ReadKey" => "2.34",
     "Term::ReadLine" => "1.14",
-    "Term::ReadLine::Gnu" => "1.24",
     "Text::ParseWords" => "3.29",
     "Types::Standard" => "1.000005",
     "namespace::clean" => "0.25",
@@ -55,7 +53,7 @@ my %WriteMakefileArgs = (
     "strict" => "1.00",
     "warnings" => "1.00"
   },
-  "VERSION" => "0.052005",
+  "VERSION" => "0.053001",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -63,7 +61,6 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
-  "Carp" => 0,
   "Exporter" => "5.71",
   "File::Glob" => 0,
   "File::Temp" => "0.2304",
@@ -78,9 +75,8 @@ my %FallbackPrereqs = (
   "Pod::Coverage::TrustPod" => 0,
   "Pod::Text::Termcap" => "2.08",
   "Scalar::Util" => "1.38",
-  "Term::ReadKey" => 0,
+  "Term::ReadKey" => "2.34",
   "Term::ReadLine" => "1.14",
-  "Term::ReadLine::Gnu" => "1.24",
   "Test::Class" => 0,
   "Test::Compile" => "1.2.0",
   "Test::Exception" => "0.35",

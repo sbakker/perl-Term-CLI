@@ -1,3 +1,59 @@
+0.053001 -- 2021-12-22
+
+    [Features]
+
+    - Now indepenent of Term::ReadLine implementation
+        I.e. compatible with Term::ReadLine::Perl and Term::ReadLine::Stub
+        as well (though Term::ReadLine::Gnu is still the best supported).
+
+    - Improved signal handling:
+        - Add `ignore_keyboard_signal`.
+        - Ignore QUIT control sequence (makes ::Gnu behave like ::Perl).
+
+    - Allow Term::CLI::Argument::Enum values to be provided dynamically
+        Term::CLI::Argument::Enum's value_list attribute may be a coderef,
+        which should return an array reference of valid values.
+        (Pull request #13 from djerius/dynamic-enum.)
+
+    - Add "cleanup" attribute.
+
+    [Tutorial]
+
+    - Formatting fixes.
+    - Add SIGNAL HANDLING section.
+    - Add HISTORY HANDLING section.
+    - Add tutorial/example_17_suspend.pl
+    - Use `local($SIG{...})` in `sleep` command.
+
+    [Refactoring]
+
+    - Move most history logic to Term::CLI::ReadLine
+        Term::CLI::ReadLine is much more of a compatibility layer
+        between Term::CLI and Term::ReadLine now, providing compatibility
+        code to compensate for missing functionality in the underlying
+        Term::ReadLine implementation.
+
+    [Bug Fixes]
+
+    - Fix Enum validation - closes #10
+        Enum validation finds potential matches to an argument by performing
+        prefix comparison against the list of valid values. This works fine
+        as long as the valid values are not prefixes of each other; if they
+        are, then the shorter strings will never be considered valid input.
+        
+    - GNU ReadLine - exclude prompt ornaments for leading/trailing whitespace.
+        The Term::ReadLine::GNU implementation will just slap the prompt
+        between the ornament-start/ornament-end sequences, but this looks
+        ugly if there are leading/trailing spaces and the ornament is set
+        to e.g. underline or standout. This is now brought in line with how
+        the Term::ReadLine::Perl implementation handles it, by inserting
+        relevant escape sequences where necessary.
+
+    [Packaging]
+
+    - Various build fixes.
+    - Remove prereq on Term::ReadLine::Gnu.
+
 0.052005 -- 2021-05-27
 
     - Increase coverage of Term::CLI.
