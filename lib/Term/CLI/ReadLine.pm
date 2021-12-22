@@ -39,7 +39,8 @@ my $Term = undef;
 my $History_Size             = $DFL_HIST_SIZE;
 my @History                  = ();
 my %Restore_Keyboard_Signals = ();
-my %Ignore_Keyboard_Signals  = ();
+my %Default_Ignore_Keyboard_Signals = ( QUIT => '' );
+my %Ignore_Keyboard_Signals  = %Default_Ignore_Keyboard_Signals;
 my %Interrupt_KeyName_Map    = (
     'INT'  => 'INTERRUPT',
     'QUIT' => 'QUIT',
@@ -86,9 +87,9 @@ sub _restore_keyboard_signals {
     Term::ReadKey::SetControlChars(%Restore_Keyboard_Signals);
 }
 
-sub clear_ignore_keyboard_signals {
+sub reset_ignore_keyboard_signals {
     my ($self, %args) = @_;
-    %Ignore_Keyboard_Signals = ();
+    %Ignore_Keyboard_Signals = %Default_Ignore_Keyboard_Signals;
 }
 
 sub term_width {
@@ -476,11 +477,11 @@ by the rest of the L<Term::CLI>(3p) classes.
 The ultimate purpose is to behave as consistently as possible regardless
 of the C<Term::ReadLine> interface that has been loaded.
 
-This class inherits from L<Term::ReadLine> and keeps a single instance
-around with a class accessor to access that single instance, because
+This class inherits from L<Term::ReadLine> and behaves as a singleton
+with a class accessor to access that single instance, because
 even though L<Term::ReadLine>(3p) has an object-oriented interface,
 the L<Term::ReadLine::Gnu>(3p) and L<Term::ReadLine::Perl>(3p) modules
-really only keeps a single instance around (if you create multiple
+really only keep a single instance around (if you create multiple
 L<Term::ReadLine> objects, all parameters and history are shared).
 
 =head1 CONSTRUCTORS
@@ -551,6 +552,8 @@ keyboard. I<SIGNAME> should be the name of a signal that
 can be entered from the keyboard, i.e. one of:
 C<INT>, C<QUIT>, C<TSTP>.
 
+By default, the C<QUIT> keyboard signal is already disabled.
+
 Notes:
 
 =over
@@ -558,25 +561,30 @@ Notes:
 =item 1.
 
 This will only disable the keys for the given signals
-during a C<readline> operation. Outside of that, they will still
-generate signals. Also, this only disables the keyboard sequences,
-not the actual signals themselves (i.e. you can still C<kill -3 PID>
-from another terminal.
+I<during> a C<readline> operation. Outside of that, they will still
+generate signals.
 
 =item 2.
+
+This only disables the keyboard sequences, not the actual signals
+themselves (i.e. you can still C<kill -3 PID> from another terminal.
+
+=item 3.
 
 Disabling the C<INT> key will cause I<Ctrl-C> to no longer discard the
 input line under L<Term::ReadLine::Gnu>; it I<will> discard it under
 L<Term::ReadLine::Perl>! It is therefore recommended to just set
 C<$SIG{INT}> to C<IGNORE> instead.
 
-=item 3.
+=item 4.
 
 Disabling the C<TSTP> key works under L<Term::ReadLine::Gnu>, but
 not under L<Term::ReadLine::Perl>. The latter maps the key in raw
 mode and explicitly sends a C<TSTP> signal to itself.
 
 =back
+
+See also L<SIGNAL HANDLING|/SIGNAL HANDLING> below.
 
 =item B<no_ignore_keyboard_signals> ( I<SIGNAME>, ... )
 X<no_ignore_keyboard_signals>
@@ -585,10 +593,10 @@ X<no_ignore_keyboard_signals>
 See L<ignore_keyboard_signals|/ignore_keyboard_signals> above for
 valid I<SIGNAME> values.
 
-=item B<clear_ignore_keyboard_signals>
-X<clear_ignore_keyboard_signals>
+=item B<reset_ignore_keyboard_signals>
+X<reset_ignore_keyboard_signals>
 
-Reset all keyboard signal generation to their original settings.
+Reset all keyboard signal generation to the defaults.
 
 =item B<AddHistory> ( I<line>, ... )
 X<AddHistory>
@@ -664,8 +672,8 @@ what they were before calling C<readline>, or to set them to what
 C<readline> uses. You will rarely (if ever) need these, since
 the ReadLine libraries usually take care if this themselves.
 
-One exception to this is in signal handlers: L<Term::CLI> calls these
-methods during its signal handling.
+One exception to this is in signal handlers: C<Term::CLI::ReadLine>
+calls these methods during its signal handling.
 
 =item B<get_screen_size>
 X<get_screen_size>
@@ -683,6 +691,116 @@ dimensions and return them as (I<height>, I<width>).
 X<term>
 
 Return the latest C<Term::CLI::ReadLine> object created.
+
+=back
+
+=head1 SIGNAL HANDLING
+
+The class sets its own signal handlers in the L<readline|/readline>
+function where necessary.
+
+The following signals may be caught:
+C<ALRM>, C<CONT>, C<HUP>, C<INT>, C<QUIT>, C<TERM>.
+
+The signal handlers will:
+
+=over
+
+=item *
+
+Restore the terminal to a "sane" state, i.e. the state it was in before
+C<readline> was called (the C<CONT> signal being an exception to this
+rule).
+
+=item *
+
+If any signal handler was set prior to the call to C<readline>, it will
+be called and if control returns L<Term::CLI::ReadLine>'s signal handler,
+the terminal will be set back to the state that C<readline> expects it to
+be in.
+
+=item *
+
+If the signal handler was previously set to C<DEFAULT>, it is restored
+as C<DEFAULT> and the signal is re-thrown, so the default actions (abnormal
+exit and possible core dump) can take place.
+
+=back
+
+Just how and when these "wrapper" signal handlers are installed depends on
+the selected C<Term::ReadLine> implementation. The
+L<Gnu|Term::ReadLine::Gnu> backend doesn't require separate handlers
+for signals that are set to C<IGNORE> or C<DEFAULT>. The
+L<Perl|Term::ReadLine::Perl> backend does require some wrapping.
+
+The C<INT> signal is always wrapped to ensure that the current input
+line is discarded and a newline is emitted.
+
+=head2 Keyboard signals
+
+One subtle difference between the
+L<Term::ReadLine::Gnu> and L<Term::ReadLine::Perl> is in keyboard-generated
+signal handling (interrupt, quit, suspend).
+
+=over
+
+=item *
+
+L<Term::ReadLine::Perl> disables keyboard-generated signals. When it
+reads a I<Ctrl-C>, it will send itself an C<INT> signal, when it
+sees a I<Ctrl-Z>, it will send a C<TSTP> signal; the "quit" key
+I<Ctrl-\> is simply ignored.
+
+=item *
+
+L<Term::ReadLine::Gnu> leaves keyboard-generated signals enabled and
+sets signal handlers to catch them.
+
+=back
+
+This subtle difference means that:
+
+=over
+
+=item *
+
+It is impossible to have I<Ctrl-\> generate a C<QUIT> signal under
+L<Term::ReadLine::Perl>.
+
+=item *
+
+It is impossible to disable I<Ctrl-Z> through L</ignore_keyboard_signals>
+under L<Term::ReadLine::Perl>.
+
+=item *
+
+Disabling I<Ctrl-C> through L</ignore_keyboard_signals> will completely
+disable I<Ctrl-C> under L<Term::ReadLine::Gnu> (will not discard the
+input line), but not L<Term::ReadLine::Perl>.
+
+=back
+
+For this reason, the module by default ignores the C<QUIT> key sequence.
+
+=head2 Recommendations
+
+To behave as consistently as possible across the C<Term::ReadLine> backends,
+the following is best if you don't want keyboard signals to kill or stop
+the program:
+
+=over
+
+=item 1.
+
+Set C<$SIG{INT}> to C<IGNORE>.
+
+=item 2.
+
+Set C<$SIG{TSTP}> to C<IGNORE>.
+
+=item 3.
+
+Ignore keyboard signal C<QUIT> (already default).
 
 =back
 
