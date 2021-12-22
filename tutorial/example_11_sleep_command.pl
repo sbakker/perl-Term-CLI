@@ -156,16 +156,13 @@ push @commands, Term::CLI::Command->new(
 
         say "-- sleep: $time";
 
-        my %oldsig = %::SIG; # Save signals;
-
         # Make sure we can interrupt the sleep() call.
-        $::SIG{INT} = $::SIG{QUIT} = sub {
-            say STDERR "(interrupted by $_[0])";
+        my $slept = do {
+            local($::SIG{INT}) = local($::SIG{QUIT}) = sub {
+                say STDERR "(interrupted by $_[0])";
+            };
+            sleep($time);
         };
-
-        my $slept = sleep($time);
-
-        %::SIG = %oldsig; # Restore signal handlers.
 
         say "-- woke up after $slept sec", $slept == 1 ? '' : 's';
         return %args;
