@@ -15,6 +15,7 @@ requires "Pod::Text::Termcap" => "2.08";
 requires "Scalar::Util" => "1.38";
 requires "Term::ReadKey" => "2.34";
 requires "Term::ReadLine" => "1.14";
+requires "Term::ReadLine::Gnu" => "1.24";
 requires "Text::ParseWords" => "3.29";
 requires "Types::Standard" => "1.000005";
 requires "namespace::clean" => "0.25";

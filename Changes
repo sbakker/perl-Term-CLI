@@ -1,3 +1,16 @@
+0.053005 -- 2021-12-23
+
+    - Validate keyboard signal names before using them.
+
+        Files modified:
+            lib/Term/CLI/ReadLine.pm
+
+    - Add back the dependency on Term::ReadLine::Gnu
+        Tests will break on MSWIN if the ::Perl backend is chosen.
+
+        Files modified:
+            dist.ini
+
 0.053004 -- 2021-12-23
 
     [Bug Fixes]

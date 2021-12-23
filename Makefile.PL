@@ -31,6 +31,7 @@ my %WriteMakefileArgs = (
     "Scalar::Util" => "1.38",
     "Term::ReadKey" => "2.34",
     "Term::ReadLine" => "1.14",
+    "Term::ReadLine::Gnu" => "1.24",
     "Text::ParseWords" => "3.29",
     "Types::Standard" => "1.000005",
     "namespace::clean" => "0.25",
@@ -53,7 +54,7 @@ my %WriteMakefileArgs = (
     "strict" => "1.00",
     "warnings" => "1.00"
   },
-  "VERSION" => "0.053004",
+  "VERSION" => "0.053005",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -77,6 +78,7 @@ my %FallbackPrereqs = (
   "Scalar::Util" => "1.38",
   "Term::ReadKey" => "2.34",
   "Term::ReadLine" => "1.14",
+  "Term::ReadLine::Gnu" => "1.24",
   "Test::Class" => 0,
   "Test::Compile" => "1.2.0",
   "Test::Exception" => "0.35",
