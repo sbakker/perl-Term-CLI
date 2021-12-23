@@ -107,23 +107,23 @@ sub term_height {
 sub echo_signal_char {
     my ($self, $sig_arg) = @_;
 
-    state %name2int = (
+    state $name2int = {
         'INT' => 2,
         'QUIT' => 3,
         'TSTP' => 20
-    );
-
-    state %int2name = reverse %name2int;
+    };
 
     if ($self->ReadLine =~ /::Gnu$/) {
         if ($sig_arg =~ /\D/) {
-            $sig_arg = $name2int{uc $sig_arg} or return;
+            $sig_arg = $$name2int{uc $sig_arg} or return;
         }
         return $self->SUPER::echo_signal_char($sig_arg);
     }
 
+    state $int2name = { reverse %$name2int };
+
     if ($sig_arg =~ /^\d+$/) {
-        $sig_arg = $int2name{$sig_arg} or return;
+        $sig_arg = $$int2name{$sig_arg} or return;
     }
     $sig_arg = $Interrupt_KeyName_Map{$sig_arg} // $sig_arg;
     my $char = $Restore_Keyboard_Signals{$sig_arg} or return;
