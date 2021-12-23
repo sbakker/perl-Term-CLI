@@ -102,7 +102,7 @@ rm -rf $RPM_BUILD_ROOT
 - New upstream release.
 * Thu Dec 23 2021 Steven Bakker <sbakker@cpan.org> 0.053003-1
 - New upstream release.
-* Thu May 19 2021 Steven Bakker <sbakker@cpan.org> 0.052002-1
+* Wed May 19 2021 Steven Bakker <sbakker@cpan.org> 0.052002-1
 - New upstream release.
 * Fri Apr 30 2021 Steven Bakker <sbakker@cpan.org> 0.052001-1
 - New upstream release.
