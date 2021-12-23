@@ -36,7 +36,7 @@ L<Term::CLI::Intro>(3p).
 =head2 Note on Term::ReadLine
 
 Although L<Term::CLI> has been created to work with L<Term::ReadLine> in
-general, it works best when either L<Term::ReadLine::Gnu>(3p) is present;
+general, it works best when L<Term::ReadLine::Gnu>(3p) is present;
 failing that, L<Term::ReadLine::Perl>(3p) will also suffice, although there
 are some subtle differences (especially in signal handling).
 If neither is present on your system, L<Term::ReadLine> will load a "stub"
