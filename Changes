@@ -1,3 +1,9 @@
+0.053003 -- 2021-12-23
+
+    [Packaging]
+
+    - Remove author tests from MANIFEST.SKIP
+
 0.053002 -- 2021-12-23
 
     [Packaging]
