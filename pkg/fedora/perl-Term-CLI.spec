@@ -1,5 +1,5 @@
 Name:           perl-Term-CLI
-Version:        0.053003
+Version:        0.053004
 Release:        1%{?dist}
 Summary:        CLI interpreter based on Term::ReadLine
 License:        GPL+ or Artistic

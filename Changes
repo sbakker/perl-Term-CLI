@@ -1,3 +1,13 @@
+0.053004 -- 2021-12-23
+
+    [Bug Fixes]
+
+    - Don't use `state` hash; not supported on older Perls
+      Use `state $xx = { ... }` instead.
+
+        Files modified:
+            lib/Term/CLI/ReadLine.pm
+
 0.053003 -- 2021-12-23
 
     [Packaging]
