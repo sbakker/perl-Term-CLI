@@ -36,12 +36,16 @@ my $Term = undef;
 # Since we cannot be sure what type the Term::ReadLine object
 # is (HASH or ARRAY), we'll have to keep some state here.
 
-my $History_Size             = $DFL_HIST_SIZE;
-my @History                  = ();
-my %Restore_Keyboard_Signals = ();
-my %Default_Ignore_Keyboard_Signals = ( QUIT => '' );
-my %Ignore_Keyboard_Signals  = %Default_Ignore_Keyboard_Signals;
-my %Interrupt_KeyName_Map    = (
+my $History_Size              = $DFL_HIST_SIZE;
+my @History                   = ();
+
+# Original_KB_Signals is fetched at `new` time and used to both restore
+# the ControlChars as well as validate given key names: not all
+# platforms support the same keys.
+my %Original_KB_Signals       = ();
+my @Default_Ignore_KB_Signals = qw( QUIT );
+my %Ignore_KB_Signals         = ();
+my %Sig2KeyName = (
     'INT'  => 'INTERRUPT',
     'QUIT' => 'QUIT',
     'TSTP' => 'SUSPEND',
@@ -52,12 +56,16 @@ sub new {
 
     return $Term if $Term;
 
-    %Restore_Keyboard_Signals = Term::ReadKey::GetControlChars();
+    $Term = bless Term::ReadLine->new(@_), $class;
 
-    $Term = Term::ReadLine->new(@_);
-    my $rl = $Term->ReadLine;
-    $Term->Attribs->{catch_signals} = 1;
-    bless $Term, $class;
+    %Original_KB_Signals = Term::ReadKey::GetControlChars();
+
+    if (exists $Term->Attribs->{catch_signals}) {
+        $Term->Attribs->{catch_signals} = 1;
+    }
+
+    $Term->reset_ignore_keyboard_signals();
+
     return $Term->_install_stubs;
 }
 
@@ -66,30 +74,33 @@ sub term { return $Term }
 sub ignore_keyboard_signals {
     my ($self, @args) = @_;
     foreach my $signame (@args) {
-        my $charname = $Interrupt_KeyName_Map{$signame} or next;
-        $Ignore_Keyboard_Signals{$charname} = '';
+        my $charname = $Sig2KeyName{$signame} or next;
+        $Original_KB_Signals{$charname} or next;
+        $Ignore_KB_Signals{$charname} = '';
     }
 }
 
 sub no_ignore_keyboard_signals {
     my ($self, @args) = @_;
     foreach my $signame (@args) {
-        my $charname = $Interrupt_KeyName_Map{$signame} or next;
-        delete $Ignore_Keyboard_Signals{$charname};
+        my $charname = $Sig2KeyName{$signame} or next;
+        $Original_KB_Signals{$charname} or next;
+        delete $Ignore_KB_Signals{$charname};
     }
 }
 
 sub _set_ignore_keyboard_signals {
-    Term::ReadKey::SetControlChars(%Ignore_Keyboard_Signals);
+    Term::ReadKey::SetControlChars(%Ignore_KB_Signals);
 }
 
 sub _restore_keyboard_signals {
-    Term::ReadKey::SetControlChars(%Restore_Keyboard_Signals);
+    Term::ReadKey::SetControlChars(%Original_KB_Signals);
 }
 
 sub reset_ignore_keyboard_signals {
-    my ($self, %args) = @_;
-    %Ignore_Keyboard_Signals = %Default_Ignore_Keyboard_Signals;
+    my ($self) = @_;
+    %Ignore_KB_Signals = ();
+    $self->ignore_keyboard_signals(@Default_Ignore_KB_Signals);
 }
 
 sub term_width {
@@ -125,8 +136,8 @@ sub echo_signal_char {
     if ($sig_arg =~ /^\d+$/) {
         $sig_arg = $$int2name{$sig_arg} or return;
     }
-    $sig_arg = $Interrupt_KeyName_Map{$sig_arg} // $sig_arg;
-    my $char = $Restore_Keyboard_Signals{$sig_arg} or return;
+    $sig_arg = $Sig2KeyName{$sig_arg} // $sig_arg;
+    my $char = $Original_KB_Signals{$sig_arg} or return;
     $char =~ s/([\000-\037])/'^'.chr(ord($1)+ord('@'))/ge;
     $self->OUT->print($char);
 
