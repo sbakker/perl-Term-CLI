@@ -1532,7 +1532,7 @@ Type C<fg> + I<ENTER> to continue again.
 =back
 
 For more details on the dirty secrets of signal handling, see the
-L<SIGNAL HANDLING section|Term::CLI::ReadLine|/SIGNAL HANDLING>
+L<SIGNAL HANDLING section|Term::CLI::ReadLine/SIGNAL HANDLING>
 in L<Term::CLI::ReadLine>(3p).
 
 =head1 DEALING WITH HISTORY
