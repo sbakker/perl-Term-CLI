@@ -18,8 +18,6 @@ doc/RELEASING
 \.old$
 pm_to_blib
 ^scratch/
-t/author-pod-coverage.t
-t/author-pod-syntax.t
 ^Term-CLI-\d+\.\d+/
 ^Term-CLI-\d+\.\d+\.rpm$
 ^Term-CLI-\d+\.\d+\.tar\.gz$
