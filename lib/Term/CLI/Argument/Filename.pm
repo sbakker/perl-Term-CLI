@@ -29,7 +29,7 @@ use namespace::clean 0.25;
 
 extends 'Term::CLI::Argument';
 
-use File::Glob ':bsd_glob';
+use File::Glob 'bsd_glob';
 
 use namespace::clean;
 
