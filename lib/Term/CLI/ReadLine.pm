@@ -24,7 +24,7 @@ use 5.014;
 use strict;
 use warnings;
 
-use parent 0.228 qw( Term::ReadLine );
+use parent 0.225 qw( Term::ReadLine );
 
 use Term::ReadKey 2.34 ();
 
@@ -60,7 +60,7 @@ sub new {
 
     %Original_KB_Signals = Term::ReadKey::GetControlChars();
 
-    if (exists $Term->Attribs->{catch_signals}) {
+    if (eval { exists $Term->Attribs->{catch_signals} }) {
         $Term->Attribs->{catch_signals} = 1;
     }
 

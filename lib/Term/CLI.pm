@@ -24,7 +24,7 @@ use 5.014;
 use strict;
 use warnings;
 
-use Text::ParseWords 3.29 qw( parse_line );
+use Text::ParseWords 3.27 qw( parse_line );
 use Term::CLI::ReadLine;
 use FindBin 1.50;
 

@@ -32,8 +32,8 @@ use Types::Standard 1.000005 qw(
 );
 
 use Moo 1.000001;
-use List::Util 1.38 qw( first );
-use Scalar::Util 1.38 qw( reftype );
+use List::Util 1.23 qw( first );
+use Scalar::Util 1.23 qw( reftype );
 
 use namespace::clean 0.25;
 

@@ -23,7 +23,7 @@ use warnings;
 
 our $VERSION = 0.053005;
 
-use parent 0.228 qw( Term::CLI::L10N );
+use parent 0.225 qw( Term::CLI::L10N );
 
 use Locale::Maketext::Lexicon::Gettext 1.00;
 

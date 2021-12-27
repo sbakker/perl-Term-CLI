@@ -21,7 +21,7 @@ use 5.014;
 use strict;
 use warnings;
 
-use parent 0.228 qw( Term::CLI::L10N );
+use parent 0.225 qw( Term::CLI::L10N );
 
 our %Lexicon = (
     _AUTO => 1,

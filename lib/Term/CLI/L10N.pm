@@ -22,7 +22,7 @@ use 5.014;
 use strict;
 use warnings;
 
-use parent 0.228 qw( Locale::Maketext Exporter );
+use parent 0.225 qw( Locale::Maketext Exporter );
 
 BEGIN {
     our @EXPORT_OK   = qw( __ loc );

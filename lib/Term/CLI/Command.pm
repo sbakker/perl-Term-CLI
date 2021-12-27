@@ -24,8 +24,8 @@ use 5.014;
 use strict;
 use warnings;
 
-use List::Util 1.38 qw( first min );
-use Getopt::Long 2.42 qw( GetOptionsFromArray );
+use List::Util 1.23 qw( first min );
+use Getopt::Long 2.38 qw( GetOptionsFromArray );
 use Types::Standard 1.000005 qw(
     ArrayRef
     CodeRef

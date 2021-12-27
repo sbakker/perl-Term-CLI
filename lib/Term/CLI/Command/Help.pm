@@ -24,11 +24,11 @@ use 5.014;
 use strict;
 use warnings;
 
-use Pod::Text::Termcap 2.08;
-use List::Util 1.38 qw( first min );
+use Pod::Text::Termcap 2.06;
+use List::Util 1.23 qw( first min );
 use File::Which 1.09;
 use Types::Standard 1.000005 qw( ArrayRef Str );
-use Getopt::Long 2.42 qw( GetOptionsFromArray );
+use Getopt::Long 2.38 qw( GetOptionsFromArray );
 use Term::CLI::L10N;
 
 my @PAGERS = (
