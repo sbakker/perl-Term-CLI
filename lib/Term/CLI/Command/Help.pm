@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Command::Help  0.053005 {
+package Term::CLI::Command::Help  0.053006 {
 
 use 5.014;
 use strict;

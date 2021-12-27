@@ -1,3 +1,36 @@
+0.053006 -- 2021-12-27
+
+    [Compatibility]
+
+    - Fix versions of used modules for Perl 5.14.1
+        If we claim to to be compatible with Perl 5.14, then we should
+        make sure that the minimum required version of modules included
+        in the default distribution match up with what we require.
+
+        Files modified:
+            lib/**/*.pm
+            t/**/*.t
+
+    - Use `bsd_glob` instead of `:bsd_glob`
+        `File::Glob` in Perl 5.14 didn't have the `:bsd_glob` tag yet.
+        Since we only need the `bsd_glob()` function, just import the
+        function.
+
+        Files modified:
+            lib/Term/CLI/Argument/Filename.pm
+
+    [Bug Fixes]
+
+    - Make sure Term::ReadKey uses a "TTY" filehandle
+        In cases of automatic builds, STDIN and STDOUT may be
+        redirected. Term::ReadLine can handle that, Term::ReadKey
+        cannot, so we need to be explicit.
+
+        Files modified:
+            lib/Term/CLI/ReadLine.pm
+
+    - Minor POD fixes.
+
 0.053005 -- 2021-12-23
 
     - Validate keyboard signal names before using them.
