@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::ReadLine  0.053005 {
+package Term::CLI::ReadLine  0.053006 {
 
 use 5.014;
 use strict;
@@ -39,6 +39,9 @@ my $Term = undef;
 my $History_Size              = $DFL_HIST_SIZE;
 my @History                   = ();
 
+# Keep a filehandle for Term::ReadKey operations.
+my $Term_FH                   = undef;
+
 # Original_KB_Signals is fetched at `new` time and used to both restore
 # the ControlChars as well as validate given key names: not all
 # platforms support the same keys.
@@ -50,7 +53,6 @@ my %Sig2KeyName = (
     'QUIT' => 'QUIT',
     'TSTP' => 'SUSPEND',
 );
-
 sub new {
     my $class = shift;
 
@@ -58,7 +60,11 @@ sub new {
 
     $Term = bless Term::ReadLine->new(@_), $class;
 
-    %Original_KB_Signals = Term::ReadKey::GetControlChars();
+    $Term_FH = -t $Term->IN ? $Term->IN
+                    : -t $Term->OUT ? $Term->OUT : undef;
+
+    %Original_KB_Signals = Term::ReadKey::GetControlChars($Term_FH)
+        if $Term_FH;
 
     if (eval { exists $Term->Attribs->{catch_signals} }) {
         $Term->Attribs->{catch_signals} = 1;
@@ -90,11 +96,15 @@ sub no_ignore_keyboard_signals {
 }
 
 sub _set_ignore_keyboard_signals {
-    Term::ReadKey::SetControlChars(%Ignore_KB_Signals);
+    my ($self) = @_;
+    return if ! $Term_FH;
+    Term::ReadKey::SetControlChars(%Ignore_KB_Signals, $Term_FH);
 }
 
 sub _restore_keyboard_signals {
-    Term::ReadKey::SetControlChars(%Original_KB_Signals);
+    my ($self) = @_;
+    return if ! $Term_FH;
+    Term::ReadKey::SetControlChars(%Original_KB_Signals, $Term_FH);
 }
 
 sub reset_ignore_keyboard_signals {
@@ -319,7 +329,7 @@ sub _install_stubs {
     *{crlf}            = sub { $self->OUT->print("\n") };
 
     *{get_screen_size} = sub {
-        my ($width, $height) = Term::ReadKey::GetTerminalSize($_[0]->OUT);
+        my ($width, $height) = Term::ReadKey::GetTerminalSize($Term_FH);
         return ($height, $width);
     };
 
