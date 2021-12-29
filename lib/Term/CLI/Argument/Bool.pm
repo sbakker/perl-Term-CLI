@@ -18,10 +18,11 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Bool  0.053006 {
+# Circumvent bug in perlcritic
+## no critic (RequireUseStrict, RequireUseWarnings)
+package Term::CLI::Argument::Bool 0.053006 {
 
 use 5.014;
-use strict;
 use warnings;
 
 use Types::Standard 1.000005 qw(
@@ -67,24 +68,24 @@ sub validate {
     if ($self->ignore_case) {
         $value = lc $value;
 
-        $true = [ map { lc $_ } @{$self->true_values} ];
-        $false = [ map { lc $_ } @{$self->false_values} ];
+        $true = [ map { lc } @{$self->true_values} ];
+        $false = [ map { lc } @{$self->false_values} ];
     }
     else {
         $true  = $self->true_values;
         $false = $self->false_values;
     }
 
-    my @true_match = grep { rindex($_, $value, 0) == 0 } @$true;
-    my @false_match = grep { rindex($_, $value, 0) == 0 } @$false;
+    my @true_match = grep { rindex($_, $value, 0) == 0 } @{$true};
+    my @false_match = grep { rindex($_, $value, 0) == 0 } @{$false};
 
     if (@true_match) {
         if (@false_match) {
             return $self->set_error(
-                loc("ambiguous boolean value"
-                    ." (matches ~[[_1]~] and ~[[_2]~])",
-                    join(", ", @true_match),
-                    join(", ", @false_match),
+                loc('ambiguous boolean value'
+                    .' (matches ~[[_1]~] and ~[[_2]~])',
+                    join(', ', @true_match),
+                    join(', ', @false_match),
                 )
             );
         }
@@ -96,7 +97,7 @@ sub validate {
         return 0;
     }
 
-    return $self->set_error(loc("invalid boolean value"));
+    return $self->set_error(loc('invalid boolean value'));
 }
 
 
@@ -105,26 +106,16 @@ sub complete {
 
     my @values = ( @{$self->true_values}, @{$self->false_values} );
 
-    if (!length $value) {
-        return sort @values;
-    }
-    else {
-        if ($self->ignore_case) {
-            my @matches
-                = sort
-                    grep
-                        { substr(lc $_, 0, length($value)) eq lc $value }
-                        @values;
+    return (sort @values) if $value eq q{};
 
-            return map { $value.substr($_, length($value)) } @matches;
-        }
-        else {
-            return sort
-                grep { substr($_, 0, length($value)) eq $value } @values;
-        }
+    if ($self->ignore_case) {
+        my @matches
+            = grep { substr(lc $_, 0, length $value) eq lc $value } @values;
+
+        return (sort map { $value.substr $_, length $value } @matches);
     }
+    return (sort grep { substr($_, 0, length $value) eq $value } @values);
 }
-
 
 }
 
