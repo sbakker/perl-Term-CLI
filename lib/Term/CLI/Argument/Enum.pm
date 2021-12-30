@@ -23,7 +23,7 @@ package Term::CLI::Argument::Enum  0.053006;
 use 5.014;
 use warnings;
 
-use Term::CLI::L10N;
+use Term::CLI::L10N qw( loc );
 
 use Types::Standard 1.000005 qw(
     ArrayRef

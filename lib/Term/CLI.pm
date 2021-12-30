@@ -27,7 +27,7 @@ use Text::ParseWords 3.27 qw( parse_line );
 use Term::CLI::ReadLine;
 use FindBin 1.50;
 
-use Term::CLI::L10N;
+use Term::CLI::L10N qw( loc );
 
 # Load all Term::CLI classes so the user doesn't have to.
 

@@ -23,7 +23,7 @@ package Term::CLI::Argument::Number  0.053006;
 use 5.014;
 use warnings;
 
-use Term::CLI::L10N;
+use Term::CLI::L10N qw( loc );
 
 use Moo 1.000001;
 use namespace::clean 0.25;

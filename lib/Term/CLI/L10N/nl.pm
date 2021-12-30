@@ -298,7 +298,7 @@ Term::CLI::L10N::nl - Dutch localizations for Term::CLI
 
 =head1 SYNOPSIS
 
- use Term::CLI::L10N;
+ use Term::CLI::L10N qw( loc );
 
  Term::CLI::L10N->set_language('nl');
  

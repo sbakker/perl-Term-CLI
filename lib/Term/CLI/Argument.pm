@@ -25,7 +25,7 @@ use warnings;
 
 use Moo 1.000001;
 
-use Term::CLI::L10N;
+use Term::CLI::L10N qw( loc );
 
 use Types::Standard 1.000005 qw( Int );
 

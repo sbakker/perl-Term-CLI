@@ -29,7 +29,7 @@ use Types::Standard 1.000005 qw(
     Bool
 );
 
-use Term::CLI::L10N;
+use Term::CLI::L10N qw( loc );
 
 use Moo 1.000001;
 use namespace::clean 0.25;

@@ -28,7 +28,7 @@ use List::Util 1.23 qw( first min );
 use File::Which 1.09;
 use Types::Standard 1.000005 qw( ArrayRef Str );
 use Getopt::Long 2.38 qw( GetOptionsFromArray );
-use Term::CLI::L10N;
+use Term::CLI::L10N qw( loc );
 
 my @PAGERS = (
     [qw(

@@ -25,10 +25,8 @@ use parent 0.225 qw( Locale::Maketext Exporter );
 
 BEGIN {
     our @EXPORT_OK   = qw( __ loc );
-    our @EXPORT      = qw( loc );
-    our %EXPORT_TAGS = (
-        'all' => \@EXPORT_OK
-    );
+    our @EXPORT      = ( );
+    our %EXPORT_TAGS = ( 'all' => \@EXPORT_OK );
 }
 
 our $lh;
@@ -123,7 +121,7 @@ Dies with an error if no language can be loaded.
 
 =head1 EXAMPLES
 
-    use Term::CLI::L10N; # Initialise using current locale.
+    use Term::CLI::L10N qw( loc ); # Initialise using current locale.
 
     Term::CLI::L10N->set_language('nl'); # Force "nl" language.
 
