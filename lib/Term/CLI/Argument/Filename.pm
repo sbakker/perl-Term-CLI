@@ -25,10 +25,10 @@ use warnings;
 
 use Moo 1.000001;
 use namespace::clean 0.25;
-
 extends 'Term::CLI::Argument';
 
 use File::Glob 'bsd_glob';
+use Fcntl ':mode';
 
 use namespace::clean;
 
@@ -54,16 +54,29 @@ sub _glob_complete {
     my ( $self, $partial ) = @_;
     my @list = bsd_glob("$partial*");
 
-    return @list if @list <= 1;
+    return if @list == 0;
+
+    if (@list == 1) {
+        if (-d $list[0]) {
+            # Dumb trick to get readline to expand a directory
+            # with a trailing "/", but *not* add a space.
+            # Simulates the Gnu way of doing it.
+            return ("$list[0]/", "$list[0]//");
+        }
+        return @list;
+    }
 
     # If there is more than one possible completion,
     # add filetype suffixes.
     foreach (@list) {
-        if (-l) { $_ .= q{@}; next }
-        if (-d) { $_ .= q{/}; next }
-        if (-x) { $_ .= q{*}; next }
-        if (-S) { $_ .= q{=}; next }
-        if (-p) { $_ .= q{=}; next }
+        lstat;
+        if ( -l _ )  { $_ .= q{@}; next }
+        if ( -d _ )  { $_ .= q{/}; next }
+        if ( -c _ )  { $_ .= q{%}; next }
+        if ( -b _ )  { $_ .= q{#}; next }
+        if ( -S _ )  { $_ .= q{=}; next }
+        if ( -p _ )  { $_ .= q{=}; next }
+        if ( -x _ )  { $_ .= q{*}; next }
     }
     return @list;
 }
