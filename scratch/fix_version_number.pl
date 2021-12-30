@@ -30,7 +30,7 @@ while (<>) {
     s(  ^
         (?<head>   \s* package \s+ \S+)
         (?<version> (?:\s* \S+)?)
-        (?<tail>    \s* \{)
+        (?<tail>    \s* [\{\;])
     )(
         $+{head} . "  " . new_version($+{version}) . $+{tail}
     )exm;
