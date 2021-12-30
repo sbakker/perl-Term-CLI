@@ -134,6 +134,7 @@ sub BUILD {
     # initialised; and if no history_lines is given, the
     # trigger is not called for the default.
     $self->history_lines($self->history_lines);
+    return;
 }
 
 sub DEMOLISH {
@@ -141,6 +142,7 @@ sub DEMOLISH {
     if ($self->has_cleanup) {
         $self->cleanup->($self);
     }
+    return;
 }
 
 sub _trigger_history_lines {
@@ -150,6 +152,7 @@ sub _trigger_history_lines {
     return if !$self->term;
 
     $self->term->StifleHistory($arg);
+    return;
 }
 
 # %args = $self->_default_callback(%args);
@@ -200,7 +203,7 @@ sub _default_split {
 #
 sub _is_escaped {
     my ($self, $line, $index) = @_;
-    return 0 if !$index or $index < 0;
+    return 0 if not defined $index or $index <= 0;
     return 0 if substr($line, $index-1, 1) ne '\\';
     return !$self->_is_escaped($line, $index-1);
 }
@@ -224,6 +227,8 @@ sub _set_completion_attribs {
     # Default: <space>
     $term->Attribs->{completion_append_character}
         = substr($self->word_delimiters, 0, 1);
+
+    return;
 }
 
 
@@ -291,7 +296,7 @@ sub complete_line {
 }
 
 
-sub readline {
+sub readline { ## no critic (ProhibitBuiltinHomonyms)
     my ($self, %args) = @_;
 
     my $prompt = $args{prompt} // $self->prompt;
@@ -309,9 +314,9 @@ sub readline {
 
 
 sub read_history {
-    my $self = shift;
+    my ($self, $hist_file) = @_;
 
-    my $hist_file = @_ ? shift @_ : $self->history_file;
+    $hist_file //= $self->history_file;
 
     $self->term->ReadHistory($hist_file)
         or return $self->set_error("$hist_file: $!");
@@ -322,9 +327,9 @@ sub read_history {
 
 
 sub write_history {
-    my $self = shift;
+    my ($self, $hist_file) = @_;
 
-    my $hist_file = @_ ? shift @_ : $self->history_file;
+    $hist_file //= $self->history_file;
 
     $self->term->WriteHistory($hist_file)
         or return $self->set_error("$hist_file: $!");

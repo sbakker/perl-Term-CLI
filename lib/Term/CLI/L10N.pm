@@ -25,15 +25,14 @@ use parent 0.225 qw( Locale::Maketext Exporter );
 
 BEGIN {
     our @EXPORT_OK   = qw( __ loc );
-    our @EXPORT      = ( );
     our %EXPORT_TAGS = ( 'all' => \@EXPORT_OK );
 }
 
 our $lh;
 
 sub _init_handle {
-    $lh //= __PACKAGE__->get_handle() || __PACKAGE__->get_handle('en')
-        or die "No language files for 'en'";
+    $lh //= __PACKAGE__->get_handle() || __PACKAGE__->get_handle('en');
+    $lh or die "No language files for 'en'";
     return $lh;
 }
 
@@ -49,10 +48,10 @@ sub loc {
 }
 
 sub set_language {
-    my $self = shift;
+    my ($self, @args) = @_;
 
-    $lh = __PACKAGE__->get_handle(@_)
-        or die "No language files for (@_)";
+    $lh = __PACKAGE__->get_handle(@args)
+        or die "No language files for (@args)";
     return $lh;
 }
 

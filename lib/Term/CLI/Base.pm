@@ -39,7 +39,7 @@ sub term { return Term::CLI::ReadLine->term }
 
 sub set_error {
     my ($self, @value) = @_;
-    if (!@value or !defined $value[0]) {
+    if (!@value || !defined $value[0]) {
         $self->_set_error('');
     }
     else {

@@ -68,7 +68,7 @@ sub option_names {
 sub complete_line {
     my ($self, @words) = @_;
 
-    my $partial = $words[$#words] // '';
+    my $partial = $words[-1] // '';
 
     if ($self->has_options) {
 
@@ -163,7 +163,7 @@ sub execute {
     }
 
     if ($args{status} >= 0) {
-        if ($self->has_arguments or !$self->has_commands) {
+        if ($self->has_arguments || !$self->has_commands) {
             %args = $self->_check_arguments(%args);
         }
     }
@@ -260,8 +260,8 @@ sub _check_arguments {
     # a max_occur that is exceeded. If the command has no sub-commands that
     # is surely an error. If it does have sub-commands, we'll leave it to
     # be parsed further.
-    if (@$unparsed > 0 and !$self->has_commands) {
-        my $last_spec = $arg_spec[$#arg_spec];
+    if (@$unparsed > 0 && !$self->has_commands) {
+        my $last_spec = $arg_spec[-1];
         return (%args, status => -1,
             error => loc("too many '[_1]' arguments (max. [_2])",
                 $last_spec->name,
