@@ -36,7 +36,7 @@ use subs 1.00 qw( singularise );
 sub singularize {
     my $self = shift;
 
-    local($_) = shift;
+    local ($_) = shift;
 
     # -zen, -ven -> -s, -f
     s/zen$/s/x and return $_;
@@ -44,20 +44,20 @@ sub singularize {
 
     # -eu?en, -ei?en
     s/(eu|ei)([^aeiou])en$/$1$2/x and return $_;
-    
+
     # gelegenheden -> gelegenheid
     s/heden$/heid/x and return $_;
 
     # musea -> museum
     # aquaria -> aquarium
-    s/([ei])a$/$1um/x  and return $_;
+    s/([ei])a$/$1um/x and return $_;
 
     # rijen -> rij
     s/ijen$/ij/x and return $_;
 
     # leraren -> leraar
     s/([aeiou])([^aeiou])en$/$1$1$2/x and return $_;
-    
+
     # ballen -> bal
     s/([^aeiou])\1en$/$1/x and return $_;
 
@@ -67,7 +67,6 @@ sub singularize {
     return s/(?:'?en|'s|s)$//rx;
 }
 
-
 # $str = $lh->numerate($num, $plural [, $singular ]);
 #
 # NOTE: this reverses the semantics of the
@@ -75,19 +74,19 @@ sub singularize {
 # to go from plural to singular in Dutch.
 #
 sub numerate {
-    my ($handle, $num, @forms) = @_;
+    my ( $handle, $num, @forms ) = @_;
 
-    my $is_plural = ($num != 1);
+    my $is_plural = ( $num != 1 );
 
     return '' unless @forms;
-    if (@forms == 1) { # only plural specified
+    if ( @forms == 1 ) {    # only plural specified
         my $word = $forms[0];
         if ($is_plural) {
             return $word;
         }
         return $handle->singularize($word);
     }
-    else { # Both plural and singular are supplied
+    else {                  # Both plural and singular are supplied
         return $is_plural ? $forms[0] : $forms[1];
     }
 }
@@ -302,7 +301,7 @@ Term::CLI::L10N::nl - Dutch localizations for Term::CLI
  use Term::CLI::L10N qw( loc );
 
  Term::CLI::L10N->set_language('nl');
- 
+
  say loc("ERROR"); # -> FOUT
 
  say Term::CLI::L10N->quant(1, 'dingen'); # -> 1 ding

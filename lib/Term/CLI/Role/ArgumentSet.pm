@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Role::ArgumentSet  0.053006;
+package Term::CLI::Role::ArgumentSet 0.053006;
 
 use 5.014;
 use warnings;
@@ -33,51 +33,47 @@ use Moo::Role;
 use namespace::clean 0.25;
 
 has _arguments => (
-    is        => 'rw',
-    writer    => '_set_arguments',
-    init_arg  => 'arguments',
-    isa       => Maybe[ArrayRef[InstanceOf['Term::CLI::Argument']]],
-    coerce    => sub {
+    is       => 'rw',
+    writer   => '_set_arguments',
+    init_arg => 'arguments',
+    isa      => Maybe [ ArrayRef [ InstanceOf ['Term::CLI::Argument'] ] ],
+    coerce   => sub {
+
         # Copy the array, so the reference we store becomes
         # "internal", preventing accidental modification
         # from the outside.
-        return [@{$_[0]}]
+        return [ @{ $_[0] } ];
     },
 );
 
-
 sub arguments {
     my ($self) = @_;
-    return @{$self->_arguments // []};
+    return @{ $self->_arguments // [] };
 }
 
-
 sub set_arguments {
-    my ($self, @arguments) = @_;
+    my ( $self, @arguments ) = @_;
 
-    $self->_set_arguments([]);
+    $self->_set_arguments( [] );
     $self->add_argument(@arguments);
     return;
 }
 
-
 sub has_arguments {
     my ($self) = @_;
-    return ($self->_arguments and scalar @{$self->_arguments} > 0);
+    return ( $self->_arguments and scalar @{ $self->_arguments } > 0 );
 }
-
 
 sub add_argument {
-    my ($self, @arguments) = @_;
-    
-    if (!$self->_arguments) {
-        $self->_set_arguments([]);
+    my ( $self, @arguments ) = @_;
+
+    if ( !$self->_arguments ) {
+        $self->_set_arguments( [] );
     }
 
-    push @{$self->_arguments}, @arguments;
+    push @{ $self->_arguments }, @arguments;
     return $self;
 }
-
 
 sub argument_names {
     my ($self) = @_;
@@ -149,7 +145,7 @@ added.
 =item B<arguments>
 X<arguments>
 
-Return the list of 
+Return the list of
 L<Term::CLI::Argument|Term::CLI::Argument> object
 references that are owned by this object.
 
@@ -189,7 +185,7 @@ X<find_command>
 
 Check whether I<Str> uniquely matches a command in this C<Term::CLI>
 object. Returns a reference to the appropriate
-L<Term::CLI::Command> object if successful; otherwise, it 
+L<Term::CLI::Command> object if successful; otherwise, it
 sets the objects C<error> field and returns C<undef>.
 
 Example:

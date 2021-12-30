@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Filename  0.053006;
+package Term::CLI::Argument::Filename 0.053006;
 
 use 5.014;
 use warnings;
@@ -33,7 +33,7 @@ use File::Glob 'bsd_glob';
 use namespace::clean;
 
 sub complete {
-    my $self = shift;
+    my $self    = shift;
     my $partial = shift;
 
     my $func_ref = $self->term->Attribs->{filename_completion_function}
@@ -42,7 +42,7 @@ sub complete {
     if ($func_ref) {
         my $state = 0;
         my @list;
-        while (my $f = $func_ref->($partial, $state)) {
+        while ( my $f = $func_ref->( $partial, $state ) ) {
             push @list, $f;
             $state = 1;
         }
@@ -51,7 +51,7 @@ sub complete {
 }
 
 sub _glob_complete {
-    my ($self, $partial) = @_;
+    my ( $self, $partial ) = @_;
     my @list = bsd_glob("$partial*");
 
     return @list if @list <= 1;
@@ -59,11 +59,11 @@ sub _glob_complete {
     # If there is more than one possible completion,
     # add filetype suffixes.
     foreach (@list) {
-        if ( -l ) { $_ .= q{@}; next }
-        if ( -d ) { $_ .= q{/}; next }
-        if ( -x ) { $_ .= q{*}; next }
-        if ( -S ) { $_ .= q{=}; next }
-        if ( -p ) { $_ .= q{=}; next }
+        if (-l) { $_ .= q{@}; next }
+        if (-d) { $_ .= q{/}; next }
+        if (-x) { $_ .= q{*}; next }
+        if (-S) { $_ .= q{=}; next }
+        if (-p) { $_ .= q{=}; next }
     }
     return @list;
 }

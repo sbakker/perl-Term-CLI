@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Number  0.053006;
+package Term::CLI::Argument::Number 0.053006;
 
 use 5.014;
 use warnings;
@@ -31,8 +31,8 @@ use namespace::clean 0.25;
 
 extends 'Term::CLI::Argument';
 
-has min => ( is => 'rw', clearer => 1, predicate => 1 );
-has max => ( is => 'rw', clearer => 1, predicate => 1 );
+has min       => ( is => 'rw', clearer => 1, predicate => 1 );
+has max       => ( is => 'rw', clearer => 1, predicate => 1 );
 has inclusive => ( is => 'rw', default => sub {1} );
 
 sub coerce_value {
@@ -40,32 +40,32 @@ sub coerce_value {
 }
 
 sub validate {
-    my ($self, $value) = @_;
+    my ( $self, $value ) = @_;
 
-    if (!defined $value || length($value) == 0) {
-        return $self->set_error(loc('not a valid number'));
+    if ( !defined $value || length($value) == 0 ) {
+        return $self->set_error( loc('not a valid number') );
     }
 
     my $num = $self->coerce_value($value);
 
-    if (!defined $num) {
-        return $self->set_error(loc('not a valid number'));
+    if ( !defined $num ) {
+        return $self->set_error( loc('not a valid number') );
     }
 
-    if ($self->inclusive) {
-        if ($self->has_min && $num < $self->min) {
-            return $self->set_error(loc('too small'));
+    if ( $self->inclusive ) {
+        if ( $self->has_min && $num < $self->min ) {
+            return $self->set_error( loc('too small') );
         }
-        elsif ($self->has_max && $num > $self->max) {
-            return $self->set_error(loc('too large'));
+        elsif ( $self->has_max && $num > $self->max ) {
+            return $self->set_error( loc('too large') );
         }
     }
     else {
-        if ($self->has_min && $num <= $self->min) {
-            return $self->set_error(loc('too small'));
+        if ( $self->has_min && $num <= $self->min ) {
+            return $self->set_error( loc('too small') );
         }
-        elsif ($self->has_max && $num >= $self->max) {
-            return $self->set_error(loc('too large'));
+        elsif ( $self->has_max && $num >= $self->max ) {
+            return $self->set_error( loc('too large') );
         }
     }
     return $num;

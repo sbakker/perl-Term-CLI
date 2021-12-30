@@ -63,42 +63,40 @@ my $DFL_HIST_SIZE = 1000;
 my $ERROR_STATUS  = -1;
 
 # Provide a default for 'name'.
-has '+name' => (
-    default => sub { $FindBin::Script }
-);
+has '+name' => ( default => sub {$FindBin::Script} );
 
 has cleanup => (
     is        => 'rw',
-    isa       => Maybe[CodeRef],
+    isa       => Maybe [CodeRef],
     predicate => 1
 );
 
 has prompt => (
-    is => 'rw',
-    isa => Str,
-    default => sub { '~> ' }
+    is      => 'rw',
+    isa     => Str,
+    default => sub {'~> '}
 );
 
 has split_function => (
-    is => 'rw',
-    isa => CodeRef,
+    is      => 'rw',
+    isa     => CodeRef,
     default => sub { \&_default_split }
 );
 
 has skip => (
-    is => 'rw',
+    is  => 'rw',
     isa => RegexpRef,
 );
 
 has history_file => (
-    is => 'rw',
+    is  => 'rw',
     isa => Str
 );
 
 has history_lines => (
-    is => 'rw',
-    isa => Int,
-    default => sub { $DFL_HIST_SIZE },
+    is      => 'rw',
+    isa     => Int,
+    default => sub {$DFL_HIST_SIZE},
     trigger => 1,
 );
 
@@ -106,24 +104,24 @@ has word_delimiters  => ( is => 'rw', isa => Str, default => sub {" \n\t"} );
 has quote_characters => ( is => 'rw', isa => Str, default => sub {q("')} );
 
 sub BUILD {
-    my ($self, $args) = @_;
+    my ( $self, $args ) = @_;
 
-    my $term = Term::CLI::ReadLine->new($self->name)->term;
+    my $term = Term::CLI::ReadLine->new( $self->name )->term;
 
-    if (my $sig_list = $args->{ignore_keyboard_signals}) {
-        $term->ignore_keyboard_signals(@{$sig_list});
+    if ( my $sig_list = $args->{ignore_keyboard_signals} ) {
+        $term->ignore_keyboard_signals( @{$sig_list} );
     }
 
     $term->Attribs->{completion_function} = sub { $self->complete_line(@_) };
-    $term->Attribs->{char_is_quoted_p} = sub { $self->_is_escaped(@_) };
+    $term->Attribs->{char_is_quoted_p}    = sub { $self->_is_escaped(@_) };
 
     $self->_set_completion_attribs;
 
-    if (! exists $args->{callback} ) {
-        $self->callback(\&_default_callback);
+    if ( !exists $args->{callback} ) {
+        $self->callback( \&_default_callback );
     }
 
-    if (!exists $args->{history_file}) {
+    if ( !exists $args->{history_file} ) {
         my $hist_file = $self->name;
         $hist_file =~ s{^/}{}gx;
         $hist_file =~ s{/$}{}gx;
@@ -136,20 +134,20 @@ sub BUILD {
     # *is* called, but it happens *before* the `$term` is
     # initialised; and if no history_lines is given, the
     # trigger is not called for the default.
-    $self->history_lines($self->history_lines);
+    $self->history_lines( $self->history_lines );
     return;
 }
 
 sub DEMOLISH {
     my ($self) = @_;
-    if ($self->has_cleanup) {
+    if ( $self->has_cleanup ) {
         $self->cleanup->($self);
     }
     return;
 }
 
-sub _trigger_history_lines { ## no critic (ProhibitUnusedPrivateSubroutines)
-    my ($self, $arg) = @_;
+sub _trigger_history_lines {    ## no critic (ProhibitUnusedPrivateSubroutines)
+    my ( $self, $arg ) = @_;
 
     # Terminal may not be initialiased yet...
     return if !$self->term;
@@ -164,14 +162,13 @@ sub _trigger_history_lines { ## no critic (ProhibitUnusedPrivateSubroutines)
 # Simply check the status and print an error
 # message if status < 0.
 sub _default_callback {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
-    if ($args{status} < 0) {
+    if ( $args{status} < 0 ) {
         say STDERR loc("ERROR"), ": ", $args{error};
     }
     return %args;
 }
-
 
 # ($error, @words) = $self->_default_split($text);
 #
@@ -183,23 +180,22 @@ sub _default_callback {
 # quote characters.
 #
 sub _default_split {
-    my ($self, $text) = @_;
+    my ( $self, $text ) = @_;
 
-    if ($text =~ /\S/xsm) {
+    if ( $text =~ /\S/xsm ) {
         my $delim = $self->word_delimiters;
         $text =~ s/^ [$delim]+ //gxsm;
-        my @words = parse_line(qr{ [$delim]+ }xms, 0, $text);
-        if (@words and not defined $words[-1]) {
+        my @words = parse_line( qr{ [$delim]+ }xms, 0, $text );
+        if ( @words and not defined $words[-1] ) {
             pop @words;
         }
         my $error = @words ? q{} : loc('unbalanced quotes in input');
-        return ($error, @words);
+        return ( $error, @words );
     }
     else {
         return (q{});
     }
 }
-
 
 # BOOL = CLI->_is_escaped($line, $index);
 #
@@ -207,12 +203,11 @@ sub _default_split {
 # character. Check if it is perhaps escaped.
 #
 sub _is_escaped {
-    my ($self, $line, $index) = @_;
+    my ( $self, $line, $index ) = @_;
     return 0 if not defined $index or $index <= 0;
-    return 0 if substr($line, $index-1, 1) ne q{\\};
-    return !$self->_is_escaped($line, $index-1);
+    return 0 if substr( $line, $index - 1, 1 ) ne q{\\};
+    return !$self->_is_escaped( $line, $index - 1 );
 }
-
 
 # CLI->_set_completion_attribs();
 #
@@ -230,12 +225,11 @@ sub _set_completion_attribs {
     $term->Attribs->{completer_word_break_characters} = $self->word_delimiters;
 
     # Default: <space>
-    $term->Attribs->{completion_append_character}
-        = substr($self->word_delimiters, 0, 1);
+    $term->Attribs->{completion_append_character} =
+        substr( $self->word_delimiters, 0, 1 );
 
     return;
 }
-
 
 # CLI->_split_line( $text );
 #
@@ -243,10 +237,9 @@ sub _set_completion_attribs {
 # necessary.
 #
 sub _split_line {
-    my ($self, $text) = @_;
-    return $self->split_function->($self, $text);
+    my ( $self, $text ) = @_;
+    return $self->split_function->( $self, $text );
 }
-
 
 # Dumb wrapper around "Attrib" that allows mocking the
 # `completion_quote_character` state.
@@ -258,7 +251,7 @@ sub _rl_completion_quote_character {
 
 # See POD X<complete_line>
 sub complete_line {
-    my ($self, $text, $line, $start) = @_;
+    my ( $self, $text, $line, $start ) = @_;
 
     $self->_set_completion_attribs;
 
@@ -266,16 +259,19 @@ sub complete_line {
 
     my @words;
 
-    if ($start > 0) {
-        if (length $quote_char) {
+    if ( $start > 0 ) {
+        if ( length $quote_char ) {
+
             # ReadLine thinks the $text to be completed is quoted.
             # The quote character will precede the $start of $text.
             # Make sure we do not include it in the text to break
             # into words...
-            (my $err, @words) = $self->_split_line(substr($line, 0, $start-1));
+            ( my $err, @words ) =
+                $self->_split_line( substr( $line, 0, $start - 1 ) );
         }
         else {
-            (my $err, @words) = $self->_split_line(substr($line, 0, $start));
+            ( my $err, @words ) =
+                $self->_split_line( substr( $line, 0, $start ) );
         }
     }
 
@@ -283,26 +279,25 @@ sub complete_line {
 
     my @list;
 
-    if (@words == 1) {
-        @list = grep { rindex($_, $words[0], 0) == 0 } $self->command_names;
+    if ( @words == 1 ) {
+        @list = grep { rindex( $_, $words[0], 0 ) == 0 } $self->command_names;
     }
-    elsif (my $cmd = $self->find_command($words[0])) {
-        @list = $cmd->complete_line(@words[1..$#words]);
+    elsif ( my $cmd = $self->find_command( $words[0] ) ) {
+        @list = $cmd->complete_line( @words[ 1 .. $#words ] );
     }
 
     # Escape spaces in reply if necessary.
-    if (length $quote_char) {
+    if ( length $quote_char ) {
         return @list;
     }
     else {
         my $delim = $self->word_delimiters;
-        return map { s/([$delim])/\\$1/rgx } @list;
+        return map {s/([$delim])/\\$1/rgx} @list;
     }
 }
 
-
-sub readline { ## no critic (ProhibitBuiltinHomonyms)
-    my ($self, %args) = @_;
+sub readline {    ## no critic (ProhibitBuiltinHomonyms)
+    my ( $self, %args ) = @_;
 
     my $prompt = $args{prompt} // $self->prompt;
     my $skip   = exists $args{skip} ? $args{skip} : $self->skip;
@@ -310,16 +305,15 @@ sub readline { ## no critic (ProhibitBuiltinHomonyms)
     $self->_set_completion_attribs;
 
     my $input;
-    while (defined ($input = $self->term->readline($prompt))) {
+    while ( defined( $input = $self->term->readline($prompt) ) ) {
         next if defined $skip && $input =~ $skip;
         last;
     }
     return $input;
 }
 
-
 sub read_history {
-    my ($self, $hist_file) = @_;
+    my ( $self, $hist_file ) = @_;
 
     $hist_file //= $self->history_file;
 
@@ -330,9 +324,8 @@ sub read_history {
     return 1;
 }
 
-
 sub write_history {
-    my ($self, $hist_file) = @_;
+    my ( $self, $hist_file ) = @_;
 
     $hist_file //= $self->history_file;
 
@@ -343,11 +336,10 @@ sub write_history {
     return 1;
 }
 
-
 sub execute {
-    my ($self, $cmd) = @_;
+    my ( $self, $cmd ) = @_;
 
-    my ($error, @cmd) = $self->_split_line($cmd);
+    my ( $error, @cmd ) = $self->_split_line($cmd);
 
     my %args = (
         status       => 0,
@@ -359,20 +351,19 @@ sub execute {
         arguments    => [],
     );
 
-    return $self->try_callback(%args, status => $ERROR_STATUS, error => $error)
+    return $self->try_callback( %args, status => $ERROR_STATUS,
+        error => $error )
         if length $error;
 
-    if (@cmd == 0) {
-        $args{error} = loc("missing command");
+    if ( @cmd == 0 ) {
+        $args{error}  = loc("missing command");
         $args{status} = $ERROR_STATUS;
     }
-    elsif (my $cmd_ref = $self->find_command($cmd[0])) {
-        %args = $cmd_ref->execute(%args,
-            unparsed => [@cmd[1..$#cmd]]
-        );
+    elsif ( my $cmd_ref = $self->find_command( $cmd[0] ) ) {
+        %args = $cmd_ref->execute( %args, unparsed => [ @cmd[ 1 .. $#cmd ] ] );
     }
     else {
-        $args{error} = $self->error;
+        $args{error}  = $self->error;
         $args{status} = $ERROR_STATUS;
     }
 
@@ -891,7 +882,7 @@ L<Term::ReadLine::Perl>(3p),
 L<Term::ReadLine>(3p),
 L<Text::ParseWords>(3p),
 L<Types::Standard>(3p).
- 
+
 Inspiration for the custom completion came from:
 L<https://robots.thoughtbot.com/tab-completion-in-gnu-readline>.
 This is an excellent tutorial into the completion mechanics

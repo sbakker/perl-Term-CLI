@@ -16,7 +16,7 @@
 #
 #=============================================================================
 
-package Term::CLI::L10N  0.053006;
+package Term::CLI::L10N 0.053006;
 
 use 5.014;
 use warnings;
@@ -40,7 +40,7 @@ sub _init_handle {
     return $lh;
 }
 
-*__ = \&loc;        # Alias __ to loc().
+*__ = \&loc;    # Alias __ to loc().
 
 sub handle {
     return _init_handle();
@@ -52,7 +52,7 @@ sub loc {
 }
 
 sub set_language {
-    my ($self, @args) = @_;
+    my ( $self, @args ) = @_;
 
     $lh = __PACKAGE__->get_handle(@args)
         or croak "No language files for (@args)";
@@ -74,7 +74,7 @@ Term::CLI::L10N - localizations for Term::CLI
  use Term::CLI::L10N qw( :all );
 
  say loc("invalid value"); # "loc" is imported by default.
- 
+
  say __("invalid value");  # "__" is not imported by default.
 
 

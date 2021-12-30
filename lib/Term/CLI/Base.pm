@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Base  0.053006;
+package Term::CLI::Base 0.053006;
 
 use 5.014;
 use warnings;
@@ -32,8 +32,8 @@ use Types::Standard 1.000005 qw(
 use Moo 1.000001;
 use namespace::clean 0.25;
 
-has name => ( is => 'ro', isa => Str, required => 1 );
-has error => ( is => 'rwp', isa => Str, default => sub {q{}} );
+has name  => ( is => 'ro',  isa => Str, required => 1 );
+has error => ( is => 'rwp', isa => Str, default  => sub {q{}} );
 
 sub term { return Term::CLI::ReadLine->term }
 
@@ -44,12 +44,12 @@ sub clear_error {
 }
 
 sub set_error {
-    my ($self, @value) = @_;
-    if (!@value || !defined $value[0]) {
+    my ( $self, @value ) = @_;
+    if ( !@value || !defined $value[0] ) {
         $self->clear_error(q{});
     }
     else {
-        $self->_set_error(join(q{}, @value));
+        $self->_set_error( join( q{}, @value ) );
     }
     return;
 }

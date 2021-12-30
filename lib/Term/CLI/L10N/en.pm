@@ -15,7 +15,7 @@
 #
 #=============================================================================
 
-package Term::CLI::L10N::en  0.053006;
+package Term::CLI::L10N::en 0.053006;
 
 use 5.014;
 use warnings;
@@ -23,9 +23,7 @@ use warnings;
 use parent 0.225 qw( Term::CLI::L10N );
 
 ## no critic (ProhibitPackageVars)
-our %Lexicon = (
-    _AUTO => 1,
-);
+our %Lexicon = ( _AUTO => 1, );
 
 1;
 
@@ -53,7 +51,7 @@ Provide English language strings for L<Term::CLI>(3p).
 
 =head1 VARIABLES
 
-=over 
+=over
 
 =item <%LEXICON>
 

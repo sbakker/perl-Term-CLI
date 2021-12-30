@@ -37,23 +37,22 @@ use namespace::clean 0.25;
 extends 'Term::CLI::Argument';
 
 has 'true_values' => (
-    is => 'rw',
-    isa => ArrayRef[Str],
+    is      => 'rw',
+    isa     => ArrayRef [Str],
     default => sub { [qw( true 1 )] },
 );
 
 has 'false_values' => (
-    is => 'rw',
-    isa => ArrayRef[Str],
+    is      => 'rw',
+    isa     => ArrayRef [Str],
     default => sub { [qw( false 0 )] },
 );
 
 has 'ignore_case' => (
-    is => 'rw',
-    isa => Bool,
-    default => sub { 1 },
+    is      => 'rw',
+    isa     => Bool,
+    default => sub {1},
 );
-
 
 sub validate {
     my $self  = shift;
@@ -61,29 +60,29 @@ sub validate {
 
     defined $self->SUPER::validate($value) or return;
 
-    my ($true, $false);
+    my ( $true, $false );
 
-    if ($self->ignore_case) {
+    if ( $self->ignore_case ) {
         $value = lc $value;
 
-        $true = [ map { lc } @{$self->true_values} ];
-        $false = [ map { lc } @{$self->false_values} ];
+        $true  = [ map {lc} @{ $self->true_values } ];
+        $false = [ map {lc} @{ $self->false_values } ];
     }
     else {
         $true  = $self->true_values;
         $false = $self->false_values;
     }
 
-    my @true_match = grep { rindex($_, $value, 0) == 0 } @{$true};
-    my @false_match = grep { rindex($_, $value, 0) == 0 } @{$false};
+    my @true_match  = grep { rindex( $_, $value, 0 ) == 0 } @{$true};
+    my @false_match = grep { rindex( $_, $value, 0 ) == 0 } @{$false};
 
     if (@true_match) {
         if (@false_match) {
             return $self->set_error(
                 loc('ambiguous boolean value'
-                    .' (matches ~[[_1]~] and ~[[_2]~])',
-                    join(', ', @true_match),
-                    join(', ', @false_match),
+                        . ' (matches ~[[_1]~] and ~[[_2]~])',
+                    join( ', ', @true_match ),
+                    join( ', ', @false_match ),
                 )
             );
         }
@@ -92,24 +91,23 @@ sub validate {
 
     return 0 if @false_match;
 
-    return $self->set_error(loc('invalid boolean value'));
+    return $self->set_error( loc('invalid boolean value') );
 }
 
-
 sub complete {
-    my ($self, $value) = @_;
+    my ( $self, $value ) = @_;
 
-    my @values = ( @{$self->true_values}, @{$self->false_values} );
+    my @values = ( @{ $self->true_values }, @{ $self->false_values } );
 
-    return (sort @values) if $value eq q{};
+    return ( sort @values ) if $value eq q{};
 
-    if ($self->ignore_case) {
-        my @matches
-            = grep { substr(lc $_, 0, length $value) eq lc $value } @values;
+    if ( $self->ignore_case ) {
+        my @matches =
+            grep { substr( lc $_, 0, length $value ) eq lc $value } @values;
 
-        return (sort map { $value.substr $_, length $value } @matches);
+        return ( sort map { $value . substr $_, length $value } @matches );
     }
-    return (sort grep { substr($_, 0, length $value) eq $value } @values);
+    return ( sort grep { substr( $_, 0, length $value ) eq $value } @values );
 }
 
 1;

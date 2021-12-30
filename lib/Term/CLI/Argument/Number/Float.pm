@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Number::Float  0.053006;
+package Term::CLI::Argument::Number::Float 0.053006;
 
 use 5.014;
 use warnings;
@@ -31,8 +31,8 @@ use namespace::clean 0.25;
 extends 'Term::CLI::Argument::Number';
 
 sub coerce_value {
-    my ($self, $arg) = @_;
-    if (looks_like_number($arg)) {
+    my ( $self, $arg ) = @_;
+    if ( looks_like_number($arg) ) {
         return $arg + 0.0;
     }
     ## no critic (ProhibitExplicitReturnUndef)

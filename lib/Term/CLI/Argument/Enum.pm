@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Enum  0.053006;
+package Term::CLI::Argument::Enum 0.053006;
 
 use 5.014;
 use warnings;
@@ -39,8 +39,8 @@ use namespace::clean 0.25;
 extends 'Term::CLI::Argument';
 
 has value_list => (
-    is => 'ro',
-    isa => ArrayRef | CodeRef,
+    is       => 'ro',
+    isa      => ArrayRef | CodeRef,
     required => 1,
 );
 
@@ -54,18 +54,18 @@ sub _fetch_values {
 }
 
 sub validate {
-    my ($self, $value) = @_;
+    my ( $self, $value ) = @_;
 
     defined $self->SUPER::validate($value) or return;
 
     my $value_list = $self->_fetch_values;
 
-    my @found = grep { rindex($_, $value, 0) == 0 } @{$value_list};
-    if (@found == 0) {
-        return $self->set_error(loc("not a valid value"));
+    my @found = grep { rindex( $_, $value, 0 ) == 0 } @{$value_list};
+    if ( @found == 0 ) {
+        return $self->set_error( loc("not a valid value") );
     }
 
-    if (@found == 1) {
+    if ( @found == 1 ) {
         return $found[0];
     }
 
@@ -73,19 +73,18 @@ sub validate {
     # match.
     my $match = first { $_ eq $value } @found
         or return $self->set_error(
-            loc("ambiguous value (matches: [_1])", join(", ", sort @found))
-        );
+        loc( "ambiguous value (matches: [_1])", join( ", ", sort @found ) ) );
     return $match;
 }
 
-
 sub complete {
-    my ($self, $value) = @_;
+    my ( $self, $value ) = @_;
 
     my $value_list = $self->_fetch_values;
 
-    return (sort @{$value_list}) if !length $value;
-    return (sort grep { substr($_,0,length($value)) eq $value } @{$value_list});
+    return ( sort @{$value_list} ) if !length $value;
+    return ( sort grep { substr( $_, 0, length($value) ) eq $value }
+            @{$value_list} );
 }
 
 1;

@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Number::Int  0.053006;
+package Term::CLI::Argument::Number::Int 0.053006;
 
 use 5.014;
 use warnings;
@@ -29,9 +29,9 @@ use namespace::clean 0.25;
 extends 'Term::CLI::Argument::Number';
 
 sub coerce_value {
-    my ($self, $val) = @_;
+    my ( $self, $val ) = @_;
 
-    if ($val =~ /^ [+-]? \d+ $/xsm) {
+    if ( $val =~ /^ [+-]? \d+ $/xsm ) {
         return int($val);
     }
     ## no critic (ProhibitExplicitReturnUndef)

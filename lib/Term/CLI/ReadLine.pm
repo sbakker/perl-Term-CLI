@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::ReadLine  0.053006;
+package Term::CLI::ReadLine 0.053006;
 
 use 5.014;
 use warnings;
@@ -30,17 +30,17 @@ use Term::ReadKey 2.34 ();
 use namespace::clean 0.25;
 
 my $DFL_HIST_SIZE = 500;
-my $HIST_LIMIT    = 2**64-1;
-my $Term = undef;
+my $HIST_LIMIT    = 2**64 - 1;
+my $Term          = undef;
 
 # Since we cannot be sure what type the Term::ReadLine object
 # is (HASH or ARRAY), we'll have to keep some state here.
 
-my $History_Size              = $DFL_HIST_SIZE;
-my @History                   = ();
+my $History_Size = $DFL_HIST_SIZE;
+my @History      = ();
 
 # Keep a filehandle for Term::ReadKey operations.
-my $Term_FH                   = undef;
+my $Term_FH = undef;
 
 # Original_KB_Signals is fetched at `new` time and used to both restore
 # the ControlChars as well as validate given key names: not all
@@ -48,14 +48,14 @@ my $Term_FH                   = undef;
 my %Original_KB_Signals       = ();
 my @Default_Ignore_KB_Signals = qw( QUIT );
 my %Ignore_KB_Signals         = ();
-my %Sig2KeyName = (
+my %Sig2KeyName               = (
     'INT'  => 'INTERRUPT',
     'QUIT' => 'QUIT',
     'TSTP' => 'SUSPEND',
 );
 
 sub new {
-    my ($class, @args) = @_;
+    my ( $class, @args ) = @_;
 
     return $Term if $Term;
 
@@ -67,7 +67,7 @@ sub new {
     %Original_KB_Signals = Term::ReadKey::GetControlChars($Term_FH)
         if $Term_FH;
 
-    if (eval { exists $Term->Attribs->{catch_signals} }) {
+    if ( eval { exists $Term->Attribs->{catch_signals} } ) {
         $Term->Attribs->{catch_signals} = 1;
     }
 
@@ -79,20 +79,20 @@ sub new {
 sub term { return $Term }
 
 sub ignore_keyboard_signals {
-    my ($self, @args) = @_;
+    my ( $self, @args ) = @_;
     foreach my $signame (@args) {
         my $charname = $Sig2KeyName{$signame} or next;
-        $Original_KB_Signals{$charname} or next;
+        $Original_KB_Signals{$charname}       or next;
         $Ignore_KB_Signals{$charname} = q{};
     }
     return;
 }
 
 sub no_ignore_keyboard_signals {
-    my ($self, @args) = @_;
+    my ( $self, @args ) = @_;
     foreach my $signame (@args) {
         my $charname = $Sig2KeyName{$signame} or next;
-        $Original_KB_Signals{$charname} or next;
+        $Original_KB_Signals{$charname}       or next;
         delete $Ignore_KB_Signals{$charname};
     }
     return;
@@ -100,15 +100,15 @@ sub no_ignore_keyboard_signals {
 
 sub _set_ignore_keyboard_signals {
     my ($self) = @_;
-    return if ! $Term_FH;
-    Term::ReadKey::SetControlChars(%Ignore_KB_Signals, $Term_FH);
+    return if !$Term_FH;
+    Term::ReadKey::SetControlChars( %Ignore_KB_Signals, $Term_FH );
     return;
 }
 
 sub _restore_keyboard_signals {
     my ($self) = @_;
-    return if ! $Term_FH;
-    Term::ReadKey::SetControlChars(%Original_KB_Signals, $Term_FH);
+    return if !$Term_FH;
+    Term::ReadKey::SetControlChars( %Original_KB_Signals, $Term_FH );
     return;
 }
 
@@ -121,35 +121,35 @@ sub reset_ignore_keyboard_signals {
 
 sub term_width {
     my $self = shift;
-    my ($rows, $cols) = $self->get_screen_size();
+    my ( $rows, $cols ) = $self->get_screen_size();
     return $cols;
 }
 
 sub term_height {
     my $self = shift;
-    my ($rows, $cols) = $self->get_screen_size();
+    my ( $rows, $cols ) = $self->get_screen_size();
     return $rows;
 }
 
 sub echo_signal_char {
-    my ($self, $sig_arg) = @_;
+    my ( $self, $sig_arg ) = @_;
 
     state $name2int = {
-        'INT' => 2,
+        'INT'  => 2,
         'QUIT' => 3,
         'TSTP' => 20
     };
 
-    if ($self->ReadLine =~ /::Gnu$/x) {
-        if ($sig_arg =~ /\D/x) {
-            $sig_arg = $name2int->{uc $sig_arg} or return;
+    if ( $self->ReadLine =~ /::Gnu$/x ) {
+        if ( $sig_arg =~ /\D/x ) {
+            $sig_arg = $name2int->{ uc $sig_arg } or return;
         }
         return $self->SUPER::echo_signal_char($sig_arg);
     }
 
     state $int2name = { reverse %{$name2int} };
 
-    if ($sig_arg =~ /^\d+$/x) {
+    if ( $sig_arg =~ /^\d+$/x ) {
         $sig_arg = $int2name->{$sig_arg} or return;
     }
     $sig_arg = $Sig2KeyName{$sig_arg} // $sig_arg;
@@ -160,8 +160,8 @@ sub echo_signal_char {
     return;
 }
 
-sub _escape_str { ## no critic (ProhibitUnusedPrivateSubroutines)
-    my ($self, $str) = @_;
+sub _escape_str {    ## no critic (ProhibitUnusedPrivateSubroutines)
+    my ( $self, $str ) = @_;
     $str =~ s/\t/\\t/gx;
     $str =~ s/\n/\\n/gx;
     $str =~ s/\r/\\r/gx;
@@ -177,13 +177,13 @@ sub _escape_str { ## no critic (ProhibitUnusedPrivateSubroutines)
 # implementation handles it, by inserting start/end sequences where
 # necessary.
 sub _prepare_prompt {
-    my ($self, $prompt) = @_;
+    my ( $self, $prompt ) = @_;
 
     return $prompt if $self->ReadLine !~ /::Gnu$/x;
     return $prompt if length $self->Attribs->{term_set}[0] == 0;
 
-    my ($head, $body, $tail) = $prompt =~ /^(\s*)(.*?)(\s*)$/x;
-    return $prompt if ($head eq q{} and $tail eq q{});
+    my ( $head, $body, $tail ) = $prompt =~ /^(\s*)(.*?)(\s*)$/x;
+    return $prompt if ( $head eq q{} and $tail eq q{} );
 
     #say "prompt:       ", $self->_escape_str("<$head><$body><$tail>");
     #say "start_ignore: ", $self->_escape_str($self->RL_PROMPT_START_IGNORE);
@@ -192,29 +192,30 @@ sub _prepare_prompt {
     #say "term_set 1:   ", $self->_escape_str($self->Attribs->{term_set}[1]);
 
     $prompt = q{};
-    if (length $head) {
-        $prompt .= $self->Attribs->{term_set}[1]
-                . $head
-                . $self->Attribs->{term_set}[0]
-                ;
+    if ( length $head ) {
+        $prompt
+            .= $self->Attribs->{term_set}[1]
+            . $head
+            . $self->Attribs->{term_set}[0];
     }
+
     #say $self->_escape_str($prompt);
 
     $prompt .= $body;
+
     #say $self->_escape_str($prompt);
 
-    if (length $tail) {
-        $prompt .= $self->Attribs->{term_set}[1]
-                . $tail
-                ;
+    if ( length $tail ) {
+        $prompt .= $self->Attribs->{term_set}[1] . $tail;
     }
+
     #say $self->_escape_str($prompt);
 
     return $prompt;
 }
 
-sub readline { ## no critic (ProhibitBuiltinHomonyms)
-    my ($self, $prompt) = @_;
+sub readline {    ## no critic (ProhibitBuiltinHomonyms)
+    my ( $self, $prompt ) = @_;
 
     my %old_sig = $self->_set_signal_handlers;
 
@@ -224,10 +225,10 @@ sub readline { ## no critic (ProhibitBuiltinHomonyms)
     $self->_restore_keyboard_signals();
 
     # Restore signal handlers.
-    %SIG = %old_sig; ## no critic (RequireLocalizedPunctuationVars)
+    %SIG = %old_sig;    ## no critic (RequireLocalizedPunctuationVars)
 
-    if (!$self->Features->{autohistory}) {
-        if (defined $input && length($input)) {
+    if ( !$self->Features->{autohistory} ) {
+        if ( defined $input && length($input) ) {
             $self->AddHistory($input);
         }
     }
@@ -254,12 +255,13 @@ sub _set_signal_handlers {
         my ($signal) = @_;
 
         my $this_handler = $SIG{$signal};
-        my $handler = $old_sig{$signal} // q{};
+        my $handler      = $old_sig{$signal} // q{};
 
         $self->deprep_terminal();
         $self->_restore_keyboard_signals();
 
-        if ($handler eq q{} or $handler eq 'DEFAULT') {
+        if ( $handler eq q{} or $handler eq 'DEFAULT' ) {
+
             # We've de-prepped the terminal, now reset the signal handler
             # and re-issue the signal. Since we're inside a signal handler
             # the re-thrown signal will be deferred until we return from
@@ -271,10 +273,11 @@ sub _set_signal_handlers {
             return;
         }
 
-        if (ref $handler) {
+        if ( ref $handler ) {
+
             # Call old signal handler and re-prep the terminal.
-            local($SIG{$signal}) = $handler;
-            $handler->($signal, @_);
+            local ( $SIG{$signal} ) = $handler;
+            $handler->( $signal, @_ );
         }
 
         $self->prep_terminal(1);
@@ -283,7 +286,7 @@ sub _set_signal_handlers {
         return;
     };
 
-    if ($self->ReadLine =~ /::Gnu$/x) {
+    if ( $self->ReadLine =~ /::Gnu$/x ) {
         for my $sig (qw( HUP QUIT ALRM TERM )) {
             $SIG{$sig} = $generic_handler if ref $old_sig{$sig};
         }
@@ -296,7 +299,7 @@ sub _set_signal_handlers {
     # the generic one: we abort the current input line.
     $SIG{INT} = sub {
         my ($signal) = @_;
-        if ($self->ReadLine =~ /::Gnu$/x) {
+        if ( $self->ReadLine =~ /::Gnu$/x ) {
             $self->crlf;
         }
         $self->replace_line(q{});
@@ -315,7 +318,7 @@ sub _set_signal_handlers {
     };
 
     $self->Attribs->{signal_event_hook} = sub {
-        if ($last_sig eq 'CONT') {
+        if ( $last_sig eq 'CONT' ) {
             $self->forced_update_display();
         }
         return 1;
@@ -324,57 +327,55 @@ sub _set_signal_handlers {
     return %old_sig;
 }
 
-
 # Install stubs for common GRL methods.
 sub _install_stubs {
     my ($self) = @_;
 
     return $self if $self->ReadLine =~ /::Gnu$/x;
 
-    no warnings 'once'; ## no critic (ProhibitNoWarnings)
+    no warnings 'once';    ## no critic (ProhibitNoWarnings)
 
     *{free_line_state} = sub { };
     *{crlf}            = sub { $self->OUT->print("\n") };
 
     *{get_screen_size} = sub {
-        my ($width, $height) = Term::ReadKey::GetTerminalSize($Term_FH);
-        return ($height, $width);
+        my ( $width, $height ) = Term::ReadKey::GetTerminalSize($Term_FH);
+        return ( $height, $width );
     };
 
-    if ($self->ReadLine !~ /::Perl$/x) {
-        *{replace_line} =
-        *{prep_terminal} =
-        *{deprep_terminal} =
-        *{forced_update_display} = sub { };
+    if ( $self->ReadLine !~ /::Perl$/x ) {
+        *{replace_line} = *{prep_terminal} = *{deprep_terminal} =
+            *{forced_update_display} = sub { };
 
         return $self;
     }
 
-    *{replace_line} = \&_perl_replace_line;
-    *{prep_terminal} = \&_perl_prep_terminal;
-    *{deprep_terminal} = \&_perl_deprep_terminal;
+    *{replace_line}          = \&_perl_replace_line;
+    *{prep_terminal}         = \&_perl_prep_terminal;
+    *{deprep_terminal}       = \&_perl_deprep_terminal;
     *{forced_update_display} = \&_perl_forced_update_display;
 
     return $self;
 }
+
 # Term::ReadLine::Perl implementations of GRL methods.
 sub _perl_prep_terminal         { readline::SetTTY();    return; }
 sub _perl_deprep_terminal       { readline::ResetTTY();  return; }
 sub _perl_forced_update_display { readline::redisplay(); return; }
 
 sub _perl_replace_line {
-    my ($self, $line) = @_;
+    my ( $self, $line ) = @_;
     $line //= q{};
     ## no critic (ProhibitPackageVars)
     $readline::line = $line;
-    $readline::D = length($line) if $readline::D > length($line);
+    $readline::D    = length($line) if $readline::D > length($line);
     return;
 }
 
 sub ReadHistory {
-    my ($self, $hist_file) = @_;
+    my ( $self, $hist_file ) = @_;
 
-    if ($self->Features->{'readHistory'}) {
+    if ( $self->Features->{'readHistory'} ) {
         return $self->SUPER::ReadHistory($hist_file);
     }
 
@@ -394,41 +395,42 @@ sub ReadHistory {
 }
 
 sub WriteHistory {
-    my ($self, $hist_file) = @_;
+    my ( $self, $hist_file ) = @_;
 
-    if ($self->Features->{'writeHistory'}) {
+    if ( $self->Features->{'writeHistory'} ) {
         return $self->SUPER::WriteHistory($hist_file);
     }
 
     open my $fh, '>', $hist_file or return;
-    print $fh map { "$_\n" } $self->term->GetHistory or return;
-    $fh->close or return;
+    print $fh map {"$_\n"} $self->term->GetHistory or return;
+    $fh->close                                     or return;
     return 1;
 }
 
 *{stifle_history} = \&StifleHistory;
-sub StifleHistory {
-    my ($self, $max) = @_;
 
-    if ($self->Features->{'stiflehistory'}) {
+sub StifleHistory {
+    my ( $self, $max ) = @_;
+
+    if ( $self->Features->{'stiflehistory'} ) {
         return $self->SUPER::StifleHistory($max);
     }
 
     $max //= $HIST_LIMIT;
     $max = 0 if $max <= 0;
 
-    if ($self->ReadLine =~ /::Perl$/x) {
+    if ( $self->ReadLine =~ /::Perl$/x ) {
         ## no critic (ProhibitPackageVars)
         $readline::rl_MaxHistorySize = $max;
         my $cur = int @readline::rl_History;
-        if ($cur > $max) {
-            splice(@readline::rl_History, 0, -$max);
-            $readline::rl_HistoryIndex -= ($cur - $max);
+        if ( $cur > $max ) {
+            splice( @readline::rl_History, 0, -$max );
+            $readline::rl_HistoryIndex -= ( $cur - $max );
         }
         return $max;
     }
 
-    splice(@History, 0, -$max) if @History > $max;
+    splice( @History, 0, -$max ) if @History > $max;
     $History_Size = $max;
     return $max;
 }
@@ -436,18 +438,18 @@ sub StifleHistory {
 sub GetHistory {
     my ($self) = @_;
 
-    if ($self->Features->{'getHistory'}) {
+    if ( $self->Features->{'getHistory'} ) {
         return $self->SUPER::GetHistory();
     }
     return @History;
 }
 
 sub SetHistory {
-    my ($self, @l) = @_;
+    my ( $self, @l ) = @_;
 
-    splice(@l, 0, -$History_Size) if @l > $History_Size;
+    splice( @l, 0, -$History_Size ) if @l > $History_Size;
 
-    if ($self->Features->{'setHistory'}) {
+    if ( $self->Features->{'setHistory'} ) {
         return $self->SUPER::SetHistory(@l);
     }
 
@@ -457,14 +459,14 @@ sub SetHistory {
 }
 
 sub AddHistory {
-    my ($self, @lines) = @_;
+    my ( $self, @lines ) = @_;
 
-    if ($self->Features->{'addHistory'}) {
+    if ( $self->Features->{'addHistory'} ) {
         return $self->SUPER::AddHistory(@lines);
     }
 
     push @History, @lines;
-    splice(@History, 0, -$History_Size) if int(@History) > $History_Size;
+    splice( @History, 0, -$History_Size ) if int(@History) > $History_Size;
     return;
 }
 
