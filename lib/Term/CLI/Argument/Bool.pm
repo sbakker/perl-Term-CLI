@@ -87,13 +87,10 @@ sub validate {
                 )
             );
         }
-        else {
-            return 1;
-        }
+        return 1;
     }
-    elsif (@false_match) {
-        return 0;
-    }
+
+    return 0 if @false_match;
 
     return $self->set_error(loc('invalid boolean value'));
 }
