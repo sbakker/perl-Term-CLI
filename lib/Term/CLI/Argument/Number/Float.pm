@@ -31,9 +31,11 @@ use namespace::clean 0.25;
 extends 'Term::CLI::Argument::Number';
 
 sub coerce_value {
-    if (looks_like_number($_[1])) {
-        return $_[1] + 0.0;
+    my ($self, $arg) = @_;
+    if (looks_like_number($arg)) {
+        return $arg + 0.0;
     }
+    ## no critic (ProhibitExplicitReturnUndef)
     return undef;
 }
 

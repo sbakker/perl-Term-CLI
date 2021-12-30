@@ -231,7 +231,7 @@ sub _get_help_cmd {
     my $style = $args{style} // 'item';
     my @cmd_path = @{$args{cmd_path}};
 
-    my $cmd = $cmd_path[$#cmd_path];
+    my $cmd = $cmd_path[-1];
 
     my $usage_prefix = join(' ',
         map { $_->usage_text(with_options => 'none', with_subcommands => 0) }
@@ -270,7 +270,7 @@ sub _get_help_all_commands {
     my ($self, %args) = @_;
 
     my @cmd_path = @{ $args{cmd_path} // [] };
-    my $cmd = $cmd_path[$#cmd_path] // $self->root_node;
+    my $cmd = $cmd_path[-1] // $self->root_node;
 
     my $pod = '';
 
@@ -297,7 +297,7 @@ sub _get_all_help {
             commands   => [$self->root_node->commands]
         );
 
-    my $pod2 .= "\n=head1 ".loc("COMMANDS")."\n\n"
+    my $pod2 = "\n=head1 ".loc("COMMANDS")."\n\n"
          . "=over\n\n"
          . $self->_get_help_all_commands()
          . "=back\n"
@@ -318,7 +318,7 @@ sub _get_all_help {
 sub complete_line {
     my ($self, @words) = @_;
 
-    my $partial = $words[$#words] // '';
+    my $partial = $words[-1] // '';
 
     # uncoverable branch false
     if ($self->has_options) {
@@ -380,8 +380,8 @@ sub _execute_help {
     my $pager_cmd = $self->pager;
 
     if (@$pager_cmd) {
-        no warnings 'exec';
-        if (!open $pager_fh, "|-", @{$pager_cmd}) {
+        no warnings 'exec'; ## no critic (ProhibitNoWarnings)
+        if (!open $pager_fh, '|-', @{$pager_cmd}) {
             $args{status} = -1;
             $args{error} = loc("cannot run '[_1]': [_2]", $$pager_cmd[0], $!);
             return %args;

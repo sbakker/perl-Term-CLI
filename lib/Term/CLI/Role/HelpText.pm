@@ -53,8 +53,8 @@ has summary => (
 
 
 sub get_options_summary {
-    my $self = shift;
-    my %args = (with_options => 'both', @_);
+    my ($self, @args) = @_;
+    my %args = (with_options => 'both', @args);
 
     my $with_options = 0x00;
 
@@ -106,13 +106,13 @@ sub get_options_summary {
 
 
 sub usage_text {
-    my $self = shift;
+    my ($self, @args) = @_;
 
     my %args = (
         with_options => 'both',
         with_arguments => 1,
         with_subcommands => 1,
-        @_
+        @args,
     );
 
     if ($self->usage) {

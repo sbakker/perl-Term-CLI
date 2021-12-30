@@ -29,11 +29,12 @@ use namespace::clean 0.25;
 extends 'Term::CLI::Argument::Number';
 
 sub coerce_value {
-    my $val = $_[1];
+    my ($self, $val) = @_;
 
     if ($val =~ /^[+-]?\d+$/) {
         return int($val);
     }
+    ## no critic (ProhibitExplicitReturnUndef)
     return undef;
 }
 

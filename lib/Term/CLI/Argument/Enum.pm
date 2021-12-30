@@ -69,6 +69,8 @@ sub validate {
         return $found[0];
     }
 
+    # Multiple prefix matches; only a problem if there is not an *exact*
+    # match.
     my $match = first { $_ eq $value } @found
         or return $self->set_error(
             loc("ambiguous value (matches: [_1])", join(", ", sort @found))
@@ -82,8 +84,8 @@ sub complete {
 
     my $value_list = $self->_fetch_values;
 
-    return sort @{$value_list} if !length $value;
-    return sort grep { substr($_,0,length($value)) eq $value } @{$value_list};
+    return (sort @{$value_list}) if !length $value;
+    return (sort grep { substr($_,0,length($value)) eq $value } @{$value_list});
 }
 
 1;

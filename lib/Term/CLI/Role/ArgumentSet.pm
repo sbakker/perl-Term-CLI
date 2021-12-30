@@ -47,20 +47,22 @@ has _arguments => (
 
 
 sub arguments {
-    return @{$_[0]->_arguments // []};
+    my ($self) = @_;
+    return @{$self->_arguments // []};
 }
 
 
 sub set_arguments {
-    my $self = shift;
+    my ($self, @arguments) = @_;
 
     $self->_set_arguments([]);
-    $self->add_argument(@_);
+    $self->add_argument(@arguments);
+    return;
 }
 
 
 sub has_arguments {
-    my $self = shift;
+    my ($self) = @_;
     return ($self->_arguments and scalar @{$self->_arguments} > 0);
 }
 
@@ -78,7 +80,7 @@ sub add_argument {
 
 
 sub argument_names {
-    my $self = shift;
+    my ($self) = @_;
     return map { $_->name } $self->arguments;
 }
 

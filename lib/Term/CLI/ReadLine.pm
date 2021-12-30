@@ -53,14 +53,14 @@ my %Sig2KeyName = (
     'TSTP' => 'SUSPEND',
 );
 sub new {
-    my $class = shift;
+    my ($class, @args) = shift;
 
     return $Term if $Term;
 
-    $Term = bless Term::ReadLine->new(@_), $class;
+    $Term = bless Term::ReadLine->new(@args), $class;
 
-    $Term_FH = -t $Term->IN ? $Term->IN
-                    : -t $Term->OUT ? $Term->OUT : undef;
+    ## no critic (ProhibitInteractiveTest)
+    $Term_FH = -t $Term->OUT ? $Term->OUT : undef;
 
     %Original_KB_Signals = Term::ReadKey::GetControlChars($Term_FH)
         if $Term_FH;
@@ -83,6 +83,7 @@ sub ignore_keyboard_signals {
         $Original_KB_Signals{$charname} or next;
         $Ignore_KB_Signals{$charname} = '';
     }
+    return;
 }
 
 sub no_ignore_keyboard_signals {
@@ -92,24 +93,28 @@ sub no_ignore_keyboard_signals {
         $Original_KB_Signals{$charname} or next;
         delete $Ignore_KB_Signals{$charname};
     }
+    return;
 }
 
 sub _set_ignore_keyboard_signals {
     my ($self) = @_;
     return if ! $Term_FH;
     Term::ReadKey::SetControlChars(%Ignore_KB_Signals, $Term_FH);
+    return;
 }
 
 sub _restore_keyboard_signals {
     my ($self) = @_;
     return if ! $Term_FH;
     Term::ReadKey::SetControlChars(%Original_KB_Signals, $Term_FH);
+    return;
 }
 
 sub reset_ignore_keyboard_signals {
     my ($self) = @_;
     %Ignore_KB_Signals = ();
     $self->ignore_keyboard_signals(@Default_Ignore_KB_Signals);
+    return;
 }
 
 sub term_width {
@@ -206,7 +211,7 @@ sub _prepare_prompt {
     return $prompt;
 }
 
-sub readline {
+sub readline { ## no critic (ProhibitBuiltinHomonyms)
     my ($self, $prompt) = @_;
 
     my %old_sig = $self->_set_signal_handlers;
@@ -216,7 +221,8 @@ sub readline {
     my $input = $self->SUPER::readline($prompt);
     $self->_restore_keyboard_signals();
 
-    %SIG = %old_sig; # Restore signal handlers.
+    # Restore signal handlers.
+    %SIG = %old_sig; ## no critic (RequireLocalizedPunctuationVars)
 
     if (!$self->Features->{autohistory}) {
         if (defined $input && length($input)) {
@@ -232,6 +238,7 @@ sub readline {
 # face of various signals (^C ^\ ^Z).
 #
 sub _set_signal_handlers {
+    ## no critic (RequireLocalizedPunctuationVars)
     my $self = shift;
 
     my %old_sig = %SIG;
@@ -322,7 +329,7 @@ sub _install_stubs {
 
     return $self if $self->ReadLine =~ /::Gnu$/;
 
-    no warnings 'once';
+    no warnings 'once'; ## no critic (ProhibitNoWarnings)
 
     *{free_line_state} = sub { };
     *{crlf}            = sub { $self->OUT->print("\n") };
@@ -350,9 +357,9 @@ sub _install_stubs {
 }
 
 # Term::ReadLine::Perl implementations of GRL methods.
-sub _perl_prep_terminal         { readline::SetTTY() }
-sub _perl_deprep_terminal       { readline::ResetTTY() }
-sub _perl_forced_update_display { readline::redisplay() }
+sub _perl_prep_terminal         { readline::SetTTY();    return; }
+sub _perl_deprep_terminal       { readline::ResetTTY();  return; }
+sub _perl_forced_update_display { readline::redisplay(); return; }
 
 sub _perl_replace_line {
     my ($self, $line) = @_;

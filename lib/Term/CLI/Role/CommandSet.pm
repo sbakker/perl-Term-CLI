@@ -73,6 +73,7 @@ sub _trigger__commands {
     for my $cmd (@$arg) {
         $cmd->_set_parent($self);
     }
+    return;
 };
 
 
