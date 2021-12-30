@@ -52,8 +52,9 @@ my %Sig2KeyName = (
     'QUIT' => 'QUIT',
     'TSTP' => 'SUSPEND',
 );
+
 sub new {
-    my ($class, @args) = shift;
+    my ($class, @args) = @_;
 
     return $Term if $Term;
 
