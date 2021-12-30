@@ -59,6 +59,9 @@ extends 'Term::CLI::Base';
 
 with('Term::CLI::Role::CommandSet');
 
+my $DFL_HIST_SIZE = 1000;
+my $ERROR_STATUS  = -1;
+
 # Provide a default for 'name'.
 has '+name' => (
     default => sub { $FindBin::Script }
@@ -95,7 +98,7 @@ has history_file => (
 has history_lines => (
     is => 'rw',
     isa => Int,
-    default => sub { 1000 },
+    default => sub { $DFL_HIST_SIZE },
     trigger => 1,
 );
 
@@ -108,7 +111,7 @@ sub BUILD {
     my $term = Term::CLI::ReadLine->new($self->name)->term;
 
     if (my $sig_list = $args->{ignore_keyboard_signals}) {
-        $term->ignore_keyboard_signals(@$sig_list);
+        $term->ignore_keyboard_signals(@{$sig_list});
     }
 
     $term->Attribs->{completion_function} = sub { $self->complete_line(@_) };
@@ -186,12 +189,14 @@ sub _default_split {
         my $delim = $self->word_delimiters;
         $text =~ s/^ [$delim]+ //gxsm;
         my @words = parse_line(qr{ [$delim]+ }xms, 0, $text);
-        pop @words if @words and not defined $words[-1];
-        my $error = @words ? '' : loc('unbalanced quotes in input');
+        if (@words and not defined $words[-1]) {
+            pop @words;
+        }
+        my $error = @words ? q{} : loc('unbalanced quotes in input');
         return ($error, @words);
     }
     else {
-        return ('');
+        return (q{});
     }
 }
 
@@ -204,7 +209,7 @@ sub _default_split {
 sub _is_escaped {
     my ($self, $line, $index) = @_;
     return 0 if not defined $index or $index <= 0;
-    return 0 if substr($line, $index-1, 1) ne '\\';
+    return 0 if substr($line, $index-1, 1) ne q{\\};
     return !$self->_is_escaped($line, $index-1);
 }
 
@@ -247,7 +252,7 @@ sub _split_line {
 # `completion_quote_character` state.
 sub _rl_completion_quote_character {
     my ($self) = @_;
-    my $c = $self->term->Attribs->{completion_quote_character} // '';
+    my $c = $self->term->Attribs->{completion_quote_character} // q{};
     return $c =~ s/\000//rgx;
 }
 
@@ -321,7 +326,7 @@ sub read_history {
     $self->term->ReadHistory($hist_file)
         or return $self->set_error("$hist_file: $!");
     $self->history_file($hist_file);
-    $self->set_error('');
+    $self->clear_error;
     return 1;
 }
 
@@ -334,7 +339,7 @@ sub write_history {
     $self->term->WriteHistory($hist_file)
         or return $self->set_error("$hist_file: $!");
     $self->history_file($hist_file);
-    $self->set_error('');
+    $self->clear_error;
     return 1;
 }
 
@@ -346,7 +351,7 @@ sub execute {
 
     my %args = (
         status       => 0,
-        error        => '',
+        error        => q{},
         command_line => $cmd,
         command_path => [$self],
         unparsed     => \@cmd,
@@ -354,12 +359,12 @@ sub execute {
         arguments    => [],
     );
 
-    return $self->try_callback(%args, status => -1, error => $error)
+    return $self->try_callback(%args, status => $ERROR_STATUS, error => $error)
         if length $error;
 
     if (@cmd == 0) {
         $args{error} = loc("missing command");
-        $args{status} = -1;
+        $args{status} = $ERROR_STATUS;
     }
     elsif (my $cmd_ref = $self->find_command($cmd[0])) {
         %args = $cmd_ref->execute(%args,
@@ -368,7 +373,7 @@ sub execute {
     }
     else {
         $args{error} = $self->error;
-        $args{status} = -1;
+        $args{status} = $ERROR_STATUS;
     }
 
     return $self->try_callback(%args);

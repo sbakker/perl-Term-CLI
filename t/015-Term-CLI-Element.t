@@ -62,19 +62,26 @@ sub check_term: Test(3) {
     #    'M6::CLI::ReadLine selects GNU ReadLine' );
 }
 
-sub check_error: Test(8) {
+sub check_error: Test(10) {
     my $self = shift;
     my $elt = $self->{arg};
+
 
     ok( ! defined $elt->set_error('ERROR'), 'set_error returns undef' );
     is( $elt->error, 'ERROR', "error is ERROR");
 
+    ok( $elt->clear_error, "clear_error() returns success" );
+    is( $elt->error, '', "clear_error() -> error is ''");
+
+    $elt->set_error('ERROR');
     ok( ! defined $elt->set_error(''), "set_error('') returns undef" );
     is( $elt->error, '', "set_error('') -> error is ''");
 
+    $elt->set_error('ERROR');
     ok( ! defined $elt->set_error(), 'set_error returns undef' );
     is( $elt->error, '', "set_error() -> error is ''");
 
+    $elt->set_error('ERROR');
     ok( ! defined $elt->set_error(undef), 'set_error returns undef' );
     is( $elt->error, '', "set_error(undef) -> error is ''");
 }

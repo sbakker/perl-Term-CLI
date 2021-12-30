@@ -67,12 +67,14 @@ sub type {
     return $class =~ s/\A Term::CLI::Argument:://rxms;
 }
 
-before validate => sub { $_[0]->set_error(q{}) };
+before validate => sub {
+    my ($self) = @_;
+    $self->clear_error;
+};
 
 sub validate {
     my ( $self, $value ) = @_;
 
-    $self->set_error(q{});
     if ( not defined $value or $value eq q{} ) {
         return $self->set_error( loc('value cannot be empty') );
     }

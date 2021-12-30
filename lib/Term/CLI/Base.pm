@@ -33,17 +33,23 @@ use Moo 1.000001;
 use namespace::clean 0.25;
 
 has name => ( is => 'ro', isa => Str, required => 1 );
-has error => ( is => 'rwp', isa => Str, default => sub {''} );
+has error => ( is => 'rwp', isa => Str, default => sub {q{}} );
 
 sub term { return Term::CLI::ReadLine->term }
+
+sub clear_error {
+    my ($self) = @_;
+    $self->_set_error(q{});
+    return 1;
+}
 
 sub set_error {
     my ($self, @value) = @_;
     if (!@value || !defined $value[0]) {
-        $self->_set_error('');
+        $self->clear_error(q{});
     }
     else {
-        $self->_set_error(join('', @value));
+        $self->_set_error(join(q{}, @value));
     }
     return;
 }
@@ -102,8 +108,18 @@ The active L<Term::CLI::ReadLine> object.
 
 =item B<set_error> ( I<STRING>, ... )
 
-Set the L<error|/error>() attribute to the concatenation of all I<STRING> parameters
-and return a "failure" (C<undef> or the empty list, depending on call context).
+Sets the L<error|/error>() attribute to the concatenation of all I<STRING>
+parameters.  If no arguments are given, or the first argument is C<undef>,
+the error field is cleared (see L<set_error|/set_error> below).
+
+Always returns a "failure" (C<undef> or the empty list, depending on
+call context).
+
+=back
+
+=item B<clear_error>
+
+Set the L<error|/error>() attribute to the empty string and return 1.
 
 =back
 

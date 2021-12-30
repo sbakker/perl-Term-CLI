@@ -56,7 +56,7 @@ sub option_names {
     my $self = shift;
     my $opt_specs = $self->options or return ();
     my @names;
-    for my $spec (@$opt_specs) {
+    for my $spec (@{$opt_specs}) {
         for my $optname (split(qr{\|}x, $spec =~ s/^([^!+=:]+).*/$1/rx)) {
             push @names, length($optname) == 1 ? "-$optname" : "--$optname";
         }
@@ -68,7 +68,7 @@ sub option_names {
 sub complete_line {
     my ($self, @words) = @_;
 
-    my $partial = $words[-1] // '';
+    my $partial = $words[-1] // q{};
 
     if ($self->has_options) {
 
@@ -85,11 +85,11 @@ sub complete_line {
             # "--foo --" if "--foo" takes an argument. :-/
             $has_terminator = first { $_ eq '--' } @words[0..$#words-1];
             ## no critic (RequireCheckingReturnValueOfEval)
-            eval { GetOptionsFromArray(\@words, \%parsed_opts, @$opt_specs) };
+            eval { GetOptionsFromArray(\@words, \%parsed_opts, @{$opt_specs}) };
         }
         else {
             ## no critic (RequireCheckingReturnValueOfEval)
-            eval { GetOptionsFromArray(\@words, \%parsed_opts, @$opt_specs) };
+            eval { GetOptionsFromArray(\@words, \%parsed_opts, @{$opt_specs}) };
             if (@words > 1 && $words[0] eq '--') {
                 $has_terminator = shift @words;
             }
@@ -136,7 +136,7 @@ sub execute {
     my ($self, %args) = @_;
 
     $args{status} = 0;
-    $args{error}  = '';
+    $args{error}  = q{};
 
     # Dereference and copy arguments/unparsed/options to prevent
     # unwanted side-effects.
@@ -152,9 +152,9 @@ sub execute {
 
         Getopt::Long::Configure(qw(bundling require_order no_pass_through));
 
-        my $error = '';
+        my $error = q{};
         my $ok = do {
-            local( $SIG{__WARN__} ) = sub { chomp($error = join('', @_)) };
+            local( $SIG{__WARN__} ) = sub { chomp($error = join(q{}, @_)) };
             GetOptionsFromArray($args{unparsed}, $args{options}, @$opt_specs);
         };
 
@@ -219,7 +219,7 @@ sub _check_arguments {
 
     my @arg_spec = $self->arguments;
 
-    if (@arg_spec == 0 and @$unparsed > 0) {
+    if (@arg_spec == 0 and @{$unparsed} > 0) {
         return (%args,
             status => -1,
             error => loc('no arguments allowed'),
@@ -228,7 +228,7 @@ sub _check_arguments {
 
     my $argno = 0;
     for my $arg_spec (@arg_spec) {
-        if (@$unparsed < $arg_spec->min_occur) {
+        if (@{$unparsed} < $arg_spec->min_occur) {
             return (%args,
                 status => -1,
                 error => $self->_too_few_args_error($arg_spec),
@@ -237,8 +237,8 @@ sub _check_arguments {
 
         my $args_to_check
             = $arg_spec->max_occur > 0
-                ? min($arg_spec->max_occur, scalar @$unparsed)
-                : scalar @$unparsed;
+                ? min($arg_spec->max_occur, scalar @{$unparsed})
+                : scalar @{$unparsed};
 
         for my $i (1..$args_to_check) {
             my $arg = $unparsed->[0];
@@ -248,11 +248,11 @@ sub _check_arguments {
                 return (%args,
                     status => -1,
                     error => "arg#$argno, '$arg': " . $arg_spec->error
-                           . " ".loc("for")." '" . $arg_spec->name . "'"
+                           . q{ }.loc("for").q{ '}.$arg_spec->name.q{'}
                 );
             }
             push @{$args{arguments}}, $arg_value;
-            shift @$unparsed;
+            shift @{$unparsed};
         }
     }
 
@@ -261,7 +261,7 @@ sub _check_arguments {
     # a max_occur that is exceeded. If the command has no sub-commands that
     # is surely an error. If it does have sub-commands, we'll leave it to
     # be parsed further.
-    if (@$unparsed > 0 && !$self->has_commands) {
+    if (@{$unparsed} > 0 && !$self->has_commands) {
         my $last_spec = $arg_spec[-1];
         return (%args, status => -1,
             error => loc("too many '[_1]' arguments (max. [_2])",
@@ -279,7 +279,7 @@ sub _execute_command {
 
     my $unparsed = $args{unparsed};
 
-    if (@$unparsed == 0) {
+    if (@{$unparsed} == 0) {
         if (scalar $self->commands == 1) {
             my ($cmd) = $self->commands;
             return (%args, status => -1,
@@ -310,7 +310,7 @@ sub _execute_command {
         );
     }
 
-    shift @$unparsed;
+    shift @{$unparsed};
     return $cmd->execute(%args);
 }
 

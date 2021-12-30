@@ -38,7 +38,7 @@ has max_len   => ( is => 'rw', isa => Int, clearer => 1, predicate => 1 );
 sub validate {
     my ($self, $value) = @_;
 
-    $self->set_error('');
+    $self->clear_error;
 
     if (!defined $value) {
         return $self->set_error(loc('value must be defined'));

@@ -59,11 +59,11 @@ sub _glob_complete {
     # If there is more than one possible completion,
     # add filetype suffixes.
     foreach (@list) {
-        if (-l $_) { $_ .= '@'; next }
-        if (-d $_) { $_ .= '/'; next }
-        if (-x $_) { $_ .= '*'; next }
-        if (-S $_) { $_ .= '='; next }
-        if (-p $_) { $_ .= '='; next }
+        if ( -l ) { $_ .= q{@}; next }
+        if ( -d ) { $_ .= q{/}; next }
+        if ( -x ) { $_ .= q{*}; next }
+        if ( -S ) { $_ .= q{=}; next }
+        if ( -p ) { $_ .= q{=}; next }
     }
     return @list;
 }

@@ -30,6 +30,7 @@ use Term::ReadKey 2.34 ();
 use namespace::clean 0.25;
 
 my $DFL_HIST_SIZE = 500;
+my $HIST_LIMIT    = 2**64-1;
 my $Term = undef;
 
 # Since we cannot be sure what type the Term::ReadLine object
@@ -82,7 +83,7 @@ sub ignore_keyboard_signals {
     foreach my $signame (@args) {
         my $charname = $Sig2KeyName{$signame} or next;
         $Original_KB_Signals{$charname} or next;
-        $Ignore_KB_Signals{$charname} = '';
+        $Ignore_KB_Signals{$charname} = q{};
     }
     return;
 }
@@ -141,15 +142,15 @@ sub echo_signal_char {
 
     if ($self->ReadLine =~ /::Gnu$/x) {
         if ($sig_arg =~ /\D/x) {
-            $sig_arg = $$name2int{uc $sig_arg} or return;
+            $sig_arg = $name2int->{uc $sig_arg} or return;
         }
         return $self->SUPER::echo_signal_char($sig_arg);
     }
 
-    state $int2name = { reverse %$name2int };
+    state $int2name = { reverse %{$name2int} };
 
     if ($sig_arg =~ /^\d+$/x) {
-        $sig_arg = $$int2name{$sig_arg} or return;
+        $sig_arg = $int2name->{$sig_arg} or return;
     }
     $sig_arg = $Sig2KeyName{$sig_arg} // $sig_arg;
     my $char = $Original_KB_Signals{$sig_arg} or return;
@@ -182,7 +183,7 @@ sub _prepare_prompt {
     return $prompt if length $self->Attribs->{term_set}[0] == 0;
 
     my ($head, $body, $tail) = $prompt =~ /^(\s*)(.*?)(\s*)$/x;
-    return $prompt if ($head eq '' and $tail eq '');
+    return $prompt if ($head eq q{} and $tail eq q{});
 
     #say "prompt:       ", $self->_escape_str("<$head><$body><$tail>");
     #say "start_ignore: ", $self->_escape_str($self->RL_PROMPT_START_IGNORE);
@@ -190,7 +191,7 @@ sub _prepare_prompt {
     #say "term_set 0:   ", $self->_escape_str($self->Attribs->{term_set}[0]);
     #say "term_set 1:   ", $self->_escape_str($self->Attribs->{term_set}[1]);
 
-    $prompt = '';
+    $prompt = q{};
     if (length $head) {
         $prompt .= $self->Attribs->{term_set}[1]
                 . $head
@@ -244,7 +245,7 @@ sub _set_signal_handlers {
 
     my %old_sig = %SIG;
 
-    my $last_sig = '';
+    my $last_sig = q{};
 
     # The generic signal handler will attempt to re-throw the signal, after
     # putting the terminal in the correct state. Any previously set signal
@@ -253,12 +254,12 @@ sub _set_signal_handlers {
         my ($signal) = @_;
 
         my $this_handler = $SIG{$signal};
-        my $handler = $old_sig{$signal} // '';
+        my $handler = $old_sig{$signal} // q{};
 
         $self->deprep_terminal();
         $self->_restore_keyboard_signals();
 
-        if ($handler eq '' or $handler eq 'DEFAULT') {
+        if ($handler eq q{} or $handler eq 'DEFAULT') {
             # We've de-prepped the terminal, now reset the signal handler
             # and re-issue the signal. Since we're inside a signal handler
             # the re-thrown signal will be deferred until we return from
@@ -298,7 +299,7 @@ sub _set_signal_handlers {
         if ($self->ReadLine =~ /::Gnu$/x) {
             $self->crlf;
         }
-        $self->replace_line('');
+        $self->replace_line(q{});
         $generic_handler->($signal);
         return 1;
     };
@@ -363,7 +364,7 @@ sub _perl_forced_update_display { readline::redisplay(); return; }
 
 sub _perl_replace_line {
     my ($self, $line) = @_;
-    $line //= '';
+    $line //= q{};
     ## no critic (ProhibitPackageVars)
     $readline::line = $line;
     $readline::D = length($line) if $readline::D > length($line);
@@ -381,7 +382,7 @@ sub ReadHistory {
 
     my @history;
     while (<$fh>) {
-        next if /^$/x;
+        next if $_ eq "\n";
         chomp;
         shift @history if @history == $History_Size;
         push @history, $_;
@@ -413,7 +414,7 @@ sub StifleHistory {
         return $self->SUPER::StifleHistory($max);
     }
 
-    $max //= 1e12;
+    $max //= $HIST_LIMIT;
     $max = 0 if $max <= 0;
 
     if ($self->ReadLine =~ /::Perl$/x) {
