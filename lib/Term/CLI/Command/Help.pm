@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Command::Help  0.053006 {
+package Term::CLI::Command::Help  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Pod::Text::Termcap 2.06;
@@ -408,8 +407,6 @@ sub _execute_help {
         }
     }
     return %args;
-}
-
 }
 
 1;

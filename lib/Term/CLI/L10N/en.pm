@@ -15,10 +15,9 @@
 #
 #=============================================================================
 
-package Term::CLI::L10N::en  0.053006 {
+package Term::CLI::L10N::en  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use parent 0.225 qw( Term::CLI::L10N );
@@ -26,8 +25,6 @@ use parent 0.225 qw( Term::CLI::L10N );
 our %Lexicon = (
     _AUTO => 1,
 );
-
-}
 
 1;
 

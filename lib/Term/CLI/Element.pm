@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Element  0.053006 {
+package Term::CLI::Element  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Term::CLI::ReadLine;
@@ -34,8 +33,6 @@ use namespace::clean 0.25;
 extends 'Term::CLI::Base';
 
 sub complete { return () }
-
-}
 
 1;
 

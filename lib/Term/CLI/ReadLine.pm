@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::ReadLine  0.053006 {
+package Term::CLI::ReadLine  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use parent 0.225 qw( Term::ReadLine );
@@ -459,7 +458,6 @@ sub AddHistory {
     return;
 }
 
-}
 1;
 
 __END__

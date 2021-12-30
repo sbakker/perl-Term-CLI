@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument  0.053006 {
+package Term::CLI::Argument  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Moo 1.000001;
@@ -76,8 +75,6 @@ sub validate {
         return $self->set_error(loc('value cannot be empty'));
     }
     return $value;
-}
-
 }
 
 1;

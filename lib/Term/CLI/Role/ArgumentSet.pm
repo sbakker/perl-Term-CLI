@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Role::ArgumentSet  0.053006 {
+package Term::CLI::Role::ArgumentSet  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Types::Standard 1.000005 qw(
@@ -81,9 +80,6 @@ sub add_argument {
 sub argument_names {
     my $self = shift;
     return map { $_->name } $self->arguments;
-}
-
-
 }
 
 1;

@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Number::Int  0.053006 {
+package Term::CLI::Argument::Number::Int  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Moo 1.000001;
@@ -36,8 +35,6 @@ sub coerce_value {
         return int($val);
     }
     return undef;
-}
-
 }
 
 1;

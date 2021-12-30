@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Role::CommandSet  0.053006 {
+package Term::CLI::Role::CommandSet  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Term::CLI::L10N;
@@ -159,8 +158,6 @@ sub try_callback {
     else {
         return %args;
     }
-}
-
 }
 
 1;

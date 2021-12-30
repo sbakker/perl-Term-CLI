@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Number  0.053006 {
+package Term::CLI::Argument::Number  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Term::CLI::L10N;
@@ -69,8 +68,6 @@ sub validate {
         }
     }
     return $num;
-}
-
 }
 
 1;

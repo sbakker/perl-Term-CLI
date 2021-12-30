@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Command  0.053006 {
+package Term::CLI::Command  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use List::Util 1.23 qw( first min );
@@ -312,9 +311,6 @@ sub _execute_command {
 
     shift @$unparsed;
     return $cmd->execute(%args);
-}
-
-
 }
 
 1;

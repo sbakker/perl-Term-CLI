@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::String  0.053006 {
+package Term::CLI::Argument::String  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Term::CLI::L10N;
@@ -56,8 +55,6 @@ sub validate {
         );
     }
     return $value;
-}
-
 }
 
 1;

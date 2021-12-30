@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI  0.053006 {
+package Term::CLI 0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Text::ParseWords 3.27 qw( parse_line );
@@ -368,8 +367,6 @@ sub execute {
     }
 
     return $self->try_callback(%args);
-}
-
 }
 
 1;

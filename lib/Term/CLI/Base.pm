@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Base  0.053006 {
+package Term::CLI::Base  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Term::CLI::ReadLine;
@@ -47,8 +46,6 @@ sub set_error {
         $self->_set_error(join('', @value));
     }
     return;
-}
-
 }
 
 1;

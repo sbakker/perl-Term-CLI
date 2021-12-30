@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Filename  0.053006 {
+package Term::CLI::Argument::Filename  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Moo 1.000001;
@@ -73,7 +72,6 @@ sub _glob_complete {
     return @list;
 }
 
-}
 1;
 
 __END__

@@ -18,9 +18,7 @@
 #
 #=============================================================================
 
-# Circumvent bug in perlcritic
-## no critic (RequireUseStrict, RequireUseWarnings)
-package Term::CLI::Argument::Bool 0.053006 {
+package Term::CLI::Argument::Bool 0.053006;
 
 use 5.014;
 use warnings;
@@ -115,8 +113,6 @@ sub complete {
         return (sort map { $value.substr $_, length $value } @matches);
     }
     return (sort grep { substr($_, 0, length $value) eq $value } @values);
-}
-
 }
 
 1;

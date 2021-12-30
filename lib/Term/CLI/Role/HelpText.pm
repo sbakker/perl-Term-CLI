@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Role::HelpText  0.053006 {
+package Term::CLI::Role::HelpText  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Types::Standard 1.000005 qw(
@@ -187,9 +186,6 @@ sub usage_text {
     else {
         return "$usage_prefix$usage_suffix";
     }
-}
-
-
 }
 
 1;

@@ -16,10 +16,9 @@
 #
 #=============================================================================
 
-package Term::CLI::L10N  0.053006 {
+package Term::CLI::L10N  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use parent 0.225 qw( Locale::Maketext Exporter );
@@ -57,8 +56,6 @@ sub set_language {
     $lh = __PACKAGE__->get_handle(@_)
         or die "No language files for (@_)";
     return $lh;
-}
-
 }
 
 1;

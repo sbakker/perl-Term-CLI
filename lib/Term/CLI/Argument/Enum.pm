@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Enum  0.053006 {
+package Term::CLI::Argument::Enum  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Term::CLI::L10N;
@@ -85,8 +84,6 @@ sub complete {
 
     return sort @{$value_list} if !length $value;
     return sort grep { substr($_,0,length($value)) eq $value } @{$value_list};
-}
-
 }
 
 1;

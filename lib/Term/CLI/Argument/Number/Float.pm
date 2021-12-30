@@ -18,10 +18,9 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Number::Float  0.053006 {
+package Term::CLI::Argument::Number::Float  0.053006;
 
 use 5.014;
-use strict;
 use warnings;
 
 use Scalar::Util 1.23 qw( looks_like_number );
@@ -36,8 +35,6 @@ sub coerce_value {
         return $_[1] + 0.0;
     }
     return undef;
-}
-
 }
 
 1;

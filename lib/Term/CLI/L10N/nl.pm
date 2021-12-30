@@ -15,13 +15,10 @@
 #
 #=============================================================================
 
-package Term::CLI::L10N::nl;
+package Term::CLI::L10N::nl 0.053006;
 
 use 5.014;
-use strict;
 use warnings;
-
-our $VERSION = 0.053006;
 
 use parent 0.225 qw( Term::CLI::L10N );
 
