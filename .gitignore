@@ -3,6 +3,7 @@
 *.bak
 *.old
 *.lock
+*.tdy-orig
 .build/
 _build/
 blib/
