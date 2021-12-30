@@ -23,16 +23,20 @@ use warnings;
 
 use parent 0.225 qw( Locale::Maketext Exporter );
 
+use Carp qw( croak );
+
+use namespace::clean;
+
 BEGIN {
     our @EXPORT_OK   = qw( __ loc );
     our %EXPORT_TAGS = ( 'all' => \@EXPORT_OK );
 }
 
-our $lh;
+my $lh;
 
 sub _init_handle {
     $lh //= __PACKAGE__->get_handle() || __PACKAGE__->get_handle('en');
-    $lh or die "No language files for 'en'";
+    $lh or croak "No language files for 'en'";
     return $lh;
 }
 
@@ -51,7 +55,7 @@ sub set_language {
     my ($self, @args) = @_;
 
     $lh = __PACKAGE__->get_handle(@args)
-        or die "No language files for (@args)";
+        or croak "No language files for (@args)";
     return $lh;
 }
 

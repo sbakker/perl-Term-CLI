@@ -139,8 +139,8 @@ sub echo_signal_char {
         'TSTP' => 20
     };
 
-    if ($self->ReadLine =~ /::Gnu$/) {
-        if ($sig_arg =~ /\D/) {
+    if ($self->ReadLine =~ /::Gnu$/x) {
+        if ($sig_arg =~ /\D/x) {
             $sig_arg = $$name2int{uc $sig_arg} or return;
         }
         return $self->SUPER::echo_signal_char($sig_arg);
@@ -148,24 +148,24 @@ sub echo_signal_char {
 
     state $int2name = { reverse %$name2int };
 
-    if ($sig_arg =~ /^\d+$/) {
+    if ($sig_arg =~ /^\d+$/x) {
         $sig_arg = $$int2name{$sig_arg} or return;
     }
     $sig_arg = $Sig2KeyName{$sig_arg} // $sig_arg;
     my $char = $Original_KB_Signals{$sig_arg} or return;
-    $char =~ s/([\000-\037])/'^'.chr(ord($1)+ord('@'))/ge;
+    $char =~ s{ ([\000-\037]) }{'^'.chr(ord($1)+ord('@'))}gex;
     $self->OUT->print($char);
 
     return;
 }
 
-sub _escape_str {
+sub _escape_str { ## no critic (ProhibitUnusedPrivateSubroutines)
     my ($self, $str) = @_;
-    $str =~ s/\t/\\t/g;
-    $str =~ s/\n/\\n/g;
-    $str =~ s/\r/\\r/g;
-    $str =~ s/([\177-\377])/sprintf("\\%03o", ord($1))/ge;
-    $str =~ s/([\000-\037])/'^'.chr(ord($1)+ord('@'))/ge;
+    $str =~ s/\t/\\t/gx;
+    $str =~ s/\n/\\n/gx;
+    $str =~ s/\r/\\r/gx;
+    $str =~ s/([\177-\377])/sprintf("\\%03o", ord($1))/gex;
+    $str =~ s/([\000-\037])/'^'.chr(ord($1)+ord('@'))/gex;
     return $str;
 }
 
@@ -178,10 +178,10 @@ sub _escape_str {
 sub _prepare_prompt {
     my ($self, $prompt) = @_;
 
-    return $prompt if $self->ReadLine !~ /::Gnu$/;
+    return $prompt if $self->ReadLine !~ /::Gnu$/x;
     return $prompt if length $self->Attribs->{term_set}[0] == 0;
 
-    my ($head, $body, $tail) = $prompt =~ /^(\s*)(.*?)(\s*)$/;
+    my ($head, $body, $tail) = $prompt =~ /^(\s*)(.*?)(\s*)$/x;
     return $prompt if ($head eq '' and $tail eq '');
 
     #say "prompt:       ", $self->_escape_str("<$head><$body><$tail>");
@@ -282,7 +282,7 @@ sub _set_signal_handlers {
         return;
     };
 
-    if ($self->ReadLine =~ /::Gnu$/) {
+    if ($self->ReadLine =~ /::Gnu$/x) {
         for my $sig (qw( HUP QUIT ALRM TERM )) {
             $SIG{$sig} = $generic_handler if ref $old_sig{$sig};
         }
@@ -295,7 +295,7 @@ sub _set_signal_handlers {
     # the generic one: we abort the current input line.
     $SIG{INT} = sub {
         my ($signal) = @_;
-        if ($self->ReadLine =~ /::Gnu$/) {
+        if ($self->ReadLine =~ /::Gnu$/x) {
             $self->crlf;
         }
         $self->replace_line('');
@@ -328,7 +328,7 @@ sub _set_signal_handlers {
 sub _install_stubs {
     my ($self) = @_;
 
-    return $self if $self->ReadLine =~ /::Gnu$/;
+    return $self if $self->ReadLine =~ /::Gnu$/x;
 
     no warnings 'once'; ## no critic (ProhibitNoWarnings)
 
@@ -340,7 +340,7 @@ sub _install_stubs {
         return ($height, $width);
     };
 
-    if ($self->ReadLine !~ /::Perl$/) {
+    if ($self->ReadLine !~ /::Perl$/x) {
         *{replace_line} =
         *{prep_terminal} =
         *{deprep_terminal} =
@@ -356,7 +356,6 @@ sub _install_stubs {
 
     return $self;
 }
-
 # Term::ReadLine::Perl implementations of GRL methods.
 sub _perl_prep_terminal         { readline::SetTTY();    return; }
 sub _perl_deprep_terminal       { readline::ResetTTY();  return; }
@@ -365,6 +364,7 @@ sub _perl_forced_update_display { readline::redisplay(); return; }
 sub _perl_replace_line {
     my ($self, $line) = @_;
     $line //= '';
+    ## no critic (ProhibitPackageVars)
     $readline::line = $line;
     $readline::D = length($line) if $readline::D > length($line);
     return;
@@ -381,7 +381,7 @@ sub ReadHistory {
 
     my @history;
     while (<$fh>) {
-        next if /^$/;
+        next if /^$/x;
         chomp;
         shift @history if @history == $History_Size;
         push @history, $_;
@@ -416,7 +416,8 @@ sub StifleHistory {
     $max //= 1e12;
     $max = 0 if $max <= 0;
 
-    if ($self->ReadLine =~ /::Perl$/) {
+    if ($self->ReadLine =~ /::Perl$/x) {
+        ## no critic (ProhibitPackageVars)
         $readline::rl_MaxHistorySize = $max;
         my $cur = int @readline::rl_History;
         if ($cur > $max) {

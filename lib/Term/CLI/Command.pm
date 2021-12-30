@@ -57,7 +57,7 @@ sub option_names {
     my $opt_specs = $self->options or return ();
     my @names;
     for my $spec (@$opt_specs) {
-        for my $optname (split(qr/\|/, $spec =~ s/^([^!+=:]+).*/$1/r)) {
+        for my $optname (split(qr{\|}x, $spec =~ s/^([^!+=:]+).*/$1/rx)) {
             push @names, length($optname) == 1 ? "-$optname" : "--$optname";
         }
     }
@@ -84,15 +84,17 @@ sub complete_line {
             # Try to work around the bug. Can still be fooled by
             # "--foo --" if "--foo" takes an argument. :-/
             $has_terminator = first { $_ eq '--' } @words[0..$#words-1];
+            ## no critic (RequireCheckingReturnValueOfEval)
             eval { GetOptionsFromArray(\@words, \%parsed_opts, @$opt_specs) };
         }
         else {
+            ## no critic (RequireCheckingReturnValueOfEval)
             eval { GetOptionsFromArray(\@words, \%parsed_opts, @$opt_specs) };
             if (@words > 1 && $words[0] eq '--') {
                 $has_terminator = shift @words;
             }
         }
-        if (!$has_terminator && @words <= 1 && $partial =~ /^-/) {
+        if (!$has_terminator && @words <= 1 && $partial =~ /^-/x) {
             # We have to complete a command-line option.
             return grep { rindex($_, $partial, 0) == 0 } $self->option_names;
         }
@@ -225,7 +227,6 @@ sub _check_arguments {
     }
 
     my $argno = 0;
-    my @parsed_args;
     for my $arg_spec (@arg_spec) {
         if (@$unparsed < $arg_spec->min_occur) {
             return (%args,

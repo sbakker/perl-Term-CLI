@@ -66,7 +66,7 @@ has callback => (
 #
 # Trigger to run whenever the object's _commands array ref is set.
 #
-sub _trigger__commands {
+sub _trigger__commands { ## no critic (ProhibitUnusedPrivateSubroutines)
     my ($self, $arg) = @_;
     # No need to check for defined-ness of $arg.
     # The writer method already checks & croaks.

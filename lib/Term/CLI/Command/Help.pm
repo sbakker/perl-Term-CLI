@@ -130,11 +130,11 @@ sub _make_command_summary {
                 $usage
             );
             $full_pod .= "=item $item_text\n\n";
-            my $l = length($item_text =~ s/[BCEIL]<([^>]*)>/$1/gr);
+            my $l = length($item_text =~ s/[BCEIL] < ([^>]*) >/$1/grx);
             $item_length = $l if $l > $item_length;
         }
         $full_pod .= $cmd_ref->summary;
-        $full_pod =~ s/\n*$/\n\n/s;
+        $full_pod =~ s/\n*$/\n\n/sx;
     }
 
     my $max_over_width = int(($self->term->term_width - 4) / 2);
@@ -145,8 +145,8 @@ sub _make_command_summary {
 
     # Format POD to text, remove extraneous empty lines.
     $text = $self->_format_pod($full_pod);
-    $text =~ s/\n\n+/\n/gs;
-    $text =~ s/^\n+//;
+    $text =~ s/\n\n+/\n/gxs;
+    $text =~ s/^\n+//x;
 
     return ($full_pod, $text);
 }
@@ -154,8 +154,6 @@ sub _make_command_summary {
 
 sub _get_help {
     my ($self, %args) = @_;
-
-    my $text = '';
 
     # Handle "--all" in a separate routine.
     if ($args{options}->{all}) {
@@ -199,7 +197,7 @@ sub _get_help {
         style => 'head1',
     );
 
-    $pod =~ s/\n*$/\n\n/s;
+    $pod =~ s/\n*$/\n\n/sx;
 
     my $pod2txt = $self->_format_pod($pod);
 
@@ -217,11 +215,10 @@ sub _get_help {
 
     # Play fast and loose with the POD formatter output.
     # Remove leading and trailing newlines.
-    $pod2txt =~ s/^\n+//s;
-    $pod2txt =~ s/\n+$//s;
-    $text .= "$pod2txt\n";
+    $pod2txt =~ s/^\n+//sx;
+    $pod2txt =~ s/\n+$//sx;
 
-    return (%args, pod => $pod, text => $text);
+    return (%args, pod => $pod, text => $pod2txt."\n");
 }
 
 
@@ -251,7 +248,7 @@ sub _get_help_cmd {
         $pod .= "$usage_prefix$usage\n\n";
     }
 
-    $pod =~ s/\n*$//s;
+    $pod =~ s/\n*$//sx;
     $pod .= "\n\n";
 
     my $description = ($cmd->description || $cmd->summary);
@@ -260,7 +257,7 @@ sub _get_help_cmd {
         $pod .= $description;
     }
 
-    $pod =~ s/\n*$/\n\n/s;
+    $pod =~ s/\n*$/\n\n/sx;
 
     return $pod;
 }
@@ -307,8 +304,8 @@ sub _get_all_help {
 
     # Play fast and loose with the POD formatter output.
     # Remove leading and trailing newlines.
-    $txt2 =~ s/^\n+//s;
-    $txt2 =~ s/\n+$//s;
+    $txt2 =~ s/^\n+//sx;
+    $txt2 =~ s/\n+$//sx;
     $txt2 .= "\n";
 
     return (%args, pod => $pod1.$pod2, text => "$txt1\n$txt2");
@@ -331,9 +328,10 @@ sub complete_line {
 
         my $has_terminator = first { $_ eq '--' } @words[0..$#words-1];
 
+        ## no critic (RequireCheckingReturnValueOfEval)
         eval { GetOptionsFromArray(\@words, \%parsed_opts, @$opt_specs) };
 
-        if (!$has_terminator && @words <= 1 && $partial =~ /^-/) {
+        if (!$has_terminator && @words <= 1 && $partial =~ /^-/x) {
             # We have to complete a command-line option.
             return grep { rindex($_, $partial, 0) == 0 } $self->option_names;
         }

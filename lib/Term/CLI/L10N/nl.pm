@@ -24,6 +24,7 @@ use parent 0.225 qw( Term::CLI::L10N );
 
 use Locale::Maketext::Lexicon::Gettext 1.00;
 
+## no critic (ProhibitPackageVars)
 our %Lexicon = %{ Locale::Maketext::Lexicon::Gettext->parse(<DATA>) };
 close DATA;
 
@@ -38,32 +39,32 @@ sub singularize {
     local($_) = shift;
 
     # -zen, -ven -> -s, -f
-    s/zen$/s/ and return $_;
-    s/ven$/f/ and return $_;
+    s/zen$/s/x and return $_;
+    s/ven$/f/x and return $_;
 
     # -eu?en, -ei?en
-    s/(eu|ei)([^aeiou])en$/$1$2/ and return $_;
+    s/(eu|ei)([^aeiou])en$/$1$2/x and return $_;
     
     # gelegenheden -> gelegenheid
-    s/heden$/heid/ and return $_;
+    s/heden$/heid/x and return $_;
 
     # musea -> museum
     # aquaria -> aquarium
-    s/([ei])a$/$1um/  and return $_;
+    s/([ei])a$/$1um/x  and return $_;
 
     # rijen -> rij
-    s/ijen$/ij/ and return $_;
+    s/ijen$/ij/x and return $_;
 
     # leraren -> leraar
-    s/([aeiou])([^aeiou])en$/$1$1$2/ and return $_;
+    s/([aeiou])([^aeiou])en$/$1$1$2/x and return $_;
     
     # ballen -> bal
-    s/([^aeiou])\1en$/$1/ and return $_;
+    s/([^aeiou])\1en$/$1/x and return $_;
 
     # schermen -> scherm
     # auto's   -> auto
     # lepels   -> lepel
-    return s/(?:'?en|'s|s)$//r;
+    return s/(?:'?en|'s|s)$//rx;
 }
 
 

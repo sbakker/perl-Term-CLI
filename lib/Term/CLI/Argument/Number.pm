@@ -24,6 +24,7 @@ use 5.014;
 use warnings;
 
 use Term::CLI::L10N qw( loc );
+use Carp qw( croak );
 
 use Moo 1.000001;
 use namespace::clean 0.25;
@@ -35,7 +36,7 @@ has max => ( is => 'rw', clearer => 1, predicate => 1 );
 has inclusive => ( is => 'rw', default => sub {1} );
 
 sub coerce_value {
-    die "coerce_value() has not been overloaded";
+    croak "coerce_value() has not been overloaded";
 }
 
 sub validate {

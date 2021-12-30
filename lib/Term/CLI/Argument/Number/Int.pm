@@ -31,7 +31,7 @@ extends 'Term::CLI::Argument::Number';
 sub coerce_value {
     my ($self, $val) = @_;
 
-    if ($val =~ /^[+-]?\d+$/) {
+    if ($val =~ /^ [+-]? \d+ $/xsm) {
         return int($val);
     }
     ## no critic (ProhibitExplicitReturnUndef)

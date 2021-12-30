@@ -22,6 +22,7 @@ use warnings;
 
 use parent 0.225 qw( Term::CLI::L10N );
 
+## no critic (ProhibitPackageVars)
 our %Lexicon = (
     _AUTO => 1,
 );

@@ -122,9 +122,9 @@ sub BUILD {
 
     if (!exists $args->{history_file}) {
         my $hist_file = $self->name;
-        $hist_file =~ s{^/}{}g;
-        $hist_file =~ s{/$}{}g;
-        $hist_file =~ s{/+}{-}g;
+        $hist_file =~ s{^/}{}gx;
+        $hist_file =~ s{/$}{}gx;
+        $hist_file =~ s{/+}{-}gx;
         $self->history_file("$::ENV{HOME}/.${hist_file}_history");
     }
 
@@ -145,7 +145,7 @@ sub DEMOLISH {
     return;
 }
 
-sub _trigger_history_lines {
+sub _trigger_history_lines { ## no critic (ProhibitUnusedPrivateSubroutines)
     my ($self, $arg) = @_;
 
     # Terminal may not be initialiased yet...
@@ -182,10 +182,10 @@ sub _default_callback {
 sub _default_split {
     my ($self, $text) = @_;
 
-    if ($text =~ /\S/) {
+    if ($text =~ /\S/xsm) {
         my $delim = $self->word_delimiters;
-        $text =~ s/^[$delim]+//;
-        my @words = parse_line(qr{[$delim]+}, 0, $text);
+        $text =~ s/^ [$delim]+ //gxsm;
+        my @words = parse_line(qr{ [$delim]+ }xms, 0, $text);
         pop @words if @words and not defined $words[-1];
         my $error = @words ? '' : loc('unbalanced quotes in input');
         return ($error, @words);
@@ -248,7 +248,7 @@ sub _split_line {
 sub _rl_completion_quote_character {
     my ($self) = @_;
     my $c = $self->term->Attribs->{completion_quote_character} // '';
-    return $c =~ s/\000//gr;
+    return $c =~ s/\000//rgx;
 }
 
 # See POD X<complete_line>
@@ -291,7 +291,7 @@ sub complete_line {
     }
     else {
         my $delim = $self->word_delimiters;
-        return map { s/([$delim])/\\$1/gr } @list;
+        return map { s/([$delim])/\\$1/rgx } @list;
     }
 }
 

@@ -72,27 +72,33 @@ sub get_options_summary {
     my $short_opts_no_arg = '';
     if (my $opt_specs = $self->options) {
         for my $spec (@$opt_specs) {
-            my $long_arg = my $short_arg = '';
-            if ($spec =~ /=(.*)$/) {
-                $long_arg = "=I<$1>";
-                $short_arg = "I<$1>";
-            }
-            elsif ($spec =~ /:(.*)$/) {
-                $long_arg = "[=I<$1>]";
-                $short_arg = "[I<$1>]";
-            }
-            for my $optname (split(qr/\|/, $spec =~ s/^([^!+=:]+).*/$1/r)) {
-                if (length $optname == 1) {
-                    if ($with_options & 0x01) {
-                        if (length $short_arg == 0) {
-                            $short_opts_no_arg .= $optname;
-                        }
-                        else {
-                            push @options, "[B<-$optname>$short_arg]";
-                        }
-                    }
+            my ($opt_names, $arg_req, $opt_arg)
+                = $spec =~ m{
+                    \A ([^!+=:]+)
+                    (?: ([:=]) (.*) )?
+                }xms;
+
+            my $long_arg = my $short_arg = q{};
+            if (defined $opt_arg) {
+                $long_arg  = "=I<$opt_arg>";
+                $short_arg = "I<$opt_arg>";
+                if ($arg_req eq ':') {
+                    $long_arg = "[$long_arg]";
+                    $short_arg = "[$short_arg]";
                 }
-                elsif ($with_options & 0x02) {
+            }
+
+            for my $optname ( split qr{ \| }x, $opt_names ) {
+                if (length $optname == 1) {
+                    next unless $with_options & 0x01;
+                    if (length $short_arg == 0) {
+                        $short_opts_no_arg .= $optname;
+                        next;
+                    }
+                    push @options, "[B<-$optname>$short_arg]";
+                    next;
+                }
+                if ($with_options & 0x02) {
                     push @options, "[B<--$optname>$long_arg]";
                 }
             }
@@ -104,6 +110,50 @@ sub get_options_summary {
     return join(' ', @options);
 }
 
+
+sub _usage_arg_str {
+    my ($self, $arg) = @_;
+
+    my $name = $arg->name;
+    my $str = $arg->max_occur > 1 ? "I<${name}1>" : "I<$name>";
+
+    if ($arg->min_occur > 1) {
+        for my $n (2..$arg->min_occur) {
+            $str .= " I<${name}$n>";
+        }
+    }
+
+    SWITCH: {
+        if ($arg->max_occur <= 0) {
+            $str .= ' ...';
+            last SWITCH;
+        }
+        if ($arg->max_occur == $arg->min_occur + 1) {
+            if ($arg->max_occur > 1) {
+                $str .= " [I<${name}".$arg->max_occur.">]";
+            }
+            last SWITCH;
+        }
+        if ($arg->max_occur == 2 && $arg->min_occur <= 1) {
+            $str .= " [I<${name}".$arg->max_occur.">]";
+            last SWITCH;
+        }
+        if ($arg->max_occur > $arg->min_occur) {
+            $str .= ' ['
+                    . "I<$name".($arg->min_occur+1).">"
+                    . ' ... '
+                    . "I<$name".$arg->max_occur.">"
+                    . ']'
+                    ;
+            last SWITCH;
+        }
+    }
+
+    if ($arg->min_occur <= 0) {
+        $str = "[$str]";
+    }
+    return $str;
+}
 
 sub usage_text {
     my ($self, @args) = @_;
@@ -123,42 +173,8 @@ sub usage_text {
     my $usage_suffix = '';
 
     if ($args{with_arguments} and $self->has_arguments) {
-        my @args;
-        for my $arg ($self->arguments) {
-            #my $name = 'I<'.$arg->name.'>';
-            my $name = $arg->name;
-            my $str = $arg->max_occur > 1 ? "I<${name}1>" : "I<$name>";
-
-            if ($arg->min_occur > 1) {
-                for my $n (2..$arg->min_occur) {
-                    $str .= " I<${name}$n>";
-                }
-            }
-
-            if ($arg->max_occur <= 0) {
-                $str .= ' ...';
-            }
-            elsif ($arg->max_occur == $arg->min_occur + 1) {
-                $str .= " [I<${name}".$arg->max_occur.">]" if $arg->max_occur > 1;
-            }
-            elsif ($arg->max_occur == 2 && $arg->min_occur <= 1) {
-                $str .= " [I<${name}".$arg->max_occur.">]";
-            }
-            elsif ($arg->max_occur > $arg->min_occur) {
-                $str .= ' ['
-                        . "I<$name".($arg->min_occur+1).">"
-                        . ' ... '
-                        . "I<$name".$arg->max_occur.">"
-                        . ']'
-                        ;
-            }
-
-            if ($arg->min_occur <= 0) {
-                $str = "[$str]";
-            }
-            push @args, $str;
-        }
-        $usage_suffix = join(' ', @args);
+        my @arg_l = map { $self->_usage_arg_str($_) } $self->arguments;
+        $usage_suffix = join(' ', @arg_l);
     }
 
     if ($args{with_subcommands} and $self->has_commands) {
