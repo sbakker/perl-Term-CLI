@@ -17,6 +17,7 @@ sub Main {
             : 0
     );
     Term_CLI_Command_Help_test->runtests();
+    return;
 }
 
 package Term_CLI_Command_Help_test {
@@ -81,6 +82,7 @@ sub startup : Test(startup => 1) {
 
     $self->{cli} = $cli;
     $self->{commands} = [@commands];
+    return;
 }
 
 
@@ -106,6 +108,7 @@ sub check_pager : Test(3) {
     %args = $cli->execute('help');
     is($args{status}, 1<<8, 'pager exit status propagates to status')
         or diag("got status=$args{status}; error='$args{error}'");
+    return;
 }
 
 
@@ -197,6 +200,7 @@ sub check_help : Test(14) {
     ok($args{status} < 0, '"help --bad foo" results in an error');
     like($args{error}, qr/Unknown option: bad/, 'error is set correctly');
 
+    return;
 }
 
 sub check_complete : Test(7) {
@@ -268,6 +272,7 @@ sub check_complete : Test(7) {
             "'$line$text' completions are (@expected)")
     or diag("complete_line('$text','$line$text',$start) returned: (", join(", ", map {"'$_'"} @got), ")");
 
+    return;
 }
 
 }
