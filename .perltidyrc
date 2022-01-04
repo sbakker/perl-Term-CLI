@@ -1,4 +1,4 @@
--l=80   # Max line width
+-l=78   # Max line width
 -i=4    # Indent level is 4 cols
 -ci=4   # Continuation indent is 4 cols
 -nst    # Don't output to STDOUT
