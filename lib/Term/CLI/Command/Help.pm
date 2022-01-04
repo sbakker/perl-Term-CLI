@@ -22,13 +22,20 @@ package Term::CLI::Command::Help 0.053006;
 
 use 5.014;
 use warnings;
+use version;
 
-use Pod::Text::Termcap 2.06;
 use List::Util 1.23 qw( first min );
 use File::Which 1.09;
 use Types::Standard 1.000005 qw( ArrayRef Str );
 use Getopt::Long 2.38 qw( GetOptionsFromArray );
 use Term::CLI::L10N qw( loc );
+
+use Pod::Text::Termcap    2.06;
+use Pod::Text::Overstrike 2.04;
+
+my $POD_PARSER_CLASS = $Pod::Text::Termcap::VERSION >= 4.11
+    ? 'Pod::Text::Termcap'
+    : 'Pod::Text::Overstrike';
 
 my @PAGERS = (
     [   qw(
@@ -100,8 +107,10 @@ sub _format_pod {
     my $text = shift;
 
     my $output;
+
     my $parser =
-        Pod::Text::Termcap->new( width => $self->term->term_width - 1 );
+        $POD_PARSER_CLASS->new( width => $self->term->term_width - 1 );
+
     $parser->output_string( \$output );
     $parser->parse_string_document($text);
     return $output;
@@ -221,9 +230,12 @@ sub _get_help_cmd {
 
     my $cmd = $cmd_path[-1];
 
-    my $usage_prefix = join( ' ',
-        map { $_->usage_text( with_options => 'none', with_subcommands => 0 ) }
-            @cmd_path[ 0 .. $#cmd_path - 1 ] );
+    my $usage_prefix = join(
+        ' ',
+        map {
+            $_->usage_text( with_options => 'none', with_subcommands => 0 )
+        } @cmd_path[ 0 .. $#cmd_path - 1 ]
+    );
 
     $usage_prefix .= ' ' if length $usage_prefix;
 
@@ -320,7 +332,8 @@ sub complete_line {
         if ( !$has_terminator && @words <= 1 && $partial =~ /^-/x ) {
 
             # We have to complete a command-line option.
-            return grep { rindex( $_, $partial, 0 ) == 0 } $self->option_names;
+            return
+                grep { rindex( $_, $partial, 0 ) == 0 } $self->option_names;
         }
     }
 
@@ -339,7 +352,8 @@ sub complete_line {
     }
     elsif ( $cur_cmd_ref->has_commands && @words == 1 ) {
         return
-            grep { rindex( $_, $partial, 0 ) == 0 } $cur_cmd_ref->command_names;
+            grep { rindex( $_, $partial, 0 ) == 0 }
+            $cur_cmd_ref->command_names;
     }
     return ();
 }
@@ -362,28 +376,31 @@ sub _execute_help {
         return %args;
     }
 
-    my $pager_fh;
     my $pager_cmd = $self->pager;
 
     if (@$pager_cmd) {
         no warnings 'exec';    ## no critic (ProhibitNoWarnings)
-        if ( !open $pager_fh, '|-', @{$pager_cmd} ) {
+        local ( $SIG{PIPE} ) = 'IGNORE';    # Temporarily avoid accidents.
+
+        my $pager_fh;
+        if (! open $pager_fh, '|-', @{$pager_cmd}) {
             $args{status} = -1;
-            $args{error} = loc( "cannot run '[_1]': [_2]", $$pager_cmd[0], $! );
+            $args{error} =
+                loc( "cannot run '[_1]': [_2]", $$pager_cmd[0], $! );
             return %args;
         }
 
-        local ( $SIG{PIPE} ) = 'IGNORE';    # Temporarily avoid accidents.
         print $pager_fh $args{text};
-
         $pager_fh->close;
+
         $args{status} = $?;
         $args{error}  = $! if $args{status} != 0;
     }
     else {
-        if ( !open $pager_fh, '>&', \*STDOUT ) {
+        my $pager_fh;
+        if (! open $pager_fh, '>&', \*STDOUT) {
             $args{status} = -1;
-            $args{error}  = "dup(STDOUT): $!";
+            $args{error}  = "cannot dup STDOUT: $!";
             return %args;
         }
         print $pager_fh $args{text};
