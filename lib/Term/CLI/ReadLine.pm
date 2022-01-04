@@ -217,15 +217,14 @@ sub _prepare_prompt {
 sub readline {    ## no critic (ProhibitBuiltinHomonyms)
     my ( $self, $prompt ) = @_;
 
-    my %old_sig = $self->_set_signal_handlers;
+    local(%SIG) = %SIG;
+
+    $self->_set_signal_handlers;
 
     $prompt = $self->_prepare_prompt($prompt);
     $self->_set_ignore_keyboard_signals();
     my $input = $self->SUPER::readline($prompt);
     $self->_restore_keyboard_signals();
-
-    # Restore signal handlers.
-    %SIG = %old_sig;    ## no critic (RequireLocalizedPunctuationVars)
 
     if ( !$self->Features->{autohistory} ) {
         if ( defined $input && length($input) ) {
@@ -244,9 +243,9 @@ sub _set_signal_handlers {
     ## no critic (RequireLocalizedPunctuationVars)
     my $self = shift;
 
-    my %old_sig = %SIG;
+    my %old_SIG = %SIG;
 
-    my $last_sig = q{};
+    my $most_recent_signal = q{};
 
     # The generic signal handler will attempt to re-throw the signal, after
     # putting the terminal in the correct state. Any previously set signal
@@ -255,7 +254,7 @@ sub _set_signal_handlers {
         my ($signal) = @_;
 
         my $this_handler = $SIG{$signal};
-        my $handler      = $old_sig{$signal} // q{};
+        my $handler      = $old_SIG{$signal} // q{};
 
         $self->deprep_terminal();
         $self->_restore_keyboard_signals();
@@ -273,9 +272,8 @@ sub _set_signal_handlers {
             return;
         }
 
+        # Call old signal handler and re-prep the terminal.
         if ( ref $handler ) {
-
-            # Call old signal handler and re-prep the terminal.
             local ( $SIG{$signal} ) = $handler;
             $handler->( $signal, @_ );
         }
@@ -288,7 +286,7 @@ sub _set_signal_handlers {
 
     if ( $self->ReadLine =~ /::Gnu$/x ) {
         for my $sig (qw( HUP QUIT ALRM TERM )) {
-            $SIG{$sig} = $generic_handler if ref $old_sig{$sig};
+            $SIG{$sig} = $generic_handler if ref $old_SIG{$sig};
         }
     }
     else {
@@ -311,20 +309,24 @@ sub _set_signal_handlers {
     # In case we get suspended, make sure we redraw the CLI on wake-up.
     $SIG{CONT} = sub {
         my ($signal) = @_;
-        $last_sig = $signal;
-        $old_sig{$signal}->(@_) if ref $old_sig{$signal};
+        $most_recent_signal = $signal;
+        $old_SIG{$signal}->(@_) if ref $old_SIG{$signal};
         $self->_set_ignore_keyboard_signals();
         return 1;
     };
 
+    # GNU readline will call the signal_event_hook after handling
+    # a signal, so use this to force a display update after a 'CONT'
+    # signal.
     $self->Attribs->{signal_event_hook} = sub {
-        if ( $last_sig eq 'CONT' ) {
+        if ( $most_recent_signal eq 'CONT' ) {
             $self->forced_update_display();
         }
+        $most_recent_signal = '';
         return 1;
     };
 
-    return %old_sig;
+    return %old_SIG;
 }
 
 # Install stubs for common GRL methods.
