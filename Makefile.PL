@@ -19,6 +19,7 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Carp" => "1.20",
     "Exporter" => "5.64",
+    "Fcntl" => 0,
     "File::Glob" => 0,
     "File::Which" => "1.09",
     "FindBin" => "1.50",
@@ -28,6 +29,7 @@ my %WriteMakefileArgs = (
     "Locale::Maketext::Lexicon::Gettext" => "1.00",
     "Moo" => "1.000001",
     "Moo::Role" => 0,
+    "Pod::Text::Overstrike" => "2.04",
     "Pod::Text::Termcap" => "2.06",
     "Scalar::Util" => "1.23",
     "Term::ReadKey" => "2.34",
@@ -38,6 +40,7 @@ my %WriteMakefileArgs = (
     "namespace::clean" => "0.25",
     "parent" => "0.225",
     "subs" => "1.00",
+    "version" => 0,
     "warnings" => "1.00"
   },
   "TEST_REQUIRES" => {
@@ -54,7 +57,7 @@ my %WriteMakefileArgs = (
     "strict" => "1.00",
     "warnings" => "1.00"
   },
-  "VERSION" => "0.053006",
+  "VERSION" => "0.054001",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -64,6 +67,7 @@ my %WriteMakefileArgs = (
 my %FallbackPrereqs = (
   "Carp" => "1.20",
   "Exporter" => "5.64",
+  "Fcntl" => 0,
   "File::Glob" => 0,
   "File::Temp" => "0.22",
   "File::Which" => "1.09",
@@ -75,6 +79,7 @@ my %FallbackPrereqs = (
   "Moo" => "1.000001",
   "Moo::Role" => 0,
   "Pod::Coverage::TrustPod" => 0,
+  "Pod::Text::Overstrike" => "2.04",
   "Pod::Text::Termcap" => "2.06",
   "Scalar::Util" => "1.23",
   "Term::ReadKey" => "2.34",
@@ -94,6 +99,7 @@ my %FallbackPrereqs = (
   "parent" => "0.225",
   "strict" => "1.00",
   "subs" => "1.00",
+  "version" => 0,
   "warnings" => "1.00"
 );
 

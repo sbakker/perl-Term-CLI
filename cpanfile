@@ -3,6 +3,7 @@
 
 requires "Carp" => "1.20";
 requires "Exporter" => "5.64";
+requires "Fcntl" => "0";
 requires "File::Glob" => "0";
 requires "File::Which" => "1.09";
 requires "FindBin" => "1.50";
@@ -12,6 +13,7 @@ requires "Locale::Maketext" => "1.19";
 requires "Locale::Maketext::Lexicon::Gettext" => "1.00";
 requires "Moo" => "1.000001";
 requires "Moo::Role" => "0";
+requires "Pod::Text::Overstrike" => "2.04";
 requires "Pod::Text::Termcap" => "2.06";
 requires "Scalar::Util" => "1.23";
 requires "Term::ReadKey" => "2.34";
@@ -23,6 +25,7 @@ requires "namespace::clean" => "0.25";
 requires "parent" => "0.225";
 requires "perl" => "5.014_001";
 requires "subs" => "1.00";
+requires "version" => "0";
 requires "warnings" => "1.00";
 
 on 'test' => sub {

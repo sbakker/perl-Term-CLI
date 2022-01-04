@@ -32,7 +32,7 @@ while (<>) {
         (?<version> (?:\s* \S+)?)
         (?<tail>    \s* [\{\;])
     )(
-        $+{head} . "  " . new_version($+{version}) . $+{tail}
+        $+{head} . q{ } . new_version($+{version}) . $+{tail}
     )exm;
 
     # Update classic $VERSION assignment.

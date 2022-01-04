@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Command::Help 0.053006;
+package Term::CLI::Command::Help 0.054001;
 
 use 5.014;
 use warnings;
