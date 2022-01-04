@@ -182,19 +182,22 @@ sub _default_callback {
 sub _default_split {
     my ( $self, $text ) = @_;
 
-    if ( $text =~ /\S/xsm ) {
-        my $delim = $self->word_delimiters;
-        $text =~ s/^ [$delim]+ //gxsm;
-        my @words = parse_line( qr{ [$delim]+ }xms, 0, $text );
-        if ( @words and not defined $words[-1] ) {
-            pop @words;
-        }
-        my $error = @words ? q{} : loc('unbalanced quotes in input');
-        return ( $error, @words );
+    my $delim = $self->word_delimiters;
+
+    $text =~ s/^ [$delim]+ //gxsm; # Strip leading delimiters.
+
+    return (q{}) if length $text == 0; # Blank line.
+
+    my @words = parse_line( qr{ [$delim]+ }xms, 0, $text );
+
+    return ( loc('unbalanced quotes in input') ) if !@words;
+
+    # If the text ends in one or more delimiters, the last word will be
+    # "undef", but it's not an errror, so just eliminate it.
+    if ( @words > 0 && !defined $words[-1] ) {
+        pop @words;
     }
-    else {
-        return (q{});
-    }
+    return ( q{}, @words );
 }
 
 # BOOL = CLI->_is_escaped($line, $index);
@@ -286,14 +289,11 @@ sub complete_line {
         @list = $cmd->complete_line( @words[ 1 .. $#words ] );
     }
 
+    return @list if length $quote_char; # No need to worry about spaces.
+
     # Escape spaces in reply if necessary.
-    if ( length $quote_char ) {
-        return @list;
-    }
-    else {
-        my $delim = $self->word_delimiters;
-        return map {s/([$delim])/\\$1/rgx} @list;
-    }
+    my $delim = $self->word_delimiters;
+    return map {s/([$delim])/\\$1/rgx} @list;
 }
 
 sub readline {    ## no critic (ProhibitBuiltinHomonyms)

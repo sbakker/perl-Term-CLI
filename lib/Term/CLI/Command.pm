@@ -126,7 +126,7 @@ sub complete_line {
         if ( @words <= 1 ) {
             return grep { rindex( $_, $partial, 0 ) == 0 } $self->command_names;
         }
-        elsif ( my $cmd = $self->find_command( $words[0] ) ) {
+        if ( my $cmd = $self->find_command( $words[0] ) ) {
             return $cmd->complete_line( @words[ 1 .. $#words ] );
         }
     }
@@ -185,23 +185,19 @@ sub _too_few_args_error {
         if ( $arg_spec->min_occur == 1 ) {
             return loc( "missing '[_1]' argument", $arg_spec->name );
         }
-        else {
-            return loc( "need [_1] '[_2]' [numerate,_1,argument]",
+        return loc( "need [_1] '[_2]' [numerate,_1,argument]",
                 $arg_spec->min_occur, $arg_spec->name, );
-        }
     }
-    elsif ( $arg_spec->max_occur - $arg_spec->min_occur == 1 ) {
+    if ( $arg_spec->max_occur - $arg_spec->min_occur == 1 ) {
         return loc( "need [_1] or [_2] '[_3]' arguments",
             $arg_spec->min_occur, $arg_spec->max_occur, $arg_spec->name, );
     }
-    elsif ( $arg_spec->max_occur > 1 ) {
+    if ( $arg_spec->max_occur > 1 ) {
         return loc( "need between [_1] and [_2] '[_3]' arguments",
             $arg_spec->min_occur, $arg_spec->max_occur, $arg_spec->name, );
     }
-    else {
-        return loc( "need at least [_1] '[_2]' [numerate,_1,argument]",
+    return loc( "need at least [_1] '[_2]' [numerate,_1,argument]",
             $arg_spec->min_occur, $arg_spec->name, );
-    }
 }
 
 sub _check_arguments {

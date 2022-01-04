@@ -131,17 +131,15 @@ sub find_command {
     if ( @matches == 1 ) {
         return $matches[0];
     }
-    elsif ( @matches == 0 ) {
+    if ( @matches == 0 ) {
         return $self->set_error( loc( "unknown command '[_1]'", $partial ) );
     }
-    else {
-        return $self->set_error(
-            loc("ambiguous command '[_1]' (matches: [_2])",
-                $partial,
-                join( ', ', sort map { $_->name } @matches )
-            )
-        );
-    }
+    return $self->set_error(
+        loc("ambiguous command '[_1]' (matches: [_2])",
+            $partial,
+            join( ', ', sort map { $_->name } @matches )
+        )
+    );
 }
 
 sub try_callback {
@@ -150,9 +148,7 @@ sub try_callback {
     if ( $self->has_callback && defined $self->callback ) {
         return $self->callback->( $self, %args );
     }
-    else {
-        return %args;
-    }
+    return %args;
 }
 
 1;

@@ -350,7 +350,7 @@ sub complete_line {
     if ( @words == 0 ) {
         return $cur_cmd_ref->name;
     }
-    elsif ( $cur_cmd_ref->has_commands && @words == 1 ) {
+    if ( $cur_cmd_ref->has_commands && @words == 1 ) {
         return
             grep { rindex( $_, $partial, 0 ) == 0 }
             $cur_cmd_ref->command_names;

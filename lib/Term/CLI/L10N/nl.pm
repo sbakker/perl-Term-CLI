@@ -78,17 +78,18 @@ sub numerate {
 
     my $is_plural = ( $num != 1 );
 
-    return '' unless @forms;
-    if ( @forms == 1 ) {    # only plural specified
-        my $word = $forms[0];
-        if ($is_plural) {
-            return $word;
-        }
-        return $handle->singularize($word);
-    }
-    else {                  # Both plural and singular are supplied
+    return '' if @forms == 0;
+
+    if (@forms > 1) {       # Both plural and singular are supplied
         return $is_plural ? $forms[0] : $forms[1];
     }
+
+    # Only plural specified
+    my $word = $forms[0];
+    if ($is_plural) {
+        return $word;
+    }
+    return $handle->singularize($word);
 }
 
 1;

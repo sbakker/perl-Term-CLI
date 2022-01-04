@@ -198,9 +198,7 @@ sub usage_text {
     if ( length $opts ) {
         return "$usage_prefix $opts$usage_suffix";
     }
-    else {
-        return "$usage_prefix$usage_suffix";
-    }
+    return "$usage_prefix$usage_suffix";
 }
 
 1;

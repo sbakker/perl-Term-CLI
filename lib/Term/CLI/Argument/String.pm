@@ -48,7 +48,7 @@ sub validate {
         return $self->set_error(
             loc( "too short (min. length [_1])", $self->min_len ) );
     }
-    elsif ( $self->has_max_len && length $value > $self->max_len ) {
+    if ( $self->has_max_len && length $value > $self->max_len ) {
         return $self->set_error(
             loc( "too long (max. length [_1])", $self->max_len ) );
     }

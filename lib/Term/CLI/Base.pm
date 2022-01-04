@@ -47,10 +47,9 @@ sub set_error {
     my ( $self, @value ) = @_;
     if ( !@value || !defined $value[0] ) {
         $self->clear_error(q{});
+        return
     }
-    else {
-        $self->_set_error( join( q{}, @value ) );
-    }
+    $self->_set_error( join( q{}, @value ) );
     return;
 }
 

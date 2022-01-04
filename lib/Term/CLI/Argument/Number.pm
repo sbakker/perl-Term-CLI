@@ -56,7 +56,7 @@ sub validate {
         if ( $self->has_min && $num < $self->min ) {
             return $self->set_error( loc('too small') );
         }
-        elsif ( $self->has_max && $num > $self->max ) {
+        if ( $self->has_max && $num > $self->max ) {
             return $self->set_error( loc('too large') );
         }
     }
@@ -64,7 +64,7 @@ sub validate {
         if ( $self->has_min && $num <= $self->min ) {
             return $self->set_error( loc('too small') );
         }
-        elsif ( $self->has_max && $num >= $self->max ) {
+        if ( $self->has_max && $num >= $self->max ) {
             return $self->set_error( loc('too large') );
         }
     }
