@@ -114,8 +114,6 @@ the error field is cleared (see L<set_error|/set_error> below).
 Always returns a "failure" (C<undef> or the empty list, depending on
 call context).
 
-=back
-
 =item B<clear_error>
 
 Set the L<error|/error>() attribute to the empty string and return 1.
