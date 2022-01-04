@@ -217,7 +217,7 @@ sub _prepare_prompt {
 sub readline {    ## no critic (ProhibitBuiltinHomonyms)
     my ( $self, $prompt ) = @_;
 
-    local(%SIG) = %SIG;
+    local (%SIG) = %SIG;
 
     $self->_set_signal_handlers;
 
