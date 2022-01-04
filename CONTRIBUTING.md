@@ -19,7 +19,7 @@ Issues should be filed on Github:
 
 Patches for fixes, features, and improvements are accepted via pull requests.
 
-Pull requests should be based on the **master branch**, unless you want to contribute to an active branch for a specific topic.
+Pull requests should be based on the **dev branch**, unless you want to contribute to an active branch for a specific topic.
 
  * https://github.com/sbakker/perl-Term-CLI
 
