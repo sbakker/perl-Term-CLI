@@ -44,6 +44,7 @@ my %WriteMakefileArgs = (
     "warnings" => "1.00"
   },
   "TEST_REQUIRES" => {
+    "Capture::Tiny" => "0.48",
     "File::Temp" => "0.22",
     "Pod::Coverage::TrustPod" => 0,
     "Test::Class" => 0,
@@ -54,10 +55,11 @@ my %WriteMakefileArgs = (
     "Test::Output" => "1.03",
     "Test::Pod" => 0,
     "Test::Pod::Coverage" => 0,
+    "charnames" => 0,
     "strict" => "1.00",
     "warnings" => "1.00"
   },
-  "VERSION" => "0.054001",
+  "VERSION" => "0.054002",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -65,6 +67,7 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
+  "Capture::Tiny" => "0.48",
   "Carp" => "1.20",
   "Exporter" => "5.64",
   "Fcntl" => 0,
@@ -95,6 +98,7 @@ my %FallbackPrereqs = (
   "Test::Pod::Coverage" => 0,
   "Text::ParseWords" => "3.27",
   "Types::Standard" => "1.000005",
+  "charnames" => 0,
   "namespace::clean" => "0.25",
   "parent" => "0.225",
   "strict" => "1.00",

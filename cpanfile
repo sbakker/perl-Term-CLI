@@ -29,6 +29,7 @@ requires "version" => "0";
 requires "warnings" => "1.00";
 
 on 'test' => sub {
+  requires "Capture::Tiny" => "0.48";
   requires "File::Temp" => "0.22";
   requires "Pod::Coverage::TrustPod" => "0";
   requires "Test::Class" => "0";
@@ -39,6 +40,7 @@ on 'test' => sub {
   requires "Test::Output" => "1.03";
   requires "Test::Pod" => "0";
   requires "Test::Pod::Coverage" => "0";
+  requires "charnames" => "0";
   requires "perl" => "5.014_001";
   requires "strict" => "1.00";
   requires "warnings" => "1.00";
