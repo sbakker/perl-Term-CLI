@@ -99,7 +99,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc Changes cpanfile examples LICENSE META.json README tutorial
+%doc README.md Changes LICENSE Contributors CONTRIBUTING.md
+%doc tutorial examples
 %{perl_vendorlib}/*
 %{_mandir}/man3/*
 
