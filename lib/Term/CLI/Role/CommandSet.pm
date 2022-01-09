@@ -116,12 +116,12 @@ sub find_matches {
 }
 
 sub root_node {
-    my $curr_node = shift;
+    my $self = my $curr_node = shift;
 
     while ( my $parent = $curr_node->parent ) {
         $curr_node = $parent;
     }
-    return $curr_node;
+    return $curr_node // $self;
 }
 
 sub find_command {
@@ -149,6 +149,97 @@ sub try_callback {
         return $self->callback->( $self, %args );
     }
     return %args;
+}
+
+# CLI->_set_completion_attribs();
+#
+# Set some attributes in the Term::ReadLine object related to
+# custom completion.
+#
+sub _set_completion_attribs {
+    my $self = shift;
+    my $root = $self->root_node;
+    my $term = $root->term;
+
+
+    # set Completion for current object
+    $term->Attribs->{completion_function} = sub { $self->_complete_line( @_ ) };
+
+    # Default: '"
+    $term->Attribs->{completer_quote_characters} = $root->quote_characters;
+
+    # Default: \n\t\\"'`@$><=;|&{( and <space>
+    $term->Attribs->{completer_word_break_characters} = $root->word_delimiters;
+
+    # Default: <space>
+    $term->Attribs->{completion_append_character} =
+        substr( $root->word_delimiters, 0, 1 );
+
+    return;
+}
+
+# See POD X<complete_line>
+sub _complete_line {
+    my ( $self, $text, $line, $start ) = @_;
+
+    my $root = $self->root_node;
+
+    $self->_set_completion_attribs;
+
+    my $quote_char = $root->_rl_completion_quote_character;
+
+    my @words;
+
+    if ( $start > 0 ) {
+        if ( length $quote_char ) {
+
+            # ReadLine thinks the $text to be completed is quoted.
+            # The quote character will precede the $start of $text.
+            # Make sure we do not include it in the text to break
+            # into words...
+            ( my $err, @words ) =
+                $root->_split_line( substr( $line, 0, $start - 1 ) );
+        }
+        else {
+            ( my $err, @words ) =
+                $root->_split_line( substr( $line, 0, $start ) );
+        }
+    }
+
+    push @words, $text;
+
+    my @list;
+
+    if ( @words == 1 ) {
+        @list = grep { rindex( $_, $words[0], 0 ) == 0 } $self->command_names;
+    }
+    elsif ( my $cmd = $self->find_command( $words[0] ) ) {
+        @list = $cmd->complete_line( @words[ 1 .. $#words ] );
+    }
+
+    return @list if length $quote_char; # No need to worry about spaces.
+
+    # Escape spaces in reply if necessary.
+    my $delim = $root->word_delimiters;
+    return map {s/([$delim])/\\$1/rgx} @list;
+}
+
+sub readline {    ## no critic (ProhibitBuiltinHomonyms)
+    my ( $self, %args ) = @_;
+
+    my $root = $self->root_node;
+
+    my $prompt = $args{prompt} // $self->prompt;
+    my $skip   = exists $args{skip} ? $args{skip} : $root->skip;
+
+    $self->_set_completion_attribs;
+
+    my $input;
+    while ( defined( $input = $root->term->readline($prompt) ) ) {
+        next if defined $skip && $input =~ $skip;
+        last;
+    }
+    return $input;
 }
 
 1;

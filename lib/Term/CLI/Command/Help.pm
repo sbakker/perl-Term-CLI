@@ -167,7 +167,7 @@ sub _get_help {
         my ( $pod, $text ) = $self->_make_command_summary(
             cmd_path   => [],
             pod_prefix => "=head2 " . loc("Commands") . ":\n\n",
-            commands   => [ $self->root_node->commands ]
+            commands   => [ $self->parent->commands ]
         );
         return ( %args, pod => $pod, text => $text );
     }
@@ -175,7 +175,7 @@ sub _get_help {
     # We've been given arguments to "help". Find the
     # appropriate command object, and work from there.
 
-    my $cur_cmd_ref = $self->root_node;
+    my $cur_cmd_ref = $self->parent;
     my @cmd_ref_path;
 
     for my $cmd_name ( @{ $args{arguments} } ) {
@@ -268,7 +268,7 @@ sub _get_help_all_commands {
     my ( $self, %args ) = @_;
 
     my @cmd_path = @{ $args{cmd_path} // [] };
-    my $cmd      = $cmd_path[-1] // $self->root_node;
+    my $cmd      = $cmd_path[-1] // $self->parent;
 
     my $pod = '';
 
@@ -289,7 +289,7 @@ sub _get_all_help {
     my ( $pod1, $txt1 ) = $self->_make_command_summary(
         cmd_path   => [],
         pod_prefix => "=head1 " . loc("COMMAND SUMMARY") . "\n\n",
-        commands   => [ $self->root_node->commands ]
+        commands   => [ $self->parent->commands ]
     );
 
     my $pod2 =
@@ -337,7 +337,7 @@ sub complete_line {
         }
     }
 
-    my $cur_cmd_ref = $self->root_node;
+    my $cur_cmd_ref = $self->parent;
     while (@words) {
         my $new_cmd_ref = $cur_cmd_ref->find_command( $words[0] );
         if ( !$new_cmd_ref ) {
