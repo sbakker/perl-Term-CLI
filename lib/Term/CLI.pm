@@ -60,7 +60,6 @@ extends 'Term::CLI::Base';
 with('Term::CLI::Role::CommandSet');
 
 my $DFL_HIST_SIZE = 1000;
-my $ERROR_STATUS  = -1;
 
 # Provide a default for 'name'.
 has '+name' => ( default => sub {$FindBin::Script} );
@@ -231,8 +230,7 @@ sub _rl_completion_quote_character {
 
 # See POD X<complete_line>
 sub complete_line {
-    my $self = shift;
-    $self->_complete_line( @_ );
+    shift()->_complete_line( @_ );
 }
 
 sub read_history {
@@ -260,37 +258,7 @@ sub write_history {
 }
 
 sub execute {
-    my ( $self, $cmd ) = @_;
-
-    my ( $error, @cmd ) = $self->_split_line($cmd);
-
-    my %args = (
-        status       => 0,
-        error        => q{},
-        command_line => $cmd,
-        command_path => [$self],
-        unparsed     => \@cmd,
-        options      => {},
-        arguments    => [],
-    );
-
-    return $self->try_callback( %args, status => $ERROR_STATUS,
-        error => $error )
-        if length $error;
-
-    if ( @cmd == 0 ) {
-        $args{error}  = loc("missing command");
-        $args{status} = $ERROR_STATUS;
-    }
-    elsif ( my $cmd_ref = $self->find_command( $cmd[0] ) ) {
-        %args = $cmd_ref->execute( %args, unparsed => [ @cmd[ 1 .. $#cmd ] ] );
-    }
-    else {
-        $args{error}  = $self->error;
-        $args{status} = $ERROR_STATUS;
-    }
-
-    return $self->try_callback(%args);
+    shift()->_execute( @_ );
 }
 
 1;

@@ -172,7 +172,8 @@ sub execute {
             %args = $self->_check_arguments(%args);
         }
     }
-    if ( $args{status} >= 0 and $self->has_commands ) {
+    if ( $args{status} >= 0 and $self->has_commands
+         && ! ( @{ $args{unparsed} } == 0 && $self->missing_cmd_ok )  ) {
         %args = $self->_execute_command(%args);
     }
     return $self->try_callback(%args);

@@ -27,6 +27,7 @@ use Term::CLI::L10N qw( loc );
 
 use Types::Standard 1.000005 qw(
     ArrayRef
+    Bool
     CodeRef
     InstanceOf
     ConsumerOf
@@ -35,6 +36,8 @@ use Types::Standard 1.000005 qw(
 
 use Moo::Role;
 use namespace::clean 0.25;
+
+my $ERROR_STATUS  = -1;
 
 has parent => (
     is       => 'rwp',
@@ -61,6 +64,12 @@ has callback => (
     is        => 'rw',
     isa       => Maybe [CodeRef],
     predicate => 1
+);
+
+has missing_cmd_ok => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0
 );
 
 # $self->_set_commands($ref) => $self->_trigger__commands($ref);
@@ -241,6 +250,42 @@ sub readline {    ## no critic (ProhibitBuiltinHomonyms)
     }
     return $input;
 }
+
+sub _execute {
+    my ( $self, $cmd ) = @_;
+
+    my $root = $self->root_node;
+    my ( $error, @cmd ) = $root->_split_line($cmd);
+
+    my %args = (
+        status       => 0,
+        error        => q{},
+        command_line => $cmd,
+        command_path => [$self],
+        unparsed     => \@cmd,
+        options      => {},
+        arguments    => [],
+    );
+
+    return $self->try_callback( %args, status => $ERROR_STATUS,
+        error => $error )
+        if length $error;
+
+    if ( @cmd == 0 ) {
+        $args{error}  = loc("missing command");
+        $args{status} = $ERROR_STATUS;
+    }
+    elsif ( my $cmd_ref = $self->find_command( $cmd[0] ) ) {
+        %args = $cmd_ref->execute( %args, unparsed => [ @cmd[ 1 .. $#cmd ] ] );
+    }
+    else {
+        $args{error}  = $self->error;
+        $args{status} = $ERROR_STATUS;
+    }
+
+    return $self->try_callback(%args);
+}
+
 
 1;
 
