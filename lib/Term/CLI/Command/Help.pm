@@ -42,6 +42,7 @@ my @PAGERS = (
             less --no-lessopen --no-init
             --dumb --quit-at-eof
             --quit-if-one-screen
+            --RAW-CONTROL-CHARS
         )
     ],
     ['more'],
