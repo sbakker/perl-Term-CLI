@@ -1,5 +1,4 @@
-#=============================================================================
-#
+#============================================================================= #
 #       Module:  Term::CLI::Command
 #
 #  Description:  Class for (sub-)commands in Term::CLI
@@ -62,7 +61,7 @@ sub option_names {
     return @names;
 }
 
-sub complete_line {
+sub complete {
     my ( $self, @words ) = @_;
 
     my $partial = $words[-1] // q{};
@@ -127,14 +126,14 @@ sub complete_line {
             return grep { rindex( $_, $partial, 0 ) == 0 } $self->command_names;
         }
         if ( my $cmd = $self->find_command( $words[0] ) ) {
-            return $cmd->complete_line( @words[ 1 .. $#words ] );
+            return $cmd->complete( @words[ 1 .. $#words ] );
         }
     }
 
     return ();
 }
 
-sub execute {
+sub execute_command {
     my ( $self, %args ) = @_;
 
     $args{status} = 0;
@@ -164,17 +163,19 @@ sub execute {
         if ( !$ok ) {
             $args{status} = -1;
             $args{error}  = $error;
+            return $self->try_callback(%args);
         }
     }
 
-    if ( $args{status} >= 0 ) {
-        if ( $self->has_arguments || !$self->has_commands ) {
-            %args = $self->_check_arguments(%args);
-        }
+    if ( $self->has_arguments || !$self->has_commands ) {
+        %args = $self->_check_arguments(%args);
+        return $self->try_callback(%args) if $args{status} < 0;
     }
-    if ( $args{status} >= 0 and $self->has_commands
-         && ! ( @{ $args{unparsed} } == 0 && $self->missing_cmd_ok )  ) {
-        %args = $self->_execute_command(%args);
+
+    return $self->try_callback(%args) if !$self->has_commands;
+
+    if ( $self->require_sub_command || @{ $args{unparsed} } > 0 ) {
+        %args = $self->_execute_sub_command(%args);
     }
     return $self->try_callback(%args);
 }
@@ -269,7 +270,7 @@ sub _check_arguments {
     return %args;
 }
 
-sub _execute_command {
+sub _execute_sub_command {
     my ( $self, %args ) = @_;
 
     my $unparsed = $args{unparsed};
@@ -310,7 +311,7 @@ sub _execute_command {
     }
 
     shift @{$unparsed};
-    return $cmd->execute(%args);
+    return $cmd->execute_command(%args);
 }
 
 1;
@@ -394,7 +395,16 @@ Reference to an array containing C<Term::CLI::Command> object
 instances that describe the sub-commands that the command takes,
 or C<undef>.
 
-See also L<Term::CLI::Role::ArgumentSet|Term::CLI::Role::ArgumentSet/ATTRIBUTES>.
+See also L<Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/ATTRIBUTES>.
+
+=item B<require_sub_command> =E<gt> I<Bool>
+
+If the command has sub-commands, it is normally required that the input
+contains one of the sub-commands after this command. However, it may be
+desirable to allow the command to appear "naked", i.e. without a sub-command.
+For such cases, set the C<require_sub_command> to a false value.
+
+See also L<Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/ATTRIBUTES>.
 
 =item B<options> =E<gt> I<ArrayRef>
 
@@ -546,10 +556,8 @@ I<ArrayRef> with command-line options in L<Getopt::Long>(3p) format.
 
 =over
 
-=item B<complete_line> ( I<CLI>, I<WORD>, ... )
-X<complete_line>
-
-I<CLI> is a reference to the top-level L<Term::CLI> instance.
+=item B<complete> ( I<WORD>, ... )
+X<complete>
 
 The I<WORD> arguments make up the parameters to this command.
 Given those, this method attempts to generate possible completions
@@ -572,18 +580,20 @@ Example:
     say join(' ', $cmd->option_names);
     # output: --debug --help --verbose -? -d -h -v
 
-=item B<execute> ( I<ARGS> )
+=item B<execute_command> ( I<KEY> =E<gt> I<VAL>, ... )
 
-This method is called by L<Term::CLI::execute|Term::CLI/execute>. It
-should not be called directly.
+This method is called by C<Term::CLI::Role::CommandSet>'s
+L<execute|Term::CLI::Role::CommandSet/execute> method.
+It should not be called directly.
 
 It accepts the same list of parameters as the
 L<command callback|Term::CLI::Role::CommandSet/callback>
-function (see
-L<Term::CLI::Role::CommandSet>), and returns the same structure.
+function
+(see L<Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet>),
+and returns the same structure.
 
-The C<arguments> I<ArrayRef> should contain the words on the command line
-that have not been parsed yet.
+The C<arguments> parametr (an I<ArrayRef>) should contain the words
+on the command line that have not been parsed yet.
 
 Depending on whether the object has sub-commands or arguments, the rest of
 the line is parsed (possibly handing off to another sub-command), and the

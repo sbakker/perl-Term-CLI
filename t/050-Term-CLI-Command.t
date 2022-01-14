@@ -150,27 +150,27 @@ sub check_complete_command: Test(5) {
 
     my @got;
 
-    @got = $cmd->complete_line();
+    @got = $cmd->complete();
     is_deeply( \@got, \@command_names,
         "complete returns (@command_names) for ()")
     or diag("complete returned: (", join(", ", map {"'$_'"} @got), ")");
 
-    @got = $cmd->complete_line('');
+    @got = $cmd->complete('');
     is_deeply( \@got, \@command_names,
         "complete returns (@command_names) for ''")
     or diag("complete returned: (", join(", ", map {"'$_'"} @got), ")");
 
-    @got = $cmd->complete_line('d');
+    @got = $cmd->complete('d');
     is_deeply( \@got, [qw(date debug)],
         "complete returns (date debug) for 'd'")
     or diag("complete returned: (", join(", ", map {"'$_'"} @got), ")");
 
-    @got = $cmd->complete_line('t');
+    @got = $cmd->complete('t');
     is_deeply( \@got, [qw(time)],
         "complete returns (time) for 't'")
     or diag("complete returned: (", join(", ", map {"'$_'"} @got), ")");
 
-    @got = $cmd->complete_line('X');
+    @got = $cmd->complete('X');
     is_deeply( \@got, [],
         "complete returns () for 'X'")
     or diag("complete returned: (", join(", ", map {"'$_'"} @got), ")");
@@ -186,18 +186,18 @@ sub check_complete_options: Test(5) {
 
     my @got;
 
-    @got = $cmd->complete_line('-');
+    @got = $cmd->complete('-');
     is_deeply( \@got, \@option_names,
         "complete returns (@option_names) for '-'")
     or diag("complete returned: (", join(", ", map {"'$_'"} @got), ")");
 
-    @got = $cmd->complete_line('--');
+    @got = $cmd->complete('--');
     @option_names = grep { /^--/ } $cmd->option_names;
     is_deeply( \@got, \@option_names,
         "complete returns (@option_names) for '--'")
     or diag("complete returned: (", join(", ", map {"'$_'"} @got), ")");
 
-    @got = $cmd->complete_line('--v');
+    @got = $cmd->complete('--v');
     @option_names = grep { /^--v/ } $cmd->option_names;
     is_deeply( \@got, \@option_names,
         "complete returns (@option_names) for '--v'")
@@ -205,7 +205,7 @@ sub check_complete_options: Test(5) {
 
     # The "--" should end the list of options, so a complete should
     # return the list of sub-commands.
-    @got = $cmd->complete_line('--', '');
+    @got = $cmd->complete('--', '');
     my @command_names = $cmd->command_names;
     is_deeply( \@got, \@command_names,
         "complete returns (@command_names) for ('--', '')")
@@ -215,7 +215,7 @@ sub check_complete_options: Test(5) {
     # After a "--", the "--v" should not be seen as a (partial) option,
     # and "normal" completion should commence; in this case, it should
     # result in an empty list.
-    @got = $cmd->complete_line('--', '--v');
+    @got = $cmd->complete('--', '--v');
     is_deeply( \@got, [],
         "complete returns () for ('--', '--v')")
     or diag("complete returned: (", join(", ", map {"'$_'"} @got), ")");
@@ -233,17 +233,17 @@ sub check_ambiguous_complete: Test(3) {
     my @cmd_line;
 
     @cmd_line = qw( d );
-    @got = $cmd->complete_line(@cmd_line);
+    @got = $cmd->complete(@cmd_line);
     is_deeply( \@got, [qw( date debug )],
         "complete returns (date debug) for (d)" );
 
     @cmd_line = qw( d o );
-    @got = $cmd->complete_line(@cmd_line);
+    @got = $cmd->complete(@cmd_line);
     is_deeply( \@got, [],
         "complete returns () for (d o)" );
 
     @cmd_line = qw( de o );
-    @got = $cmd->complete_line(@cmd_line);
+    @got = $cmd->complete(@cmd_line);
     is_deeply( \@got, ['out'],
         "complete returns (out) for (de o)" );
     return;
@@ -260,17 +260,17 @@ sub check_complete_show_param: Test(3) {
     my @cmd_line;
 
     @cmd_line = qw( --verbose param time );
-    @got = $cmd->complete_line(@cmd_line);
+    @got = $cmd->complete(@cmd_line);
     is_deeply( \@got, ['timeout'],
         "complete returns (timeout) for (--verbose param time)" );
 
     @cmd_line = qw( --verbose param time i );
-    @got = $cmd->complete_line(@cmd_line);
+    @got = $cmd->complete(@cmd_line);
     is_deeply( \@got, ['in'],
         "complete returns (in) for (--verbose param time i)" );
 
     @cmd_line = qw( --verbose param time in useless );
-    @got = $cmd->complete_line(@cmd_line);
+    @got = $cmd->complete(@cmd_line);
     is_deeply( \@got, [],
         "complete returns () for (--verbose param time in useless)" );
     return;

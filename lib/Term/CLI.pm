@@ -210,29 +210,6 @@ sub _is_escaped {
     return !$self->_is_escaped( $line, $index - 1 );
 }
 
-# CLI->_split_line( $text );
-#
-# Attempt to split $text into words. Use a custom split function if
-# necessary.
-#
-sub _split_line {
-    my ( $self, $text ) = @_;
-    return $self->split_function->( $self, $text );
-}
-
-# Dumb wrapper around "Attrib" that allows mocking the
-# `completion_quote_character` state.
-sub _rl_completion_quote_character {
-    my ($self) = @_;
-    my $c = $self->term->Attribs->{completion_quote_character} // q{};
-    return $c =~ s/\000//rgx;
-}
-
-# See POD X<complete_line>
-sub complete_line {
-    shift()->_complete_line( @_ );
-}
-
 sub read_history {
     my ( $self, $hist_file ) = @_;
 
@@ -255,10 +232,6 @@ sub write_history {
     $self->history_file($hist_file);
     $self->clear_error;
     return 1;
-}
-
-sub execute {
-    shift()->_execute( @_ );
 }
 
 1;
@@ -318,7 +291,7 @@ Term::CLI - CLI interpreter based on Term::ReadLine
  # $cli will now recognise things like: 'copy --verbose a b'
 
  while ( my $input = $cli->readline(skip => qr/^\s*(?:#.*)?$/) ) {
-    $cli->execute($input);
+    $cli->execute_line($input);
  }
 
 =head1 DESCRIPTION
@@ -597,152 +570,6 @@ and return C<undef>.
 If I<Str> is given, it will try to write to that file instead. If that is
 successful, the L<history_file()|/history_file> attribute will be set
 to I<Str>.
-
-=back
-
-=head2 Others
-
-=over
-
-=item B<complete_line> ( I<TEXT>, I<LINE>, I<START> )
-X<complete_line>
-
-Called when the user hits the I<TAB> key for completion.
-
-I<TEXT> is the text to complete, I<LINE> is the input line so
-far, I<START> is the position in the line where I<TEXT> starts.
-
-The function will split the line in words and delegate the
-completion to the first L<Term::CLI::Command> sub-command,
-see L<Term::CLI::Command|Term::CLI::Command/complete_line>.
-
-=item B<readline> ( [ I<ATTR> =E<gt> I<VAL>, ... ] )
-X<readline>
-
-Read a line from the input connected to L<term|/term>, using
-the L<Term::ReadLine> interface.
-
-By default, it returns the line read from the input, or
-an empty value if end of file has been reached (e.g.
-the user hitting I<Ctrl-D>).
-
-The following I<ATTR> are recognised:
-
-=over
-
-=item B<skip> =E<gt> I<RegEx>
-
-Override the object's L<skip|/skip> attribute.
-
-Skip lines that match the I<RegEx> parameter. A common
-call is:
-
-    $text = CLI->readline( skip => qr{^\s+(?:#.*)$} );
-
-This will skip empty lines, lines containing whitespace, and
-comments.
-
-=item B<prompt> =E<gt> I<Str>
-
-Override the prompt given by the L<prompt|/prompt> method.
-
-=back
-
-Examples:
-
-    # Just read the next input line.
-    $line = $cli->readline;
-    exit if !defined $line;
-
-    # Skip empty lines and comments.
-    $line = $cli->readline( skip => qr{^\s*(?:#.*)?$} );
-    exit if !defined $line;
-
-=item B<execute> ( I<Str> )
-X<execute>
-
-Parse and execute the command line consisting of I<Str>
-(see the return value of L<readline|/readline> above).
-
-The command line is split into words using
-the L<split_function|/split_function>.
-If that succeeds, then the resulting list of words is
-parsed and executed, otherwise a parse error is generated
-(i.e. the object's L<callback|Term::CLI::Role::CommandSet/callback>
-function is called with a C<status> of C<-1> and a suitable C<error>
-field).
-
-For specifying a custom word splitting method, see
-L<split_function|/split_function>.
-
-Example:
-
-    while (my $line = $cli->readline(skip => qr/^\s*(?:#.*)?$/)) {
-        $cli->execute($line);
-    }
-
-The command line is parsed depth-first, and for every
-L<Term::CLI::Command>(3p) encountered, that object's
-L<callback|Term::CLI::Role::CommandSet/callback> function
-is executed (see
-L<callback in Term::CLI::Role::Command|Term::CLI::Role::CommandSet/callback>).
-
-The C<execute> function returns the results of the last called callback
-function.
-
-=over
-
-=item *
-
-Suppose that the C<file> command has a C<show> sub-command that takes
-an optional C<--verbose> option and a single file argument.
-
-=item *
-
-Suppose the input is:
-
-    file show --verbose foo.txt
-
-=item *
-
-Then the parse tree looks like this:
-
-    (cli-root)
-        |
-        +--> Command 'file'
-                |
-                +--> Command 'show'
-                        |
-                        +--> Option '--verbose'
-                        |
-                        +--> Argument 'foo.txt'
-
-=item *
-
-Then the callbacks will be called in the following order:
-
-=over
-
-=item 1.
-
-Callback for 'show'
-
-=item 2.
-
-Callback for 'file'
-
-=item 3.
-
-Callback for C<Term::CLI> object.
-
-=back
-
-The return value from each L<callback|Term::CLI::Role::CommandSet/callback>
-(a hash in list form) is fed into the next callback function in the
-chain. This allows for adding custom data to the return hash that will
-be fed back up the parse tree (and eventually to the caller).
-
-=back
 
 =back
 

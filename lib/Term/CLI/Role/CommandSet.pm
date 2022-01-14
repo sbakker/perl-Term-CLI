@@ -66,10 +66,10 @@ has callback => (
     predicate => 1
 );
 
-has missing_cmd_ok => (
+has require_sub_command => (
     is      => 'ro',
     isa     => Bool,
-    default => 0
+    default => 1
 );
 
 # $self->_set_commands($ref) => $self->_trigger__commands($ref);
@@ -172,7 +172,7 @@ sub _set_completion_attribs {
 
 
     # set Completion for current object
-    $term->Attribs->{completion_function} = sub { $self->_complete_line( @_ ) };
+    $term->Attribs->{completion_function} = sub { $self->complete_line( @_ ) };
 
     # Default: '"
     $term->Attribs->{completer_quote_characters} = $root->quote_characters;
@@ -188,14 +188,14 @@ sub _set_completion_attribs {
 }
 
 # See POD X<complete_line>
-sub _complete_line {
+sub complete_line {
     my ( $self, $text, $line, $start ) = @_;
 
     my $root = $self->root_node;
 
     $self->_set_completion_attribs;
 
-    my $quote_char = $root->_rl_completion_quote_character;
+    my $quote_char = $self->term->completion_quote_character;
 
     my @words;
 
@@ -206,13 +206,10 @@ sub _complete_line {
             # The quote character will precede the $start of $text.
             # Make sure we do not include it in the text to break
             # into words...
-            ( my $err, @words ) =
-                $root->_split_line( substr( $line, 0, $start - 1 ) );
+            $start--;
         }
-        else {
-            ( my $err, @words ) =
-                $root->_split_line( substr( $line, 0, $start ) );
-        }
+        ( my $err, @words ) =
+            $root->_split_line( substr( $line, 0, $start ) );
     }
 
     push @words, $text;
@@ -223,7 +220,7 @@ sub _complete_line {
         @list = grep { rindex( $_, $words[0], 0 ) == 0 } $self->command_names;
     }
     elsif ( my $cmd = $self->find_command( $words[0] ) ) {
-        @list = $cmd->complete_line( @words[ 1 .. $#words ] );
+        @list = $cmd->complete( @words[ 1 .. $#words ] );
     }
 
     return @list if length $quote_char; # No need to worry about spaces.
@@ -251,11 +248,23 @@ sub readline {    ## no critic (ProhibitBuiltinHomonyms)
     return $input;
 }
 
-sub _execute {
+# OBJ->_split_line( $text );
+#
+# Attempt to split $text into words. Use a custom split function if
+# necessary.
+#
+sub _split_line {
+    my ( $self, $text ) = @_;
+    my $root_node = $self->root_node;
+    return $root_node->split_function->( $root_node, $text );
+}
+
+sub execute { return shift->execute_line(@_) }  ## DEPRECATED
+
+sub execute_line {
     my ( $self, $cmd ) = @_;
 
-    my $root = $self->root_node;
-    my ( $error, @cmd ) = $root->_split_line($cmd);
+    my ( $error, @cmd ) = $self->_split_line($cmd);
 
     my %args = (
         status       => 0,
@@ -276,7 +285,7 @@ sub _execute {
         $args{status} = $ERROR_STATUS;
     }
     elsif ( my $cmd_ref = $self->find_command( $cmd[0] ) ) {
-        %args = $cmd_ref->execute( %args, unparsed => [ @cmd[ 1 .. $#cmd ] ] );
+        %args = $cmd_ref->execute_command( %args, unparsed => [ @cmd[ 1 .. $#cmd ] ] );
     }
     else {
         $args{error}  = $self->error;
@@ -349,6 +358,19 @@ array, so modifications to the I<ArrayRef> will not be seen.
 
 Reference to a subroutine that should be called when the command
 is executed, or C<undef>.
+
+=item B<require_sub_command> =E<gt> I<Bool>
+
+Default is 1 (true).
+
+If the list of C<commands> is not empty, it is normally required that the input
+contains one of these sub-commands after the "parent" command word. However, it
+may be desirable to allow the parent command to appear "naked", i.e. without a
+sub-command.
+
+For such cases, set the C<require_sub_command> to a false value.
+
+See also L<Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/ATTRIBUTES>.
 
 =back
 
@@ -455,8 +477,10 @@ of object references:
     ]
 
 The first item in the C<command_path> list is always the top-level
-L<Term::CLI> object, while the last is always the same as the
-I<OBJ_REF> parameter.
+L<Term::CLI> object.
+
+The I<OBJ_REF> will be somewhere in that list; it will be the last
+one if it is the "leaf" command.
 
 =back
 
@@ -498,6 +522,107 @@ X<command_names>
 
 Return the list of (sub-)command names, sorted alphabetically.
 
+=item B<complete_line> ( I<TEXT>, I<LINE>, I<START> )
+X<complete_line>
+
+Called when the user hits the I<TAB> key for completion.
+
+I<TEXT> is the text to complete, I<LINE> is the input line so
+far, I<START> is the position in the line where I<TEXT> starts.
+
+The function will split the line in words and delegate the
+completion to the first L<Term::CLI::Command> sub-command,
+see L<Term::CLI::Command|Term::CLI::Command/complete_line>.
+
+=item B<execute> ( I<Str> ) B<### DEPRECATED>
+X<execute>
+
+=item B<execute_line> ( I<Str> )
+X<execute_line>
+
+Parse and execute the command line consisting of I<Str>
+(see the return value of L<readline|/readline> above).
+
+The command line is split into words using
+the L<split_function|/split_function>.
+If that succeeds, then the resulting list of words is
+parsed and executed, otherwise a parse error is generated
+(i.e. the object's L<callback|Term::CLI::Role::CommandSet/callback>
+function is called with a C<status> of C<-1> and a suitable C<error>
+field).
+
+For specifying a custom word splitting method, see
+L<split_function|/split_function>.
+
+Example:
+
+    while (my $line = $cli->readline(skip => qr/^\s*(?:#.*)?$/)) {
+        $cli->execute_line($line);
+    }
+
+The command line is parsed depth-first, and for every
+L<Term::CLI::Command>(3p) encountered, that object's
+L<callback|Term::CLI::Role::CommandSet/callback> function
+is executed (see
+L<callback in Term::CLI::Role::Command|Term::CLI::Role::CommandSet/callback>).
+
+The C<execute_line> function returns the results of the last called callback
+function.
+
+=over
+
+=item *
+
+Suppose that the C<file> command has a C<show> sub-command that takes
+an optional C<--verbose> option and a single file argument.
+
+=item *
+
+Suppose the input is:
+
+    file show --verbose foo.txt
+
+=item *
+
+Then the parse tree looks like this:
+
+    (cli-root)
+        |
+        +--> Command 'file'
+                |
+                +--> Command 'show'
+                        |
+                        +--> Option '--verbose'
+                        |
+                        +--> Argument 'foo.txt'
+
+=item *
+
+Then the callbacks will be called in the following order:
+
+=over
+
+=item 1.
+
+Callback for 'show'
+
+=item 2.
+
+Callback for 'file'
+
+=item 3.
+
+Callback for C<Term::CLI> object.
+
+=back
+
+=back
+
+The return value from each L<callback|Term::CLI::Role::CommandSet/callback>
+(a hash in list form) is fed into the next callback function in the
+chain. This allows for adding custom data to the return hash that will
+be fed back up the parse tree (and eventually to the caller).
+
 =item B<find_matches> ( I<Str> )
 X<find_matches>
 
@@ -516,6 +641,48 @@ Example:
 
     my $sub_cmd = $cmd->find_command($prefix);
     die $cmd->error unless $sub_cmd;
+
+=item B<readline> ( [ I<ATTR> =E<gt> I<VAL>, ... ] )
+X<readline>
+
+Read a line from the input connected to L<term|/term>, using
+the L<Term::ReadLine> interface.
+
+By default, it returns the line read from the input, or
+an empty value if end of file has been reached (e.g.
+the user hitting I<Ctrl-D>).
+
+The following I<ATTR> are recognised:
+
+=over
+
+=item B<skip> =E<gt> I<RegEx>
+
+Override the object's L<skip|/skip> attribute.
+
+Skip lines that match the I<RegEx> parameter. A common
+call is:
+
+    $text = CLI->readline( skip => qr{^\s+(?:#.*)$} );
+
+This will skip empty lines, lines containing whitespace, and
+comments.
+
+=item B<prompt> =E<gt> I<Str>
+
+Override the prompt given by the L<prompt|/prompt> method.
+
+=back
+
+Examples:
+
+    # Just read the next input line.
+    $line = $cli->readline;
+    exit if !defined $line;
+
+    # Skip empty lines and comments.
+    $line = $cli->readline( skip => qr{^\s*(?:#.*)?$} );
+    exit if !defined $line;
 
 =item B<root_node>
 X<root_node>

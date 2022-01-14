@@ -416,11 +416,11 @@ sub check_complete_line: Test(12) {
 
     {
         # Try quoted strings for completion... We need to make sure that
-        # Term::CLI's `_rl_completion_quote_character` returns a quote char,
+        # Term::CLI::ReadLine's `completion_quote_character` returns a quote char,
         # so temporarily mock it.
         my $quote_char = '"';
-        my $rl_mock = Test::MockModule->new('Term::CLI');
-        $rl_mock->redefine('_rl_completion_quote_character' => $quote_char);
+        my $rl_mock = Test::MockModule->new('Term::CLI::ReadLine');
+        $rl_mock->redefine('completion_quote_character' => $quote_char);
 
         $line = "show $quote_char";
         $text = 'd';

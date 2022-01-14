@@ -311,7 +311,7 @@ sub _get_all_help {
     return ( %args, pod => $pod1 . $pod2, text => "$txt1\n$txt2" );
 }
 
-sub complete_line {
+sub complete {
     my ( $self, @words ) = @_;
 
     my $partial = $words[-1] // '';

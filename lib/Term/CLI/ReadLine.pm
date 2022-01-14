@@ -78,6 +78,14 @@ sub new {
 
 sub term { return $Term }
 
+# Dumb wrapper around "Attrib" that allows mocking the
+# `completion_quote_character` state.
+sub completion_quote_character {
+    my ($self) = @_;
+    my $c = $self->term->Attribs->{completion_quote_character} // q{};
+    return $c =~ s/\000//rgx;
+}
+
 sub ignore_keyboard_signals {
     my ( $self, @args ) = @_;
     foreach my $signame (@args) {
@@ -540,6 +548,20 @@ See L<Term::ReadLine>(3p), L<Term::ReadLine::Gnu>(3p) and/or
 L<Term::ReadLine::Perl> for the inherited methods.
 
 =over
+
+=item B<completion_quote_character>
+X<completion_quote_character>
+
+In a L<Term::ReadLine::Gnu|Term::ReadLine::Gnu> environment this returns
+the C<rl_completion_quote_character>. This value is set during completion
+if the text to be completed has an open quote. Consider the case:
+
+    foo 'bar <TAB>
+
+When the completion function is called, the C<rl_completion_quote_character>
+will contain a single quote, C<'>.
+
+For non-GNU ReadLine backends, this function returns an empty string.
 
 =item B<echo_signal_char> ( I<signal> )
 X<echo_signal_char>

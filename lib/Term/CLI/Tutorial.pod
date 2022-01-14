@@ -163,7 +163,7 @@ L<Term::CLI> provides a framework to make this happen:
 
     say "\n[Welcome to BSSH]";
     while (defined (my $line = $term->readline)) {
-        $term->execute($line);
+        $term->execute_line($line);
     }
     say "\n-- exit";
     exit 0;
@@ -196,7 +196,7 @@ add a line to the C<while> loop:
 
     while (my $line = $term->readline) {
         next if /^\s*(?:#.*)?$/; # Skip comments and empty lines.
-        $term->execute($line);
+        $term->execute_line($line);
     }
 
 But it's actually nicer to let L<Term::CLI> handle this for us:
@@ -1583,7 +1583,7 @@ L<Term::CLI's cleanup|Term::CLI/cleanup> attribute:
     );
 
     while ( defined(my $line = $term->readline) ) {
-        $term->execute($line);
+        $term->execute_line($line);
     }
     exit 0;
 
@@ -1610,7 +1610,7 @@ Add a global flag that is checked within the loop:
     ...
 
     while (defined (my $line = $term->readline)) {
-        $term->execute($line);
+        $term->execute_line($line);
         last if defined $::global_exit;
     }
     $term->write_history()
@@ -1652,7 +1652,7 @@ Return an exit flag through C<execute>:
 
     my %ret;
     while (defined (my $line = $term->readline)) {
-        %ret = $term->execute($line);
+        %ret = $term->execute_line($line);
         last if defined $ret{exit};
     }
     $term->write_history()
@@ -1680,7 +1680,7 @@ Write history in the callback:
     ...
 
     while (defined (my $line = $term->readline)) {
-        $term->execute($line);
+        $term->execute_line($line);
     }
 
     execute_exit($term, 0);
@@ -1743,7 +1743,7 @@ correct scope:
     my $term = initialise_term();
 
     while ( defined(my $line = $term->readline) ) {
-        $term->execute($line);
+        $term->execute_line($line);
     }
     exit 0;
 
