@@ -27,6 +27,7 @@ use Term::CLI::L10N qw( loc );
 
 use Types::Standard 1.000005 qw(
     ArrayRef
+    Bool
     CodeRef
     InstanceOf
     ConsumerOf
@@ -35,6 +36,8 @@ use Types::Standard 1.000005 qw(
 
 use Moo::Role;
 use namespace::clean 0.25;
+
+my $ERROR_STATUS  = -1;
 
 has parent => (
     is       => 'rwp',
@@ -61,6 +64,12 @@ has callback => (
     is        => 'rw',
     isa       => Maybe [CodeRef],
     predicate => 1
+);
+
+has missing_cmd_ok => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0
 );
 
 # $self->_set_commands($ref) => $self->_trigger__commands($ref);
@@ -116,12 +125,12 @@ sub find_matches {
 }
 
 sub root_node {
-    my $curr_node = shift;
+    my $self = my $curr_node = shift;
 
     while ( my $parent = $curr_node->parent ) {
         $curr_node = $parent;
     }
-    return $curr_node;
+    return $curr_node // $self;
 }
 
 sub find_command {
@@ -150,6 +159,133 @@ sub try_callback {
     }
     return %args;
 }
+
+# CLI->_set_completion_attribs();
+#
+# Set some attributes in the Term::ReadLine object related to
+# custom completion.
+#
+sub _set_completion_attribs {
+    my $self = shift;
+    my $root = $self->root_node;
+    my $term = $root->term;
+
+
+    # set Completion for current object
+    $term->Attribs->{completion_function} = sub { $self->_complete_line( @_ ) };
+
+    # Default: '"
+    $term->Attribs->{completer_quote_characters} = $root->quote_characters;
+
+    # Default: \n\t\\"'`@$><=;|&{( and <space>
+    $term->Attribs->{completer_word_break_characters} = $root->word_delimiters;
+
+    # Default: <space>
+    $term->Attribs->{completion_append_character} =
+        substr( $root->word_delimiters, 0, 1 );
+
+    return;
+}
+
+# See POD X<complete_line>
+sub _complete_line {
+    my ( $self, $text, $line, $start ) = @_;
+
+    my $root = $self->root_node;
+
+    $self->_set_completion_attribs;
+
+    my $quote_char = $root->_rl_completion_quote_character;
+
+    my @words;
+
+    if ( $start > 0 ) {
+        if ( length $quote_char ) {
+
+            # ReadLine thinks the $text to be completed is quoted.
+            # The quote character will precede the $start of $text.
+            # Make sure we do not include it in the text to break
+            # into words...
+            ( my $err, @words ) =
+                $root->_split_line( substr( $line, 0, $start - 1 ) );
+        }
+        else {
+            ( my $err, @words ) =
+                $root->_split_line( substr( $line, 0, $start ) );
+        }
+    }
+
+    push @words, $text;
+
+    my @list;
+
+    if ( @words == 1 ) {
+        @list = grep { rindex( $_, $words[0], 0 ) == 0 } $self->command_names;
+    }
+    elsif ( my $cmd = $self->find_command( $words[0] ) ) {
+        @list = $cmd->complete_line( @words[ 1 .. $#words ] );
+    }
+
+    return @list if length $quote_char; # No need to worry about spaces.
+
+    # Escape spaces in reply if necessary.
+    my $delim = $root->word_delimiters;
+    return map {s/([$delim])/\\$1/rgx} @list;
+}
+
+sub readline {    ## no critic (ProhibitBuiltinHomonyms)
+    my ( $self, %args ) = @_;
+
+    my $root = $self->root_node;
+
+    my $prompt = $args{prompt} // $self->prompt;
+    my $skip   = exists $args{skip} ? $args{skip} : $root->skip;
+
+    $self->_set_completion_attribs;
+
+    my $input;
+    while ( defined( $input = $root->term->readline($prompt) ) ) {
+        next if defined $skip && $input =~ $skip;
+        last;
+    }
+    return $input;
+}
+
+sub _execute {
+    my ( $self, $cmd ) = @_;
+
+    my $root = $self->root_node;
+    my ( $error, @cmd ) = $root->_split_line($cmd);
+
+    my %args = (
+        status       => 0,
+        error        => q{},
+        command_line => $cmd,
+        command_path => [$self],
+        unparsed     => \@cmd,
+        options      => {},
+        arguments    => [],
+    );
+
+    return $self->try_callback( %args, status => $ERROR_STATUS,
+        error => $error )
+        if length $error;
+
+    if ( @cmd == 0 ) {
+        $args{error}  = loc("missing command");
+        $args{status} = $ERROR_STATUS;
+    }
+    elsif ( my $cmd_ref = $self->find_command( $cmd[0] ) ) {
+        %args = $cmd_ref->execute( %args, unparsed => [ @cmd[ 1 .. $#cmd ] ] );
+    }
+    else {
+        $args{error}  = $self->error;
+        $args{status} = $ERROR_STATUS;
+    }
+
+    return $self->try_callback(%args);
+}
+
 
 1;
 
