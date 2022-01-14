@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Role::ArgumentSet 0.054002;
+package Term::CLI::Role::ArgumentSet 0.054004;
 
 use 5.014;
 use warnings;

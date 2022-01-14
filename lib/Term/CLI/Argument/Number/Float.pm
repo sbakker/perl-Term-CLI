@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Number::Float 0.054002;
+package Term::CLI::Argument::Number::Float 0.054004;
 
 use 5.014;
 use warnings;
