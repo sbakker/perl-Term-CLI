@@ -33,8 +33,7 @@ use Fcntl ':mode';
 use namespace::clean;
 
 sub complete {
-    my $self    = shift;
-    my $partial = shift;
+    my ( $self, $partial ) = @_;
 
     my $func_ref = $self->term->Attribs->{filename_completion_function}
         or return $self->_glob_complete($partial);
