@@ -367,6 +367,7 @@ push @commands, Term::CLI::Command->new(
         . "signal and return control to the shell.",
     callback => sub {
         my ( $cmd, %args ) = @_;
+        return %args if $args{status} < 0;
         local ( $SIG{TSTP} ) = 'DEFAULT';
         kill 'TSTP', $$;
         return %args;
