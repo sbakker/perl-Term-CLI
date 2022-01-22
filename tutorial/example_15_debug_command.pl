@@ -245,7 +245,7 @@ push @commands, Term::CLI::Command->new(
                 Term::CLI::Argument::Bool->new(
                     name         => 'bool',
                     true_values  => [qw( 1 true on yes ok )],
-                    false_values => [qw( 1 false off no never )],
+                    false_values => [qw( 0 false off no never )],
                 )
 
             ],
