@@ -91,12 +91,43 @@ In addition, it defines:
 
 =over
 
-=item B<complete> ( I<STR> )
+=item B<complete> ( I<TEXT>, I<STATE> )
 
-Return a list of strings that are possible completions for I<value>.
+Return a list of strings that are possible completions for I<TEXT>.
 By default, this method returns an empty list.
 
 Sub-classes should probably override this.
+
+I<STATE> is a C<HashRef> that contains the following elements:
+
+=over
+
+=item B<processed> =E<gt> I<ArrayRef>
+
+Refers to a list of words that have already been processed by parent
+(C<Term::CLI::Command>) objects.
+
+=item B<unprocessed> =E<gt> I<ArrayRef>
+
+Refers to a list of words leading up to (but not including) the
+I<TEXT> that have not yet been processed by parent objects.
+
+For L<Term::CLI::Command> objects this is typically a list of command
+line arguments and sub-commands.
+
+For L<Term::CLI::Argument> objects this will be empty.
+
+=item B<options> =E<gt> I<HashRef>
+
+Command line options that have been seen in the input line so far.
+
+=back
+
+For most simple cases, you would only need to examine I<TEXT> (and,
+for command objects, the C<unprocessed> list).
+
+The C<processed> list and C<options> hash can be used to implement context
+sensitive completion, however.
 
 =back
 
