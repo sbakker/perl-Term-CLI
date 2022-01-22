@@ -118,9 +118,9 @@ sub command_names {
 }
 
 sub find_matches {
-    my ( $self, $partial ) = @_;
+    my ( $self, $text ) = @_;
     return () if !$self->has_commands;
-    my @found = grep { rindex( $_->name, $partial, 0 ) == 0 } $self->commands;
+    my @found = grep { rindex( $_->name, $text, 0 ) == 0 } $self->commands;
     return @found;
 }
 
@@ -134,18 +134,18 @@ sub root_node {
 }
 
 sub find_command {
-    my ( $self, $partial ) = @_;
-    my @matches = $self->find_matches($partial);
+    my ( $self, $text ) = @_;
+    my @matches = $self->find_matches($text);
 
     if ( @matches == 1 ) {
         return $matches[0];
     }
     if ( @matches == 0 ) {
-        return $self->set_error( loc( "unknown command '[_1]'", $partial ) );
+        return $self->set_error( loc( "unknown command '[_1]'", $text ) );
     }
     return $self->set_error(
         loc("ambiguous command '[_1]' (matches: [_2])",
-            $partial,
+            $text,
             join( ', ', sort map { $_->name } @matches )
         )
     );
@@ -212,15 +212,19 @@ sub complete_line {
             $root->_split_line( substr( $line, 0, $start ) );
     }
 
-    push @words, $text;
-
     my @list;
 
-    if ( @words == 1 ) {
-        @list = grep { rindex( $_, $words[0], 0 ) == 0 } $self->command_names;
+    if ( @words == 0 ) {
+        @list = grep { rindex( $_, $text, 0 ) == 0 } $self->command_names;
     }
     elsif ( my $cmd = $self->find_command( $words[0] ) ) {
-        @list = $cmd->complete( @words[ 1 .. $#words ] );
+        @list = $cmd->complete(
+            $text => {
+                processed   => [shift @words],
+                unprocessed => \@words,
+                options => {},
+            }
+        );
     }
 
     return @list if length $quote_char; # No need to worry about spaces.
@@ -532,7 +536,7 @@ far, I<START> is the position in the line where I<TEXT> starts.
 
 The function will split the line in words and delegate the
 completion to the first L<Term::CLI::Command> sub-command,
-see L<Term::CLI::Command|Term::CLI::Command/complete_line>.
+see L<Term::CLI::Command|Term::CLI::Command/complete>.
 
 =item B<execute> ( I<Str> ) B<### DEPRECATED>
 X<execute>
