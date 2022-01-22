@@ -45,12 +45,49 @@ has value_list => (
     required => 1,
 );
 
+has cache_values => (
+    is       => 'rw',
+    default  => sub {0},
+);
+
+has _value_cache => (
+    is        => 'rw',
+    isa       => ArrayRef,
+    predicate => 1,
+    clearer   => 1,
+);
+
 sub values {
     my ($self) = @_;
 
-    my $l = $self->value_list;
-    return reftype($l) eq 'CODE' ? $l->($self) : $l;
+    my $value_list = $self->value_list;
+
+    return $value_list if reftype $value_list eq 'ARRAY';
+
+    # Return cache if needed.
+    if ( $self->cache_values && $self->_has_value_cache ) {
+        return $self->_value_cache;
+    }
+
+    $self->_clear_value_cache;
+    my $list_ref = $value_list->($self);
+
+    if ( $self->cache_values ) {
+        $self->_value_cache($list_ref);
+    }
+
+    return $list_ref;
 }
+
+# Trigger for when caching gets disabled to immediately clear the
+# cache. This allows for quicker cleanup of objects, file handles, etc.
+after cache_values => sub {
+    my ($self, @args) = @_;
+
+    if (@args && !$args[0]) {
+        $self->_clear_value_cache;
+    }
+};
 
 sub validate {
     my ( $self, $value ) = @_;
@@ -79,7 +116,7 @@ sub validate {
 sub complete {
     my ( $self, $text ) = @_;
 
-    my $values_r = $self->_fetch_values;
+    my $values_r = $self->values;
 
     return ( sort @{$values_r} ) if !length $text;
     return ( sort grep { is_prefix_str( $text, $_ ) } @{$values_r} );
@@ -136,15 +173,23 @@ None.
 
     OBJ = Term::CLI::Argument::Enum(
         name => STRING,
-        value_list => ArrayRef | CodeRef
+        value_list => ArrayRef | CodeRef,
+        cache_values => BOOL,
     );
 
 See also L<Term::CLI::Argument>(3p). The B<value_list> argument is
 mandatory and can either be a reference to an array, or a code refrerence.
 
-A value list consisting of a code reference can be used to implement dynamic
-values. The code reference will be called with a single argument consisting
-of the reference to the C<Term::CLI::Argument::Enum> object.
+A value list consisting of a code reference can be used to implement
+dynamic values or delayed expansion (where the values have to be
+fetched from a database or remote system). The code reference will
+be called with a single argument consisting of the reference to the
+C<Term::CLI::Argument::Enum> object.
+
+The C<cache_values> attribute can be set to a true value to prevent
+repeated calls to the C<value_list> code reference. For dynamic value
+lists this is not desired, but for lists that are generated through
+expensive queries, this can be useful. The default is 0 (false).
 
 =back
 
@@ -155,9 +200,25 @@ See also L<Term::CLI::Argument>(3p).
 =over
 
 =item B<value_list>
+X<value_list>
 
 A reference to a either a list of valid values for the argument or a
 subroutine which returns a reference to such a list.
+
+=item B<cache_values>
+X<cache_values>
+
+=item B<cache_values> ( [ I<BOOL> ] )
+
+Returns or sets whether the value list should be cached in case
+C<value_list> is a code reference.
+
+For dynamic value lists this should be false, but for lists that are
+generated through expensive queries, it can be useful to set this to
+true.
+
+If the value is changed from true to false, any cached list is
+immediately cleared.
 
 =back
 
@@ -172,6 +233,16 @@ The following methods are added or overloaded:
 =item B<validate>
 
 =item B<complete>
+
+Overloaded from L<Term::CLI::Argument>(3p).
+
+=item B<values>
+
+Returns an ArrayRef containing the list of valid values for this
+argument object.
+
+In case L<value_list|/value_list> is a CodeRef, it will call the
+code to expand the list and return the result.
 
 =back
 
