@@ -24,6 +24,7 @@ use 5.014;
 use warnings;
 
 use Term::CLI::L10N qw( loc );
+use Term::CLI::Util qw( is_prefix_str );
 
 use Types::Standard 1.000005 qw(
     ArrayRef
@@ -44,9 +45,7 @@ has value_list => (
     required => 1,
 );
 
-# Helper for fetching the actual list of values since
-# "value_list" can be a CODEREF.
-sub _fetch_values {
+sub values {
     my ($self) = @_;
 
     my $l = $self->value_list;
@@ -58,33 +57,32 @@ sub validate {
 
     defined $self->SUPER::validate($value) or return;
 
-    my $value_list = $self->_fetch_values;
+    my $values_r = $self->values;
 
-    my @found = grep { rindex( $_, $value, 0 ) == 0 } @{$value_list};
+    my @found = grep { is_prefix_str( $value, $_ ) } @{$values_r};
     if ( @found == 0 ) {
         return $self->set_error( loc("not a valid value") );
     }
 
-    if ( @found == 1 ) {
-        return $found[0];
-    }
+    return $found[0] if @found == 1;
 
     # Multiple prefix matches; only a problem if there is not an *exact*
     # match.
-    my $match = first { $_ eq $value } @found
-        or return $self->set_error(
+    if ( my $match = first { $_ eq $value } @found ) {
+        return $match;
+    }
+
+    return $self->set_error(
         loc( "ambiguous value (matches: [_1])", join( ", ", sort @found ) ) );
-    return $match;
 }
 
 sub complete {
-    my ( $self, $value ) = @_;
+    my ( $self, $text ) = @_;
 
-    my $value_list = $self->_fetch_values;
+    my $values_r = $self->_fetch_values;
 
-    return ( sort @{$value_list} ) if !length $value;
-    return ( sort grep { substr( $_, 0, length($value) ) eq $value }
-            @{$value_list} );
+    return ( sort @{$values_r} ) if !length $text;
+    return ( sort grep { is_prefix_str( $text, $_ ) } @{$values_r} );
 }
 
 1;
