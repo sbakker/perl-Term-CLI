@@ -24,6 +24,7 @@ use 5.014;
 use warnings;
 use parent qw( Exporter );
 
+use List::Util qw( first );
 use Getopt::Long 2.38 qw( GetOptionsFromArray );
 use namespace::clean;
 
@@ -52,7 +53,7 @@ sub get_options_from_array {
 
     $result //= {};
 
-    my $double_dash = q{};
+    my $double_dash;
 
     Getopt::Long::Configure(
         qw(bundling require_order),
@@ -62,6 +63,8 @@ sub get_options_from_array {
     if ( $pass_through && $HAVE_OLD_GETOPT ) {
         $double_dash = first { $_ eq '--' } @{$arguments};
     }
+
+    $double_dash //= q{};
 
     my $error = q{};
     my $ok    = do {
