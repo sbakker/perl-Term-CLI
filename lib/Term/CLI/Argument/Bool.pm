@@ -114,7 +114,7 @@ sub complete {
         }
         return ( sort map { $value . substr $_, length $value } @matches );
     }
-    return ( sort grep { is_prefix_str( lc $value, lc $_ ) } @values );
+    return ( sort grep { is_prefix_str( $value, $_ ) } @values );
 }
 
 1;
