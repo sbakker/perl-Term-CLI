@@ -76,12 +76,12 @@ sub check_complete: Test(6) {
         "complete returns (@expected) for '$partial'");
 
     $partial = 'F';
-    @expected = sort qw( False );
+    @expected = sort qw( FALSE );
     is_deeply( [$arg->complete($partial)], \@expected,
         "complete returns (@expected) for '$partial'");
 
     $partial = 'O';
-    @expected = sort qw( On Ok Off );
+    @expected = sort qw( ON OK OFF );
     is_deeply( [$arg->complete($partial)], \@expected,
         "complete returns (@expected) for '$partial'");
 
