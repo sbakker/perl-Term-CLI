@@ -579,7 +579,7 @@ function
 (see L<Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet>),
 and returns the same structure.
 
-The C<arguments> parametr (an I<ArrayRef>) should contain the words
+The C<arguments> parameter (an I<ArrayRef>) should contain the words
 on the command line that have not been parsed yet.
 
 Depending on whether the object has sub-commands or arguments, the rest of
