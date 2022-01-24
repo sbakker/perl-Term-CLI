@@ -218,15 +218,13 @@ sub _check_arguments {
         for my $i ( 1 .. $args_to_check ) {
             my $arg = $unparsed->[0];
             $argno++;
-            my $arg_value = $arg_spec->validate($arg);
+            my $arg_value = $arg_spec->validate($arg, \%args);
             if ( !defined $arg_value ) {
                 return (
                     %args,
                     status => -1,
-                    error  => "arg#$argno, '$arg': "
+                    error  => "arg#$argno (" . $arg_spec->name . "), '$arg': "
                         . $arg_spec->error . q{ }
-                        . loc("for") . q{ '}
-                        . $arg_spec->name . q{'}
                 );
             }
             push @{ $args{arguments} }, $arg_value;
