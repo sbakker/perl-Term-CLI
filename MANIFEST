@@ -12,6 +12,14 @@ Makefile.PL
 README.md
 cpanfile
 examples/cli_context.pl
+examples/context_sensitive_completion/README.md
+examples/context_sensitive_completion/cli_demo.pl
+examples/context_sensitive_completion/data/README.md
+examples/context_sensitive_completion/data/continents.json
+examples/context_sensitive_completion/data/countries.json
+examples/context_sensitive_completion/data/data.json
+examples/context_sensitive_completion/data/munge_country_data.pl
+examples/getopt_test.pl
 examples/readline_cli.pl
 examples/readline_completion_demo.pl
 examples/simple_cli.pl
@@ -39,6 +47,7 @@ lib/Term/CLI/Role/ArgumentSet.pm
 lib/Term/CLI/Role/CommandSet.pm
 lib/Term/CLI/Role/HelpText.pm
 lib/Term/CLI/Tutorial.pod
+lib/Term/CLI/Util.pm
 pkg/fedora/perl-Term-CLI.spec
 t/000-compile.t
 t/015-Term-CLI-Element.t
@@ -47,6 +56,7 @@ t/023-Term-CLI-Argument-String.t
 t/025-Term-CLI-Argument-Enum.t
 t/026-Term-CLI-Argument-Enum-Dynamic.t
 t/027-Term-CLI-Argument-Bool.t
+t/028-Term-CLI-Argument-Enum-Cache.t
 t/030-Term-CLI-Argument-Filename.t
 t/035-Term-CLI-Argument-Number.t
 t/040-Term-CLI-Argument-Number-Int.t
@@ -78,3 +88,4 @@ tutorial/example_14_sub_cmd_and_args.pl
 tutorial/example_15_debug_command.pl
 tutorial/example_16_options.pl
 tutorial/example_17_suspend.pl
+tutorial/example_18_dynamic_enum.pl

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -T
 #
-# Copyright (C) 2018, Steven Bakker.
+# Copyright (c) 2018-2022, Steven Bakker.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl 5.14.0. For more details, see the full text
@@ -76,12 +76,12 @@ sub check_complete: Test(6) {
         "complete returns (@expected) for '$partial'");
 
     $partial = 'F';
-    @expected = sort qw( False );
+    @expected = sort qw( FALSE );
     is_deeply( [$arg->complete($partial)], \@expected,
         "complete returns (@expected) for '$partial'");
 
     $partial = 'O';
-    @expected = sort qw( On Ok Off );
+    @expected = sort qw( ON OK OFF );
     is_deeply( [$arg->complete($partial)], \@expected,
         "complete returns (@expected) for '$partial'");
 

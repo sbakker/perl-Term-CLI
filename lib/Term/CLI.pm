@@ -7,7 +7,7 @@
 #       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
 #      Created:  31/01/18
 #
-#   Copyright (c) 2018 Steven Bakker
+#   Copyright (c) 2018-2022 Steven Bakker
 #
 #   This module is free software; you can redistribute it and/or modify
 #   it under the same terms as Perl itself. See "perldoc perlartistic."
@@ -105,13 +105,18 @@ has quote_characters => ( is => 'rw', isa => Str, default => sub {q("')} );
 sub BUILD {
     my ( $self, $args ) = @_;
 
-    my $term = Term::CLI::ReadLine->new( $self->name )->term;
+    my @fh_list = ( \*STDIN, \*STDOUT );
+    if (exists $args->{filehandles}) {
+        @fh_list = @{ $args->{filehandles} // [] };
+    }
+
+    my $term = Term::CLI::ReadLine->new( $self->name, @fh_list );
 
     if ( my $sig_list = $args->{ignore_keyboard_signals} ) {
         $term->ignore_keyboard_signals( @{$sig_list} );
     }
 
-    $term->Attribs->{char_is_quoted_p}    = sub { $self->_is_escaped(@_) };
+    $term->Attribs->{char_is_quoted_p} = sub { $self->_is_escaped(@_) };
 
     $self->_set_completion_attribs;
 
@@ -306,6 +311,26 @@ and L<Term::CLI::Intro>(3p) first, and peruse the example
 scripts in the source distribution's F<examples> and
 F<tutorial> directories.
 
+=head2 I/O handles
+
+By default C<Term::CLI> will create a
+L<Term::CLI::ReadLine|Term::CLI::ReadLine> object
+(which creates a L<Term::ReadLine|Term::ReadLine> object)
+that reads from F<STDIN> and writes to F<STDOUT>.
+
+This is notably different from the default behaviour of e.g.
+GNU Readline which opens the TTY separately. This may cause
+unexpected behaviour in case of UTF-8 I/O.
+
+By explicitly specifying F<STDIN> and F<STDOUT> as the I/O
+handles, we force the underlying readline implementation to
+use the same I/O encoding as the standard I/O handles. This
+means that e.g. C<use open qw(:std :utf8)> will do what you
+expect and enable UTF-8 input/output.
+
+See the C<filehandles> argument to L<new|/new> below for information
+on how to change this.
+
 =head1 CLASS STRUCTURE
 
 =head2 Inherits from:
@@ -333,6 +358,18 @@ Valid attributes:
 
 Reference to a subroutine that should be called when the command
 is executed, or C<undef>.
+
+=item B<filehandles> =E<gt> I<ArrayRef>
+
+File handles to use for input and output, resp. The array can be:
+
+    undef
+    [ ]
+    [ IN_FH, OUT_FH ]
+
+If the value is either C<undef> or an empty list, then we rely
+on the underlying readline's implementation to determine the
+I/O handles (but see L<I/O handles|I/O handles> above).
 
 =item B<cleanup> =E<gt> I<CodeRef>
 

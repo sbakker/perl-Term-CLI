@@ -313,7 +313,16 @@ push @commands, Term::CLI::Command->new(
     name        => 'interface',
     summary     => 'Turn I<iface> up or down',
     description => "Turn the I<iface> interface up or down.",
-    arguments   => [ Term::CLI::Argument::String->new( name => 'iface' ) ],
+    arguments   => [
+        Term::CLI::Argument::Enum->new(
+            name => 'iface',
+            value_list => sub {
+                my $if_t = readpipe('ip link show 2>/dev/null') // '';
+                my @if_l = $if_t =~ /^ \d+ : \s (\S+): \s/gxms;
+                return \@if_l;
+            }
+        ),
+    ],
     commands    => [
         Term::CLI::Command->new(
             name        => 'up',

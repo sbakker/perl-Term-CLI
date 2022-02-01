@@ -7,7 +7,7 @@
 #       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
 #      Created:  18/Feb/2018
 #
-#   Copyright (c) 2018 Steven Bakker
+#   Copyright (c) 2018-2022 Steven Bakker
 #
 #   This module is free software; you can redistribute it and/or modify
 #   it under the same terms as Perl itself. See "perldoc perlartistic."
@@ -27,7 +27,7 @@ use version;
 use List::Util 1.23 qw( first min );
 use File::Which 1.09;
 use Types::Standard 1.000005 qw( ArrayRef Str );
-use Getopt::Long 2.38 qw( GetOptionsFromArray );
+use Term::CLI::Util qw( get_options_from_array );
 use Term::CLI::L10N qw( loc );
 
 use Pod::Text::Termcap    2.06;
@@ -312,50 +312,46 @@ sub _get_all_help {
 }
 
 sub complete {
-    my ( $self, @words ) = @_;
+    my ( $self, $text, $state ) = @_;
 
-    my $partial = $words[-1] // '';
+    my $processed       = $state->{processed}   //= [];
+    my $unprocessed     = $state->{unprocessed} //= [];
+    my $parsed_options  = $state->{options}     //= {};
 
     # uncoverable branch false
     if ( $self->has_options ) {
 
         Getopt::Long::Configure(qw(bundling require_order pass_through));
 
-        my $opt_specs = $self->options;
+        my %opt_result = get_options_from_array(
+            args         => $unprocessed,
+            spec         => $self->options,
+            result       => $parsed_options,
+            pass_through => 1,
+        );
 
-        my %parsed_opts;
+        my $double_dash = $opt_result{double_dash};
 
-        my $has_terminator = first { $_ eq '--' } @words[ 0 .. $#words - 1 ];
-
-        ## no critic (RequireCheckingReturnValueOfEval)
-        eval { GetOptionsFromArray( \@words, \%parsed_opts, @$opt_specs ) };
-
-        if ( !$has_terminator && @words <= 1 && $partial =~ /^-/x ) {
+        if ( !$double_dash && @{$unprocessed} == 0 && $text =~ /^-/x ) {
 
             # We have to complete a command-line option.
-            return
-                grep { rindex( $_, $partial, 0 ) == 0 } $self->option_names;
+            return grep { rindex( $_, $text, 0 ) == 0 } $self->option_names;
         }
     }
 
     my $cur_cmd_ref = $self->parent;
-    while (@words) {
-        my $new_cmd_ref = $cur_cmd_ref->find_command( $words[0] );
-        if ( !$new_cmd_ref ) {
-            last;
-        }
-        shift @words;
+    while (@$unprocessed) {
+        my $new_cmd_ref = $cur_cmd_ref->find_command( $unprocessed->[0] );
+
+        return () if !$new_cmd_ref;
+
+        push @{$processed}, shift @{$unprocessed};
         $cur_cmd_ref = $new_cmd_ref;
     }
 
-    if ( @words == 0 ) {
-        return $cur_cmd_ref->name;
-    }
-    if ( $cur_cmd_ref->has_commands && @words == 1 ) {
-        return
-            grep { rindex( $_, $partial, 0 ) == 0 }
-            $cur_cmd_ref->command_names;
-    }
+    return grep { rindex( $_, $text, 0 ) == 0 } $cur_cmd_ref->command_names
+        if $cur_cmd_ref->has_commands;
+
     return ();
 }
 

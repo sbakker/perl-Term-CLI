@@ -7,7 +7,7 @@
 #       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
 #      Created:  22/Jan/2018
 #
-#   Copyright (c) 2018 Steven Bakker
+#   Copyright (c) 2018-2022 Steven Bakker
 #
 #   This module is free software; you can redistribute it and/or modify
 #   it under the same terms as Perl itself. See "perldoc perlartistic."
@@ -24,6 +24,7 @@ use 5.014;
 use warnings;
 
 use Term::CLI::L10N qw( loc );
+use Term::CLI::Util qw( is_prefix_str );
 
 use Types::Standard 1.000005 qw(
     ArrayRef
@@ -44,47 +45,81 @@ has value_list => (
     required => 1,
 );
 
-# Helper for fetching the actual list of values since
-# "value_list" can be a CODEREF.
-sub _fetch_values {
+has cache_values => (
+    is       => 'rw',
+    default  => sub {0},
+);
+
+has _value_cache => (
+    is        => 'rw',
+    isa       => ArrayRef,
+    predicate => 1,
+    clearer   => 1,
+);
+
+sub values {
     my ($self) = @_;
 
-    my $l = $self->value_list;
-    return reftype($l) eq 'CODE' ? $l->($self) : $l;
+    my $value_list = $self->value_list;
+
+    return $value_list if reftype $value_list eq 'ARRAY';
+
+    # Return cache if needed.
+    if ( $self->cache_values && $self->_has_value_cache ) {
+        return $self->_value_cache;
+    }
+
+    $self->_clear_value_cache;
+    my $list_ref = $value_list->($self);
+
+    if ( $self->cache_values ) {
+        $self->_value_cache($list_ref);
+    }
+
+    return $list_ref;
 }
+
+# Trigger for when caching gets disabled to immediately clear the
+# cache. This allows for quicker cleanup of objects, file handles, etc.
+after cache_values => sub {
+    my ($self, @args) = @_;
+
+    if (@args && !$args[0]) {
+        $self->_clear_value_cache;
+    }
+};
 
 sub validate {
     my ( $self, $value ) = @_;
 
     defined $self->SUPER::validate($value) or return;
 
-    my $value_list = $self->_fetch_values;
+    my $values_r = $self->values;
 
-    my @found = grep { rindex( $_, $value, 0 ) == 0 } @{$value_list};
+    my @found = grep { is_prefix_str( $value, $_ ) } @{$values_r};
     if ( @found == 0 ) {
         return $self->set_error( loc("not a valid value") );
     }
 
-    if ( @found == 1 ) {
-        return $found[0];
-    }
+    return $found[0] if @found == 1;
 
     # Multiple prefix matches; only a problem if there is not an *exact*
     # match.
-    my $match = first { $_ eq $value } @found
-        or return $self->set_error(
+    if ( my $match = first { $_ eq $value } @found ) {
+        return $match;
+    }
+
+    return $self->set_error(
         loc( "ambiguous value (matches: [_1])", join( ", ", sort @found ) ) );
-    return $match;
 }
 
 sub complete {
-    my ( $self, $value ) = @_;
+    my ( $self, $text ) = @_;
 
-    my $value_list = $self->_fetch_values;
+    my $values_r = $self->values;
 
-    return ( sort @{$value_list} ) if !length $value;
-    return ( sort grep { substr( $_, 0, length($value) ) eq $value }
-            @{$value_list} );
+    return ( sort @{$values_r} ) if !length $text;
+    return ( sort grep { is_prefix_str( $text, $_ ) } @{$values_r} );
 }
 
 1;
@@ -138,15 +173,23 @@ None.
 
     OBJ = Term::CLI::Argument::Enum(
         name => STRING,
-        value_list => ArrayRef | CodeRef
+        value_list => ArrayRef | CodeRef,
+        cache_values => BOOL,
     );
 
 See also L<Term::CLI::Argument>(3p). The B<value_list> argument is
 mandatory and can either be a reference to an array, or a code refrerence.
 
-A value list consisting of a code reference can be used to implement dynamic
-values. The code reference will be called with a single argument consisting
-of the reference to the C<Term::CLI::Argument::Enum> object.
+A value list consisting of a code reference can be used to implement
+dynamic values or delayed expansion (where the values have to be
+fetched from a database or remote system). The code reference will
+be called with a single argument consisting of the reference to the
+C<Term::CLI::Argument::Enum> object.
+
+The C<cache_values> attribute can be set to a true value to prevent
+repeated calls to the C<value_list> code reference. For dynamic value
+lists this is not desired, but for lists that are generated through
+expensive queries, this can be useful. The default is 0 (false).
 
 =back
 
@@ -157,9 +200,25 @@ See also L<Term::CLI::Argument>(3p).
 =over
 
 =item B<value_list>
+X<value_list>
 
 A reference to a either a list of valid values for the argument or a
 subroutine which returns a reference to such a list.
+
+=item B<cache_values>
+X<cache_values>
+
+=item B<cache_values> ( [ I<BOOL> ] )
+
+Returns or sets whether the value list should be cached in case
+C<value_list> is a code reference.
+
+For dynamic value lists this should be false, but for lists that are
+generated through expensive queries, it can be useful to set this to
+true.
+
+If the value is changed from true to false, any cached list is
+immediately cleared.
 
 =back
 
@@ -174,6 +233,16 @@ The following methods are added or overloaded:
 =item B<validate>
 
 =item B<complete>
+
+Overloaded from L<Term::CLI::Argument>(3p).
+
+=item B<values>
+
+Returns an ArrayRef containing the list of valid values for this
+argument object.
+
+In case L<value_list|/value_list> is a CodeRef, it will call the
+code to expand the list and return the result.
 
 =back
 
