@@ -62,7 +62,7 @@ sub values {
 
     my $value_list = $self->value_list;
 
-    return $value_list if reftype $value_list eq 'ARRAY';
+    return $value_list if ref $value_list && reftype $value_list eq 'ARRAY';
 
     # Return cache if needed.
     if ( $self->cache_values && $self->_has_value_cache ) {
