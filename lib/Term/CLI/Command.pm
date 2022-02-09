@@ -46,9 +46,12 @@ has options => (
     predicate => 1
 );
 
-with('Term::CLI::Role::CommandSet');
-with('Term::CLI::Role::ArgumentSet');
-with('Term::CLI::Role::HelpText');
+with qw(
+    Term::CLI::Role::CommandSet
+    Term::CLI::Role::ArgumentSet
+    Term::CLI::Role::HelpText
+    Term::CLI::Role::State
+);
 
 sub option_names {
     my $self      = shift;
@@ -339,7 +342,8 @@ L<Term::CLI::Element|Term::CLI::Element>(3p).
 
 L<Term::CLI::Role::ArgumentSet|Term::CLI::Role::ArgumentSet>(3p),
 L<Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet>(3p),
-L<Term::CLI::Role::HelpText|Term::CLI::Role::HelpText>(3p).
+L<Term::CLI::Role::HelpText|Term::CLI::Role::HelpText>(3p),
+L<Term::CLI::Role::State|Term::CLI::Role::State>(3p).
 
 =head1 CONSTRUCTORS
 
