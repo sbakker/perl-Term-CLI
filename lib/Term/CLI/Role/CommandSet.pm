@@ -25,7 +25,6 @@ use warnings;
 
 use Carp qw( croak );
 use Scalar::Util qw( reftype );
-use List::Util qw( first );
 use Term::CLI::L10N qw( loc );
 
 use Types::Standard 1.000005 qw(
@@ -206,14 +205,10 @@ sub find_command {
 
     my @matches = $self->find_matches($text);
 
-    return $matches[0] if @matches == 1;
-
     return $self->set_error( loc( "unknown command '[_1]'", $text ) )
         if @matches == 0;
 
-    if ( my $exact_match = first { $_->name eq $text } @matches ) {
-        return $exact_match;
-    }
+    return $matches[0] if @matches == 1 || $matches[0]->name eq $text;
 
     return $self->set_error(
         loc("ambiguous command '[_1]' (matches: [_2])",
