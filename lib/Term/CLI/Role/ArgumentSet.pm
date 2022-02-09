@@ -2,7 +2,7 @@
 #
 #       Module:  Term::CLI::ArgumentSet
 #
-#  Description:  Class for sets of (sub-)commands in Term::CLI
+#  Description:  Role for sets of arguments in Term::CLI
 #
 #       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
 #      Created:  05/02/18
@@ -88,7 +88,7 @@ __END__
 
 =head1 NAME
 
-Term::CLI::Role::ArgumentSet - Role for (sub-)commands in Term::CLI
+Term::CLI::Role::ArgumentSet - Manage command arguments in Term::CLI
 
 =head1 SYNOPSIS
 
@@ -173,31 +173,6 @@ L<Term::CLI::Argument|Term::CLI::Argument> object.
 X<argument_names>
 
 Return the list of (sub-)command names (in the order they were specified).
-
-=item B<find_matches> ( I<Str> )
-X<find_matches>
-
-Return a list of all commands in this object that match the I<Str>
-prefix.
-
-=item B<find_command> ( I<Str> )
-X<find_command>
-
-Check whether I<Str> uniquely matches a command in this C<Term::CLI>
-object. Returns a reference to the appropriate
-L<Term::CLI::Command> object if successful; otherwise, it
-sets the objects C<error> field and returns C<undef>.
-
-Example:
-
-    my $sub_cmd = $cmd->find_command($prefix);
-    die $cmd->error unless $sub_cmd;
-
-=item B<try_callback> ( I<ARGS> )
-X<try_callback>
-
-Wrapper function that will call the object's C<callback> function if it
-has been set, otherwise simply returns its arguments.
 
 =back
 
