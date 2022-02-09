@@ -57,7 +57,10 @@ use namespace::clean 0.25;
 
 extends 'Term::CLI::Base';
 
-with('Term::CLI::Role::CommandSet');
+with qw( 
+    Term::CLI::Role::CommandSet
+    Term::CLI::Role::State
+);
 
 my $DFL_HIST_SIZE = 1000;
 
@@ -339,7 +342,8 @@ L<Term::CLI::Base>(3p).
 
 =head2 Consumes:
 
-L<Term::CLI::Role::CommandSet>(3p).
+L<Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet>(3p),
+L<Term::CLI::Role::State|Term::CLI::Role::State>(3p).
 
 =head1 CONSTRUCTORS
 
