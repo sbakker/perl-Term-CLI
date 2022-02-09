@@ -136,6 +136,14 @@ objects.
 
 Methods to provide help text on a command.
 
+=item L<Term::CLI::Role::State|Term::CLI::Role::State>
+
+Role that helps keep a "state" hash for 
+L<Term::CLI::Command|Term::CLI::Command>
+and
+L<Term::CLI|Term::CLI>
+objects.
+
 =back
 
 =head1 CLASS RELATIONSHIPS
@@ -190,15 +198,17 @@ I<X> consumes I<Y>
 
 =back
 
-    Term::CLI -----------+
-                          \
-                           +---> Term::CLI::Role::CommandSet
-                          /
-    Term::CLI::Command --+
-              \     \
-               \     +---> Term::CLI::Role::ArgumentSet
-                \
-                 +---> Term::CLI::Role::HelpText
+    Term::CLI ---> Term::CLI::Role::CommandSet
+        \
+         +---> Term::CLI::Role::State
+
+    Term::CLI::Command ---> Term::CLI::Role::CommandSet
+         \    \     \
+          \    \     +---> Term::CLI::Role::ArgumentSet
+           \    \
+            \    +---> Term::CLI::Role::HelpText
+             \
+              +---> Term::CLI::Role::State
 
 =head2 Ownership
 
@@ -244,8 +254,9 @@ L<Term::CLI::Command|Term::CLI::Command>(3p),
 L<Term::CLI::L10N|Term::CLI::L10N>(3p),
 L<Term::CLI::L10N::en|Term::CLI::L10N::en>(3p),
 L<Term::CLI::L10N::nl|Term::CLI::L10N::nl>(3p),
-L<Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet>(3p),
 L<Term::CLI::Role::ArgumentSet|Term::CLI::Role::ArgumentSet>(3p),
+L<Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet>(3p),
+L<Term::CLI::Role::State|Term::CLI::Role::State>(3p),
 L<Term::ReadLine|Term::ReadLine>(3p).
 
 =head1 AUTHOR
