@@ -369,7 +369,7 @@ File handles to use for input and output, resp. The array can be:
 
 If the value is either C<undef> or an empty list, then we rely
 on the underlying readline's implementation to determine the
-I/O handles (but see L<I/O handles|I/O handles> above).
+I/O handles (but see L<IE<sol>O handles|/I/O handles> above).
 
 =item B<cleanup> =E<gt> I<CodeRef>
 
