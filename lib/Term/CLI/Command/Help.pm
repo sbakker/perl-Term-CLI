@@ -27,7 +27,7 @@ use version;
 use List::Util 1.23 qw( first min );
 use File::Which 1.09;
 use Types::Standard 1.000005 qw( ArrayRef Str );
-use Term::CLI::Util qw( get_options_from_array );
+use Term::CLI::Util qw( is_prefix_str get_options_from_array );
 use Term::CLI::L10N qw( loc );
 
 use Pod::Text::Termcap    2.06;
@@ -335,7 +335,7 @@ sub complete {
         if ( !$double_dash && @{$unprocessed} == 0 && $text =~ /^-/x ) {
 
             # We have to complete a command-line option.
-            return grep { rindex( $_, $text, 0 ) == 0 } $self->option_names;
+            return grep { is_prefix_str( $text, $_ ) } $self->option_names;
         }
     }
 
@@ -349,7 +349,7 @@ sub complete {
         $cur_cmd_ref = $new_cmd_ref;
     }
 
-    return grep { rindex( $_, $text, 0 ) == 0 } $cur_cmd_ref->command_names
+    return grep { is_prefix_str( $text, $_ ) } $cur_cmd_ref->command_names
         if $cur_cmd_ref->has_commands;
 
     return ();
