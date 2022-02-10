@@ -181,12 +181,12 @@ sub find_matches {
     # This tends to be 50% faster than a dumb grep.
     my $cmd_list = $self->_get_command_list;
     my @found;
-    for my $cmd (@$cmd_list) {
-        my $name = $cmd->name;
+    foreach (@$cmd_list) {
+        my $name = $_->name;
         next if $name lt $text;
         my $prefix = substr( $name, 0, length $text );
         last if $prefix gt $text;
-        push @found, $cmd if $prefix eq $text;
+        push @found, $_ if $prefix eq $text;
     }
     return @found;
 }
