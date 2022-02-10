@@ -184,9 +184,12 @@ sub find_matches {
     foreach (@$cmd_list) {
         my $name = $_->name;
         next if $name lt $text;
-        my $prefix = substr( $name, 0, length $text );
-        last if $prefix gt $text;
-        push @found, $_ if $prefix eq $text;
+        if (rindex( $name, $text, 0 ) == 0) {
+            push @found, $_;
+            next;
+        }
+        my $prefix = 
+        last if substr( $name, 0, length $text ) gt $text;
     }
     return @found;
 }
@@ -282,7 +285,7 @@ sub complete_line {
     my @list;
 
     if ( @words == 0 ) {
-        @list = grep { rindex( $_, $text, 0 ) == 0 } $self->command_names;
+        @list = map { $_->name } $self->find_matches( $text );
     }
     elsif ( my $cmd = $self->find_command( $words[0] ) ) {
         @list = $cmd->complete(
