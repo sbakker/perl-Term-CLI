@@ -217,7 +217,7 @@ msgstr "kan programma '%1' niet starten: %2"
 
 #: lib/Term/CLI/Role/CommandSet.pm:138
 msgid "unknown command '%1'"
-msgstr "onbekend commando '%1'"
+msgstr "onbekende instructie '%1'"
 
 #: lib/Term/CLI/Role/CommandSet.pm:142
 msgid "ambiguous command '%1' (matches: %2)"
@@ -272,7 +272,7 @@ msgstr "'%1' verwacht in plaats van '%2'"
 
 #: lib/Term/CLI/Command.pm
 msgid "unknown sub-command '%1'"
-msgstr "onbekend sub-commando '%1'"
+msgstr "onbekende sub-instructie '%1'"
 
 #############################################################################
 ### lib/Term/CLI.pm #########################################################
