@@ -1,4 +1,9 @@
 #!/usr/bin/perl
+#
+# Benchmark showing that finding prefix matches in
+# a *sorted* list of strings is faster using a loop
+# with shortcutting than a `grep` with `rindex`.
+#
 
 use 5.014;
 use warnings;
@@ -19,14 +24,37 @@ for my $c ('a' .. 'z') {
     }
 }
 
-sub grep_match {
+sub grep_rindex {
     my ($text, $list) = @_;
 
     my @found = grep { rindex( $_, $text, 0 ) == 0 } @{$list};
     return @found;
 }
 
-sub search_match {
+sub grep_substr {
+    my ($text, $list) = @_;
+
+    my @found = grep { substr( $_, 0, length $text ) eq $text } @{$list};
+    return @found;
+}
+
+
+sub search_rindex {
+    my ($text, $list) = @_;
+
+    my @found;
+    foreach (@{$list}) {
+        next if $_ lt $text;
+        if (rindex( $_, $text, 0 ) == 0) {
+            push @found, $_;
+            next;
+        }
+        last if substr($_, 0, length $text) gt $text;
+    }
+    return @found;
+}
+
+sub search_substr {
     my ($text, $list) = @_;
     my @found;
     foreach (@{$list}) {
@@ -40,21 +68,24 @@ sub search_match {
 
 say "early match:";
 cmpthese( $iter, {
-    'grep' => sub { my @l = grep_match('aa', \@list) },
-    'search' => sub { my @l = search_match('aa', \@list) },
-    #'search2' => sub { my @l = search_match2('aa', \@list) },
+    'grep_rindex'   => sub { my @l = grep_rindex('aa', \@list) },
+    'grep_substr'   => sub { my @l = grep_substr('aa', \@list) },
+    'search_substr' => sub { my @l = search_substr('aa', \@list) },
+    'search_rindex' => sub { my @l = search_rindex('aa', \@list) },
 } );
 
-say "middle match:";
+say "\nmiddle match:";
 cmpthese( $iter, {
-    'grep' => sub { my @l = grep_match('mm', \@list) },
-    'search' => sub { my @l = search_match('mm', \@list) },
-    #'search2' => sub { my @l = search_match2('mm', \@list) },
+    'grep_rindex'   => sub { my @l = grep_rindex('mmm', \@list) },
+    'grep_substr'   => sub { my @l = grep_substr('mmm', \@list) },
+    'search_substr' => sub { my @l = search_substr('mmm', \@list) },
+    'search_rindex' => sub { my @l = search_rindex('mmm', \@list) },
 } );
 
-say "late match:";
+say "\nlate match:";
 cmpthese( $iter, {
-    'grep' => sub { my @l = grep_match('zz', \@list) },
-    'search' => sub { my @l = search_match('zz', \@list) },
-    #'search2' => sub { my @l = search_match2('zz', \@list) },
+    'grep_rindex' => sub { my @l = grep_rindex('zzzz', \@list) },
+    'grep_substr' => sub { my @l = grep_substr('zzzz', \@list) },
+    'search_substr' => sub { my @l = search_substr('zzzz', \@list) },
+    'search_rindex' => sub { my @l = search_rindex('zzzz', \@list) },
 } );
