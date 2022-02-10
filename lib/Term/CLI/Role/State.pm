@@ -36,6 +36,11 @@ has state => (
     default  => sub { {} },
 );
 
+sub clear_state {
+    my ($self) = @_;
+    %{ $self->state } = ();
+}
+
 1;
 
 __END__
@@ -94,52 +99,54 @@ Return the C<HashRef> representing the state.
 
 =back
 
+=head1 METHODS
+
+=over
+
+=item B<clear_state>
+X<clear_state>
+
+Clear the state hash, such that subsequent calls to L<state|/state>
+still return the same C<HashRef>, but without any contents.
+
+E.g.:
+
+    my $cli = Term::CLI->new();
+    my $hash = $cli->state();
+
+    $cli->state()->{'foo'} = 'foo';
+    $hash->{'bar'}         = 'bar';
+
+    say scalar keys %{ $hash };         # prints "2"
+    say scalar keys %{ $cli->state };   # prints "2"
+
+    $cli->clear_state();
+
+    say scalar keys %{ $hash };         # prints "0"
+    say scalar keys %{ $cli->state };   # prints "0"
+
+=back
+
 =head1 EXAMPLE
 
- my $Start_Credit = 5;
-
- $cli->state->{credit} = $Start_Credit;
-
- $cli->add_command(
-    Term::CLI::Command->new(
-        name     => 'buy',
-        callback => sub {
-            my ($self, %args) = @_;
-            return %args if $args{status} < 0;
-
-            my $cli = $self->root_node;
-
-            if ($cli->state->{credit}) {
-                $cmd->state->{credit}--;
-                say "purchase completed, credit is now: ",
-                    $cmd->state->{credit};
-                return %args;
-            }
-            say STDERR "cannot purchase: not enough credit";
-            return (%args, status => -1);
-        },
-    ),
-    Term::CLI::Command->new(
-        name     => 'borrow',
-        callback => sub {
-            my ($self, %args) = @_;
-            return %args if $args{status} < 0;
-
-            my $cli = $self->root_node;
-
-            $cli->state->{credit} += $Start_Credit;
-            say "loaned $Start_Credit, credit is now: ",
-                    $cmd->state->{credit};
-            return %args;
-        },
-    ),
- );
+See F<examples/state_demo.pl> in the source distribution for an example of
+how to keep state in the C<Term::CLI> object.
 
 =head1 SEE ALSO
 
 L<Term::CLI>(3p),
 L<Term::CLI::Command>(3p),
 L<Term::CLI::CommandSet>(3p).
+
+=head1 FILES
+
+=over
+
+=item F<examples/state_demo.pl>
+
+Example script that demonstrates how to keep in the C<Term::CLI> object.
+
+=back
 
 =head1 AUTHOR
 
