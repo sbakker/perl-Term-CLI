@@ -100,6 +100,18 @@ sub check_constructor: Test(2) {
     return;
 }
 
+sub check_state: Test(2) {
+    my $self = shift;
+    my $cmd = $self->{cmd};
+
+    my $got = $cmd->state;
+    is_deeply( $got, {}, 'state returns an empty HashRef' );
+
+    $cmd->state->{'flag'} = 123;
+
+    is( $cmd->state->{'flag'}, 123,
+        'state is stored and retrieved correctly' );
+}
 
 sub check_arguments: Test(4) {
     my $self = shift;
