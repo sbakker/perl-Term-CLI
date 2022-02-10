@@ -3,10 +3,11 @@
 # Demo script by djerius to demonstrate the use of "CLI context", a la Cisco
 # routers.
 #
-use strict;
+use 5.014;
 use warnings;
+use FindBin;
 
-use v5.14;
+use lib "$FindBin::Bin/../lib";
 
 use Term::CLI;
 use Term::CLI::L10N 'loc';
@@ -21,7 +22,7 @@ my $cli = Term::CLI->new(
 
 while ( defined( my $input = $cli->readline(prompt => 'test> ') ) ) {
     my %args = eval { $cli->execute( $input ); };
-	say STDERR loc("ERROR#0"), ": ", $args{error} if $args{status} < 0;
+    say STDERR loc("ERROR"), "#0: ", $args{error} if $args{status} < 0;
     say $@ if $@ ne '';
 }
 
@@ -40,20 +41,18 @@ sub Loop {
 
             # no-op if there actually was a subcommand.
             # Compare $self to the last command in $args{command_path}.
-            # HOWEVER: the  docs in Term::CLI::Role::CommandSet say that
-            # $args{command_path}[-1] === $self, but that's seem to be
-            # only the case when $self is the leaf node.
+            # $args{command_path}[-1] === $self if $self is the leaf node.
             return %args
-              if $args{status} < 0 || refaddr( $self ) != refaddr( $args{command_path}[-1] );
+              if $args{status} < 0
+                    || refaddr( $self ) != refaddr( $args{command_path}[-1] );
 
-            while ( my $input = $self->readline( prompt => $self->name . '> ' ) )
-            {
+            while ( my $input = $self->readline( prompt => $self->name . '> ' ) ) {
                 my %args = eval {
                     $self->execute_line( $input );
                 };
                 say STDERR $@ if $@ ne '';
                 # handle our own errors.
-                say STDERR loc("ERROR#1"), ": ", $args{error} if $args{status} < 0;
+                say STDERR loc("ERROR"), "#1: ", $args{error} if $args{status} < 0;
                 last if $args{command_path}[-1]{name} eq 'exit';
             }
             return %args;
