@@ -29,7 +29,7 @@ use Test::Exception 0.35;
 use Term::CLI::Argument::Enum;
 use Term::CLI::L10N;
 
-my $ARG_NAME= 'test_enum';
+my $ARG_NAME    = 'test_enum';
 my @ENUM_VALUES = qw( foo bar baz );
 
 # Untaint the PATH.
@@ -70,7 +70,7 @@ sub check_uncached: Test(2) {
 
     $got = $arg->values;
     $count++;
-    @expected = map { "$_-$count" } @ENUM_VALUES;
+    @expected = sort map { "$_-$count" } @ENUM_VALUES;
 
     is_deeply( $got, \@expected,
         'cache=0; enum value list 1 is dynamic',
@@ -78,7 +78,7 @@ sub check_uncached: Test(2) {
 
     $got = $arg->values;
     $count++;
-    @expected = map { "$_-$count" } @ENUM_VALUES;
+    @expected = sort map { "$_-$count" } @ENUM_VALUES;
 
     is_deeply( $got, \@expected,
         'cache=0; enum value list 2 is dynamic',
@@ -100,7 +100,7 @@ sub check_cached: Test(2) {
     $got = $arg->values;
     $count++;
 
-    @expected = map { "$_-$count" } @ENUM_VALUES;
+    @expected = sort map { "$_-$count" } @ENUM_VALUES;
 
     is_deeply( $got, \@expected,
         'cache=1; enum value list 1 is correct',
