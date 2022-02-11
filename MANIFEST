@@ -10,7 +10,11 @@ META.json
 META.yml
 Makefile.PL
 README.md
+benchmarks/grep_vs_search.pl
+benchmarks/substr_vs_rindex.pl
+benchmarks/wordlist-en.txt
 cpanfile
+examples/big_enum.pl
 examples/cli_context.pl
 examples/context_sensitive_completion/README.md
 examples/context_sensitive_completion/cli_demo.pl
@@ -19,12 +23,15 @@ examples/context_sensitive_completion/data/continents.json
 examples/context_sensitive_completion/data/countries.json
 examples/context_sensitive_completion/data/data.json
 examples/context_sensitive_completion/data/munge_country_data.pl
+examples/dynamic_commands.pl
 examples/getopt_test.pl
 examples/readline_cli.pl
 examples/readline_completion_demo.pl
 examples/simple_cli.pl
+examples/state_demo.pl
 examples/term_cli.pl
 examples/term_cli_demo.pl
+examples/wordlist-en.txt
 lib/Term/CLI.pm
 lib/Term/CLI/Argument.pm
 lib/Term/CLI/Argument/Bool.pm
@@ -46,6 +53,7 @@ lib/Term/CLI/ReadLine.pm
 lib/Term/CLI/Role/ArgumentSet.pm
 lib/Term/CLI/Role/CommandSet.pm
 lib/Term/CLI/Role/HelpText.pm
+lib/Term/CLI/Role/State.pm
 lib/Term/CLI/Tutorial.pod
 lib/Term/CLI/Util.pm
 pkg/fedora/perl-Term-CLI.spec
