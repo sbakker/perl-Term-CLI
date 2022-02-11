@@ -34,7 +34,7 @@ my $USAGE = <<EO_USAGE;
 usage: $FindBin::Script [options]
 
 Options:
-  --prefix-len=n, -p n      - Match on prefix length n.
+  --prefix-len=n, -p n      - Match on prefix length n; 0 means match exact.
                               (default: $DFL_PREFIX_LEN)
 
   --iterations=n, -i n      - Run n iterations.
@@ -114,10 +114,10 @@ sub Main {
     
     my %compare_func;
 
-    my @search_patterns =
-        map {
-            substr $list->[int($#{$list}*$_)], 0, $prefix_len
-        } @match_points;
+    my @search_patterns = map { $list->[int($#{$list}*$_)] } @match_points;
+    if ($prefix_len > 0) {
+        @search_patterns = map { substr $_, 0, $prefix_len } @search_patterns;
+    }
 
     for my $algo (@algorithms) {
 
@@ -128,7 +128,7 @@ sub Main {
 
         $compare_func{$algo} = sub {
             for my $text (@search_patterns) {
-                my @l = $func->($text, $list_r);
+                my @l = $func->($text, $list_r, $prefix_len == 0);
             }
         }
     }
@@ -136,7 +136,8 @@ sub Main {
     say "list size: ", int( @$list );
     say "matching: @search_patterns";
     cmpthese( $iterations, \%compare_func );
-    timethese( $iterations, \%compare_func );
+    #print "\n";
+    #timethese( $iterations, \%compare_func );
 }
 
 sub mk_lists {
@@ -162,42 +163,47 @@ sub mk_lists {
 }
 
 sub grep_rindex {
-    my ($text, $list) = @_;
+    my ($text, $list, $exact) = @_;
 
     my @found = grep { rindex( $_, $text, 0 ) == 0 } @{$list};
+    return $found[0] if $exact && @found && $found[0] eq $text;
     return @found;
 }
 
 sub grep_rindex_indirect {
-    my ($text, $list) = @_;
+    my ($text, $list, $exact) = @_;
 
     my @found = grep { rindex( $_->name, $text, 0 ) == 0 } @{$list};
+    return $found[0] if $exact && @found && $found[0]->name eq $text;
     return @found;
 }
 
 
 sub grep_substr {
-    my ($text, $list) = @_;
+    my ($text, $list, $exact) = @_;
 
     my @found = grep { substr( $_, 0, length $text ) eq $text } @{$list};
+    return $found[0] if $exact && @found && $found[0] eq $text;
     return @found;
 }
 
 sub grep_substr_indirect {
-    my ($text, $list) = @_;
+    my ($text, $list, $exact) = @_;
 
     my @found = grep { substr( $_->name, 0, length $text ) eq $text } @{$list};
+    return $found[0] if $exact && @found && $found[0]->name eq $text;
     return @found;
 }
 
 sub search_rindex {
-    my ($text, $list) = @_;
+    my ($text, $list, $exact) = @_;
 
     my @found;
     foreach (@{$list}) {
         next if $_ lt $text;
         if (rindex( $_, $text, 0 ) == 0) {
             push @found, $_;
+            return @found if $exact && $_ eq $text;
             next;
         }
         last if substr($_, 0, length $text) gt $text;
@@ -206,7 +212,7 @@ sub search_rindex {
 }
 
 sub search_rindex_indirect {
-    my ($text, $list) = @_;
+    my ($text, $list, $exact) = @_;
 
     my @found;
     foreach (@{$list}) {
@@ -214,6 +220,7 @@ sub search_rindex_indirect {
         next if $n lt $text;
         if (rindex( $n, $text, 0 ) == 0) {
             push @found, $_;
+            return @found if $exact && $n eq $text;
             next;
         }
         last if substr($n, 0, length $text) gt $text;
@@ -247,7 +254,7 @@ sub search_substr_indirect {
 }
 
 sub search_bin {
-    my ($text, $list) = @_;
+    my ($text, $list, $exact) = @_;
 
     my ( $lo, $hi ) = ( 0, $#{$list} );
 
@@ -266,9 +273,11 @@ sub search_bin {
             $lo = $mid;
             next;
         }
+        return $list->[$mid] if $exact;
         $lo = $hi = $mid;
         last;
     }
+    return if $exact;
 
     my @found;
     foreach (@{$list}[$lo..$#{$list}]) {
@@ -282,7 +291,7 @@ sub search_bin {
 }
 
 sub search_bin_indirect {
-    my ($text, $list) = @_;
+    my ($text, $list, $exact) = @_;
 
     my ( $lo, $hi ) = ( 0, $#{$list} );
 
@@ -301,9 +310,11 @@ sub search_bin_indirect {
             $lo = $mid;
             next;
         }
+        return $list->[$mid] if $exact;
         $lo = $hi = $mid;
         last;
     }
+    return if $exact;
 
     my @found;
     foreach (@{$list}[$lo..$#{$list}]) {
@@ -318,14 +329,15 @@ sub search_bin_indirect {
 }
 
 sub search_balanced {
-    my ($text, $list) = @_;
+    my ($text, $list, $exact) = @_;
 
-    if (@$list <= 215) {
+    if ( @$list <= 42 || ( !$exact && @$list <= 215 ) ) {
         my @found;
         foreach (@{$list}) {
             next if $_ lt $text;
             if (rindex( $_, $text, 0 ) == 0) {
                 push @found, $_;
+                return @found if $exact && $_ eq $text;
                 next;
             }
             last if substr($_, 0, length $text) gt $text;
@@ -350,6 +362,7 @@ sub search_balanced {
             $lo = $mid;
             next;
         }
+        return $list->[$mid] if $exact;
         $lo = $hi = $mid;
         last;
     }
@@ -367,15 +380,16 @@ sub search_balanced {
 }
 
 sub search_balanced_indirect {
-    my ($text, $list) = @_;
+    my ($text, $list, $exact) = @_;
 
-    if (@$list <= 46) {
+    if ( @$list <= 11 || ( !$exact && @$list <= 46 ) ) {
         my @found;
         foreach (@{$list}) {
             my $n = $_->name;
             next if $n lt $text;
             if (rindex( $n, $text, 0 ) == 0) {
                 push @found, $_;
+                return @found if $exact && $n eq $text;
                 next;
             }
             last if substr($n, 0, length $text) gt $text;
@@ -400,6 +414,7 @@ sub search_balanced_indirect {
             $lo = $mid;
             next;
         }
+        return $list->[$mid] if $exact;
         $lo = $hi = $mid;
         last;
     }
