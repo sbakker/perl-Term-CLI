@@ -26,6 +26,7 @@ use warnings;
 use Carp qw( croak );
 use Scalar::Util qw( reftype );
 use Term::CLI::L10N qw( loc );
+use Term::CLI::Util qw( find_obj_name_matches );
 
 use Types::Standard 1.000005 qw(
     ArrayRef
@@ -99,7 +100,7 @@ sub _get_command_list {
 
     my $command_list = $self->_command_list;
 
-    return if !ref $command_list;
+    return undef if !ref $command_list;
 
     if (reftype $command_list eq 'CODE') {
         my $command_list = $command_list->($self);
@@ -175,23 +176,7 @@ sub delete_command {
 
 sub find_matches {
     my ( $self, $text ) = @_;
-    return () if !$self->has_commands;
-
-    # Use the fact that the list is sorted.
-    # This tends to be 50% faster than a dumb grep.
-    my $cmd_list = $self->_get_command_list;
-    my @found;
-    foreach (@$cmd_list) {
-        my $name = $_->name;
-        next if $name lt $text;
-        if (rindex( $name, $text, 0 ) == 0) {
-            push @found, $_;
-            next;
-        }
-        my $prefix = 
-        last if substr( $name, 0, length $text ) gt $text;
-    }
-    return @found;
+    return find_obj_name_matches($text, $self->_get_command_list);
 }
 
 sub root_node {
@@ -206,7 +191,8 @@ sub root_node {
 sub find_command {
     my ( $self, $text ) = @_;
 
-    my @matches = $self->find_matches($text);
+    my @matches = find_obj_name_matches(
+        $text, $self->_get_command_list, exact => 1 );
 
     return $self->set_error( loc( "unknown command '[_1]'", $text ) )
         if @matches == 0;
@@ -359,7 +345,8 @@ sub execute_line {
         $args{status} = $ERROR_STATUS;
     }
     elsif ( my $cmd_ref = $self->find_command( $cmd[0] ) ) {
-        %args = $cmd_ref->execute_command( %args, unparsed => [ @cmd[ 1 .. $#cmd ] ] );
+        %args = $cmd_ref->execute_command(
+            %args, unparsed => [ @cmd[ 1 .. $#cmd ] ] );
     }
     else {
         $args{error}  = $self->error;
@@ -739,8 +726,8 @@ X<find_command>
 
 Check whether I<Str> uniquely matches a command in this C<Term::CLI>
 object. Returns a reference to the appropriate
-L<Term::CLI::Command> object if successful; otherwise, it
-sets the objects C<error> field and returns C<undef>.
+L<Term::CLI::Command|Term::CLI::Command> object if successful; otherwise,
+it sets the object's C<error> field and returns C<undef>.
 
 Example:
 
