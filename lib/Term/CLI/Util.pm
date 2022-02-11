@@ -36,6 +36,8 @@ BEGIN {
 	our @EXPORT_OK   = qw(
         get_options_from_array
         is_prefix_str
+        find_obj_name_matches
+        find_text_matches
     );
 	our @EXPORT      = ();
 	our %EXPORT_TAGS = ( all => \@EXPORT_OK );
@@ -85,6 +87,118 @@ sub get_options_from_array {
     );
 }
 
+sub find_obj_name_matches {
+    my ( $text, $list, %opt ) = @_;
+
+    return if !$list || @$list == 0;
+
+    my $exact = $opt{exact};
+
+    if ( @$list <= 10 || ( !$exact && @$list <= 45 ) ) {
+        my @found;
+        foreach (@{$list}) {
+            my $n = $_->name;
+            next if $n lt $text;
+            if (rindex( $n, $text, 0 ) == 0) {
+                push @found, $_;
+                return @found if $exact && $n eq $text;
+                next;
+            }
+            last if substr($n, 0, length $text) gt $text;
+        }
+        return @found;
+    }
+
+    my ( $lo, $hi ) = ( 0, $#{$list} );
+
+    while ($lo < $hi) {
+        my $mid = int( ($lo + $hi) / 2 );
+        my $cmp = $text cmp $list->[$mid]->name;
+        if ($cmp < 0) {
+            $hi = $mid;
+            next;
+        }
+        if ($cmp > 0) {
+            if ($lo == $hi-1) {
+                $lo++;
+                last;
+            }
+            $lo = $mid;
+            next;
+        }
+        return $list->[$mid] if $exact;
+        $lo = $hi = $mid;
+        last;
+    }
+
+    my @found;
+    foreach (@{$list}[$lo..$#{$list}]) {
+        my $n = $_->name;
+        if (rindex( $n, $text, 0 ) == 0) {
+            push @found, $_;
+            next;
+        }
+        last if substr($n, 0, length $text) gt $text;
+    }
+    return @found;
+}
+
+
+sub find_text_matches {
+    my ( $text, $list, %opt ) = @_;
+
+    return if !$list || @$list == 0;
+
+    my $exact = $opt{exact};
+
+    if ( @$list <= 45 || ( !$exact && @$list <= 215 ) ) {
+        my @found;
+        foreach (@{$list}) {
+            next if $_ lt $text;
+            if (rindex( $_, $text, 0 ) == 0) {
+                push @found, $_;
+                return @found if $exact && $_ eq $text;
+                next;
+            }
+            last if substr($_, 0, length $text) gt $text;
+        }
+        return @found;
+    }
+
+    my ( $lo, $hi ) = ( 0, $#{$list} );
+
+    while ($lo < $hi) {
+        my $mid = int( ($lo + $hi) / 2 );
+        my $cmp = $text cmp $list->[$mid];
+        if ($cmp < 0) {
+            $hi = $mid;
+            next;
+        }
+        if ($cmp > 0) {
+            if ($lo == $hi-1) {
+                $lo++;
+                last;
+            }
+            $lo = $mid;
+            next;
+        }
+        return $list->[$mid] if $exact;
+        $lo = $hi = $mid;
+        last;
+    }
+
+    my @found;
+    foreach (@{$list}[$lo..$#{$list}]) {
+        if (rindex( $_, $text, 0 ) == 0) {
+            push @found, $_;
+            next;
+        }
+        last if substr($_, 0, length $text) gt $text;
+    }
+    return @found;
+
+}
+
 1;
 
 __END__
@@ -129,6 +243,28 @@ by name, or by specifying the C<:all> tag, which will import all functions.
 =head1 FUNCTIONS
 
 =over
+
+=item B<find_obj_name_matches>
+X<find_obj_matches>
+
+    LIST = find_obj_name_matches( TEXT, OBJ_LIST_REF );
+    LIST = find_obj_name_matches( TEXT, OBJ_LIST_REF, exact => 1 );
+
+Find objects in I<OBJ_LIST_REF> (an C<ArrayRef>) where I<TEXT> is a
+prefix for the object's C<name> attribute. The list I<must> be sorted
+on C<name> field.
+
+If the C<exact> options is specified to be true, an exact name match
+will result in exactly one item to be returned.
+
+=item B<find_text_matches>
+X<find_text_matches>
+
+    LIST = find_string_matches( TEXT, STRING_LIST_REF );
+    LIST = find_string_matches( TEXT, STRING_LIST_REF, exact => 1 );
+
+Same as L<find_obj_name_matches> above, except that the second argument
+refers to a I<sorted> list of scalars (strings), rather than objects.
 
 =item B<get_options_from_array>
 X<get_options_from_array>

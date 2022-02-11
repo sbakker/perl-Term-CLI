@@ -33,7 +33,7 @@ use Types::Standard 1.000005 qw(
 );
 
 use Term::CLI::L10N qw( loc );
-use Term::CLI::Util qw( get_options_from_array );
+use Term::CLI::Util qw( is_prefix_str get_options_from_array );
 
 use Moo 1.000001;
 use namespace::clean 0.25;
@@ -46,9 +46,12 @@ has options => (
     predicate => 1
 );
 
-with('Term::CLI::Role::CommandSet');
-with('Term::CLI::Role::ArgumentSet');
-with('Term::CLI::Role::HelpText');
+with qw(
+    Term::CLI::Role::CommandSet
+    Term::CLI::Role::ArgumentSet
+    Term::CLI::Role::HelpText
+    Term::CLI::Role::State
+);
 
 sub option_names {
     my $self      = shift;
@@ -85,7 +88,7 @@ sub complete {
 
         # Check if we have to complete a command-line option.
         if ( !$double_dash && @{$unprocessed} == 0 && $text =~ /^-/x ) {
-            return grep { rindex( $_, $text, 0 ) == 0 } $self->option_names;
+            return grep { is_prefix_str( $text, $_ ) } $self->option_names;
         }
     }
 
@@ -109,7 +112,7 @@ sub complete {
 
     if ( $self->has_commands ) {
         if ( @{$unprocessed} == 0 ) {
-            return grep { rindex( $_, $text, 0 ) == 0 } $self->command_names;
+            return grep { is_prefix_str( $text, $_ ) } $self->command_names;
         }
         if ( my $cmd = $self->find_command( $unprocessed->[0] ) ) {
             push @{$processed}, shift @{$unprocessed};
@@ -339,7 +342,8 @@ L<Term::CLI::Element|Term::CLI::Element>(3p).
 
 L<Term::CLI::Role::ArgumentSet|Term::CLI::Role::ArgumentSet>(3p),
 L<Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet>(3p),
-L<Term::CLI::Role::HelpText|Term::CLI::Role::HelpText>(3p).
+L<Term::CLI::Role::HelpText|Term::CLI::Role::HelpText>(3p),
+L<Term::CLI::Role::State|Term::CLI::Role::State>(3p).
 
 =head1 CONSTRUCTORS
 

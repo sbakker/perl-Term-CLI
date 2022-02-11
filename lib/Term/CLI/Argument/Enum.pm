@@ -24,7 +24,7 @@ use 5.014;
 use warnings;
 
 use Term::CLI::L10N qw( loc );
-use Term::CLI::Util qw( is_prefix_str );
+use Term::CLI::Util qw( is_prefix_str find_text_matches );
 
 use Types::Standard 1.000005 qw(
     ArrayRef
@@ -43,6 +43,11 @@ has value_list => (
     is       => 'ro',
     isa      => ArrayRef | CodeRef,
     required => 1,
+    coerce   => sub {
+        my ($arg) = @_;
+        return $arg if ref $arg && reftype $arg ne 'ARRAY';
+        return [ sort @$arg ];
+    }
 );
 
 has cache_values => (
@@ -61,19 +66,21 @@ sub values {
     my ($self) = @_;
 
     my $value_list = $self->value_list;
-
     return $value_list if reftype $value_list eq 'ARRAY';
 
-    # Return cache if needed.
+    # Dynamic values...
+
+    # Return cache if possible.
     if ( $self->cache_values && $self->_has_value_cache ) {
         return $self->_value_cache;
     }
 
     $self->_clear_value_cache;
-    my $list_ref = $value_list->($self);
+
+    my $list_ref = [ sort @{ $value_list->($self) } ];
 
     if ( $self->cache_values ) {
-        $self->_value_cache($list_ref);
+        $self->_value_cache( $list_ref );
     }
 
     return $list_ref;
@@ -96,21 +103,16 @@ sub validate {
 
     my $values_r = $self->values;
 
-    my @found = grep { is_prefix_str( $value, $_ ) } @{$values_r};
+    my @found = find_text_matches( $value, $values_r, exact => 1 );
+
     if ( @found == 0 ) {
         return $self->set_error( loc("not a valid value") );
     }
 
     return $found[0] if @found == 1;
 
-    # Multiple prefix matches; only a problem if there is not an *exact*
-    # match.
-    if ( my $match = first { $_ eq $value } @found ) {
-        return $match;
-    }
-
     return $self->set_error(
-        loc( "ambiguous value (matches: [_1])", join( ", ", sort @found ) ) );
+        loc( "ambiguous value (matches: [_1])", join( ", ", @found ) ) );
 }
 
 sub complete {
@@ -118,8 +120,8 @@ sub complete {
 
     my $values_r = $self->values;
 
-    return ( sort @{$values_r} ) if !length $text;
-    return ( sort grep { is_prefix_str( $text, $_ ) } @{$values_r} );
+    return @{$values_r} if !length $text;
+    return find_text_matches( $text, $values_r );
 }
 
 1;
@@ -141,6 +143,8 @@ Term::CLI::Argument::Enum - class for "enum" string arguments in Term::CLI
      name => 'arg1',
      value_list => [qw( foo bar baz )],
  );
+
+ my $val_list = $arg->values; # returns ['bar', 'baz', 'foo']
 
  # dynamic value list
  my $arg = Term::CLI::Argument::Enum->new(
@@ -172,8 +176,8 @@ None.
 =item B<new>
 
     OBJ = Term::CLI::Argument::Enum(
-        name => STRING,
-        value_list => ArrayRef | CodeRef,
+        name         => STRING,
+        value_list   => ArrayRef | CodeRef,
         cache_values => BOOL,
     );
 
@@ -184,7 +188,8 @@ A value list consisting of a code reference can be used to implement
 dynamic values or delayed expansion (where the values have to be
 fetched from a database or remote system). The code reference will
 be called with a single argument consisting of the reference to the
-C<Term::CLI::Argument::Enum> object.
+C<Term::CLI::Argument::Enum|Term::CLI::Argument::Enum>
+object.
 
 The C<cache_values> attribute can be set to a true value to prevent
 repeated calls to the C<value_list> code reference. For dynamic value
@@ -204,6 +209,9 @@ X<value_list>
 
 A reference to a either a list of valid values for the argument or a
 subroutine which returns a reference to such a list.
+
+Note that once set, changing the list pointed to by an I<ArrayRef>
+will result in undefined behaviour.
 
 =item B<cache_values>
 X<cache_values>
@@ -238,11 +246,11 @@ Overloaded from L<Term::CLI::Argument>(3p).
 
 =item B<values>
 
-Returns an ArrayRef containing the list of valid values for this
+Returns an ArrayRef containing a sorted list of valid values for this
 argument object.
 
 In case L<value_list|/value_list> is a CodeRef, it will call the
-code to expand the list and return the result.
+code to expand the list, sort it, and return the result.
 
 =back
 
@@ -296,7 +304,7 @@ Steven Bakker E<lt>sbakker@cpan.orgE<gt>, 2018.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2018 Steven Bakker
+Copyright (c) 2018-2022 Steven Bakker
 
 This module is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. See "perldoc perlartistic."

@@ -23,7 +23,10 @@ package Term::CLI::Role::CommandSet 0.054004;
 use 5.014;
 use warnings;
 
+use Carp qw( croak );
+use Scalar::Util qw( reftype );
 use Term::CLI::L10N qw( loc );
+use Term::CLI::Util qw( find_obj_name_matches );
 
 use Types::Standard 1.000005 qw(
     ArrayRef
@@ -42,22 +45,23 @@ my $ERROR_STATUS  = -1;
 has parent => (
     is       => 'rwp',
     weak_ref => 1,
-    isa      => ConsumerOf ['Term::CLI::Role::CommandSet'],
+    isa      => Maybe[ ConsumerOf ['Term::CLI::Role::CommandSet'] ],
 );
 
-has _commands => (
+has _command_list => (
     is       => 'rw',
-    writer   => '_set_commands',
+    isa      => Maybe [ArrayRef|CodeRef],
     init_arg => 'commands',
-    isa      => Maybe [ ArrayRef [ InstanceOf ['Term::CLI::Command'] ] ],
+    writer   => '_set_command_list',
     trigger  => 1,
     coerce   => sub {
-
-        # Copy the array, so the reference we store becomes
-        # "internal", preventing accidental modification
-        # from the outside.
-        return [ @{ $_[0] } ];
-    },
+        my ($arg) = @_;
+        if (ref $arg && reftype $arg eq 'ARRAY') {
+            # clone and sort array.
+            return [ sort { $a->name cmp $b->name } @{$arg} ];
+        }
+        return $arg;
+    }
 );
 
 has callback => (
@@ -69,59 +73,110 @@ has callback => (
 has require_sub_command => (
     is      => 'ro',
     isa     => Bool,
-    default => 1
+    default => sub { 1 },
 );
 
-# $self->_set_commands($ref) => $self->_trigger__commands($ref);
+# $self->_set_command_list($ref) => $self->_trigger__command_list($ref);
 #
 # Trigger to run whenever the object's _commands array ref is set.
 #
-sub _trigger__commands {    ## no critic (ProhibitUnusedPrivateSubroutines)
-    my ( $self, $arg ) = @_;
+sub _trigger__command_list { ## no critic (ProhibitUnusedPrivateSubroutines)
+    my ( $self, $cmd_list ) = @_;
 
-    # No need to check for defined-ness of $arg.
-    # The writer method already checks & croaks.
-    for my $cmd (@$arg) {
-        $cmd->_set_parent($self);
+    return if !$cmd_list;
+
+    # Set the parent for each command object.
+    if (ref $cmd_list && reftype $cmd_list eq 'ARRAY') {
+        for my $cmd_obj ( @{$cmd_list} ) {
+            $cmd_obj->_set_parent($self);
+        }
     }
     return;
 }
 
+# Get the command list reference, expand a CODE ref if necessary.
+sub _get_command_list {
+    my ($self) = @_;
+
+    my $command_list = $self->_command_list;
+
+    return undef if !ref $command_list;
+
+    if (reftype $command_list eq 'CODE') {
+        my $command_list = $command_list->($self);
+        if (!ref $command_list || reftype $command_list ne 'ARRAY') {
+            croak "'command' CodeRef should return an ARRAY ref, not ",
+                reftype( $command_list );
+        }
+        $self->_command_list($command_list);
+        $command_list = $self->_command_list; # Ensure we get the sorted list.
+    }
+    return $command_list;
+}
+
 sub commands {
+    my ($self) = @_;
+    my $command_list = $self->_get_command_list // [];
+    return @{ $command_list };
+}
+
+sub command_names {
     my $self = shift;
-    my @l    = sort { $a->name cmp $b->name } @{ $self->_commands // [] };
+    my $command_list = $self->_get_command_list or return;
+    my @l = map { $_->name } @{$command_list};
     return @l;
 }
 
 sub has_commands {
-    my $self = shift;
-    return ( $self->_commands and scalar @{ $self->_commands } > 0 );
+    my ($self) = @_;
+    my $command_list = $self->_get_command_list or return !1;
+    return scalar( @{$command_list} ) > 0;
 }
 
 sub add_command {
     my ( $self, @commands ) = @_;
 
-    if ( !$self->_commands ) {
-        $self->_set_commands( [] );
+    my $cmd_list = $self->_get_command_list;
+
+    if (!$cmd_list) {
+        $cmd_list = \@commands;
+        $self->_set_command_list($cmd_list);
+        return $self;
     }
 
-    for my $cmd (@commands) {
-        push @{ $self->_commands }, $cmd;
-        $cmd->_set_parent($self);
+    for my $cmd_obj ( @commands ) {
+        $cmd_obj->_set_parent( $self );
     }
+
+    push @{$cmd_list}, @commands;
+    @{$cmd_list} = sort { $a->name cmp $b->name } @{$cmd_list};
+
     return $self;
 }
 
-sub command_names {
-    my $self = shift;
-    return map { $_->name } $self->commands;
+sub delete_command {
+    my ( $self, @commands ) = @_;
+
+    my $cmd_list = $self->_get_command_list or return;
+
+    my %to_delete = map { (ref $_ ? $_->name : $_ ) => 1 } @commands;
+
+    my @deleted;
+
+    for my $index (reverse 0..$#{$cmd_list}) {
+        my $cmd_obj = $cmd_list->[$index];
+        if ( $to_delete{$cmd_obj->name} ) {
+            my $cmd_obj = splice @{$cmd_list}, $index, 1;
+            $cmd_obj->_set_parent(undef);
+            push @deleted, $cmd_obj;
+        }
+    }
+    return @deleted;
 }
 
 sub find_matches {
     my ( $self, $text ) = @_;
-    return () if !$self->has_commands;
-    my @found = grep { rindex( $_->name, $text, 0 ) == 0 } $self->commands;
-    return @found;
+    return find_obj_name_matches($text, $self->_get_command_list);
 }
 
 sub root_node {
@@ -135,18 +190,19 @@ sub root_node {
 
 sub find_command {
     my ( $self, $text ) = @_;
-    my @matches = $self->find_matches($text);
 
-    if ( @matches == 1 ) {
-        return $matches[0];
-    }
-    if ( @matches == 0 ) {
-        return $self->set_error( loc( "unknown command '[_1]'", $text ) );
-    }
+    my @matches = find_obj_name_matches(
+        $text, $self->_get_command_list, exact => 1 );
+
+    return $self->set_error( loc( "unknown command '[_1]'", $text ) )
+        if @matches == 0;
+
+    return $matches[0] if @matches == 1 || $matches[0]->name eq $text;
+
     return $self->set_error(
         loc("ambiguous command '[_1]' (matches: [_2])",
             $text,
-            join( ', ', sort map { $_->name } @matches )
+            join( ', ', map { $_->name } @matches )
         )
     );
 }
@@ -215,7 +271,7 @@ sub complete_line {
     my @list;
 
     if ( @words == 0 ) {
-        @list = grep { rindex( $_, $text, 0 ) == 0 } $self->command_names;
+        @list = map { $_->name } $self->find_matches( $text );
     }
     elsif ( my $cmd = $self->find_command( $words[0] ) ) {
         @list = $cmd->complete(
@@ -289,7 +345,8 @@ sub execute_line {
         $args{status} = $ERROR_STATUS;
     }
     elsif ( my $cmd_ref = $self->find_command( $cmd[0] ) ) {
-        %args = $cmd_ref->execute_command( %args, unparsed => [ @cmd[ 1 .. $#cmd ] ] );
+        %args = $cmd_ref->execute_command(
+            %args, unparsed => [ @cmd[ 1 .. $#cmd ] ] );
     }
     else {
         $args{error}  = $self->error;
@@ -349,14 +406,21 @@ This role defines two additional attributes:
 
 =over
 
-=item B<commands> =E<gt> I<ArrayRef>
+=item B<commands> =E<gt> { I<ArrayRef> | I<CodeRef> }
 
-Reference to an array containing C<Term::CLI::Command> object
-instances that describe the sub-commands that the command takes,
-or C<undef>.
+Either an C<ArrayRef> containing C<Term::CLI::Command>
+object instances that describe the sub-commands that the command takes,
+a C<CodeRef> that returns such an C<ArrayRef>, or C<undef>.
 
 Note that the elements of the array are copied over to an internal
-array, so modifications to the I<ArrayRef> will not be seen.
+array, so modifications to the C<ArrayRef> will not be seen.
+
+In case a C<CodeRef> is specified, the C<CodeRef> will be called only
+once, i.e. when the list of commands needs to be expanded. This allows
+for delayed object creation, which can be useful in deeper levels of the
+command hierarchy to reduce startup time.
+
+See also the L<commands|/commands> accessor below.
 
 =item B<callback> =E<gt> I<CodeRef>
 
@@ -381,6 +445,17 @@ See also L<Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet/ATTRIBUTES>.
 =head1 ACCESSORS AND PREDICATES
 
 =over
+
+=item B<commands>
+X<commands>
+
+Returns an C<ArrayRef> containing C<Term::CLI::Command>
+object instances that describe the sub-commands that the command takes,
+or C<undef>.
+
+Note that, although a C<CodeRef> can be specified in the constructor, the
+actual I<accessor> will never return the C<CodeRef>. Rather, it
+will call the C<CodeRef> once and store the result in an C<ArrayRef>.
 
 =item B<has_callback>
 X<has_callback>
@@ -538,6 +613,19 @@ The function will split the line in words and delegate the
 completion to the first L<Term::CLI::Command> sub-command,
 see L<Term::CLI::Command|Term::CLI::Command/complete>.
 
+=item B<delete_command> ( I<CMD>, ... )
+X<delete_command>
+
+Remove the given I<CMD> command(s) from the list of (sub-)commands,
+setting each object's L<parent|/parent> attribute to C<undef>.
+
+I<CMD> can be a string denoting a command name, or a
+L<Term::CLI::Command|Term::CLI::Command> object reference; if it
+is a reference, its C<name> will be used to locate the appropriate
+(sub-)command.
+
+Return the list of objects that were removed.
+
 =item B<execute> ( I<Str> ) B<### DEPRECATED>
 X<execute>
 
@@ -638,8 +726,8 @@ X<find_command>
 
 Check whether I<Str> uniquely matches a command in this C<Term::CLI>
 object. Returns a reference to the appropriate
-L<Term::CLI::Command> object if successful; otherwise, it
-sets the objects C<error> field and returns C<undef>.
+L<Term::CLI::Command|Term::CLI::Command> object if successful; otherwise,
+it sets the object's C<error> field and returns C<undef>.
 
 Example:
 
