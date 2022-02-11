@@ -1,27 +1,164 @@
 #!/usr/bin/perl
 #
-# Benchmark showing that finding prefix matches in
-# a *sorted* list of strings is faster using a loop
-# with shortcutting than a `grep` with `rindex`.
+# Benchmark showing that finding prefix matches in a *sorted* list of
+# strings is faster using a loop with shortcutting than a `grep` with
+# `rindex`.
 #
+# There's also a version which first uses a binary search to locate the
+# place where to start matching, but, depending on the type of item being
+# compared, this only saves time when the list has more than 215 strings
+# or 46 objects (with a "name" method); this is with a search string of
+# 3 characters. For shorter search strings, the start point for binary
+# search is higher and for longer strings it's lower.
+#
+# Mind you, the binary search starts to really pay off with very
+# large lists (1000s of items).
+#
+# YMMVVM (your mileage may vary very much).
 
 use 5.014;
 use warnings;
+use FindBin;
+use Benchmark qw( cmpthese timethese );
+use Time::HiRes qw( time );
 
-use Benchmark qw( cmpthese );
+use Getopt::Long qw( :config bundling );
 
-my $iter = @ARGV ? shift @ARGV : 200_000;
+my $DFL_ITERATIONS   = 10_000;
+my $DFL_PREFIX_LEN   =      3;
+my $DFL_LIST_SIZE    =    200;
+my @DFL_ALGORITHMS   = qw( search:rindex search:bin );
+my @DFL_MATCH_POINTS = ( 0, 0.5, 1 );
 
-my @list;
+my $USAGE = <<EO_USAGE;
+usage: $FindBin::Script [options]
 
-for my $c ('a' .. 'z') {
-    my $prefix = $c x 4;
+Options:
+  --prefix-len=n, -p n      - Match on prefix length n.
+                              (default: $DFL_PREFIX_LEN)
 
-    push @list, $prefix;
+  --iterations=n, -i n      - Run n iterations.
+                              (default: $DFL_ITERATIONS)
 
-    for my $i ( 1 .. 3 ) {
-        push @list, $prefix . $i;
+  --list-size=n, -S n       - Create lists of n elements.
+                              (default: $DFL_LIST_SIZE)
+
+  --match-points=f1,f2,...
+  -m f1,f2,...              - Match on prefixes from specific portions
+                              of the list.
+                              (default: @DFL_MATCH_POINTS)
+
+  --algorithms=a1,a2,... 
+  -a a1,a2,...              - Run tests for these algorithms.
+                              (default: @DFL_ALGORITHMS)
+
+  --indirect, -i            - Run the "indirect" versions of the algorithms
+                              (i.e. where list items are hashes with a "name"
+                              field).
+
+  --list-algorithms, -l     - List the available algorithms.
+
+EO_USAGE
+ 
+my %ALGORITHM = (
+    'grep:rindex'              => \&grep_rindex,
+    'grep:substr'              => \&grep_substr,
+    'search:rindex'            => \&search_rindex,
+    'search:substr'            => \&search_substr,
+    'search:bin'               => \&search_bin,
+    'search:balanced'          => \&search_balanced,
+
+    'grep:rindex:indirect'     => \&grep_rindex_indirect,
+    'grep:substr:indirect'     => \&grep_substr_indirect,
+    'search:rindex:indirect'   => \&search_rindex_indirect,
+    'search:substr:indirect'   => \&search_substr_indirect,
+    'search:bin:indirect'      => \&search_bin_indirect,
+    'search:balanced:indirect' => \&search_balanced_indirect,
+);
+
+sub Main {
+    my @match_points;
+    my @algorithms;
+    GetOptions(
+        'prefix-len|p=i'     => \(my $prefix_len = $DFL_PREFIX_LEN),
+        'iterations|i=i'     => \(my $iterations = $DFL_ITERATIONS),
+        'list-size|S=i'      => \(my $list_size = $DFL_LIST_SIZE),
+        'match-points|m=s@'  => \@match_points,
+        'algorithms|a=s@'    => \@algorithms,
+        'indirect|i'         => \(my $indirect = 0),
+        'list-algorithms|l'  => sub {
+            say join(' ', sort keys %ALGORITHM);
+            exit 0;
+        },
+        'help|h|?'           => sub { print $USAGE; exit 0 },
+    ) or die $USAGE;
+
+    die $USAGE if @ARGV;
+
+    @algorithms    = @DFL_ALGORITHMS   if !@algorithms;
+    my $algorithms = join(' ', @algorithms);
+    $algorithms    =~ s{ , }{ }gxms;
+    @algorithms    = split(q{ }, $algorithms);
+
+    my $match_points = join(' ', @match_points);
+    $match_points =~ s{ , }{ }gxms;
+    @match_points = split(q{ }, $match_points);
+    @match_points = grep { $_ >= 0 && $_ <= 1 } @match_points;
+    @match_points = @DFL_MATCH_POINTS if !@match_points;
+
+    if ($indirect) {
+        @algorithms = map { m{:indirect$} ? $_ : "$_:indirect" } @algorithms;
     }
+
+    my ($list, $list_indirect) = mk_lists($list_size);
+    
+    my %compare_func;
+
+    my @search_patterns =
+        map {
+            substr $list->[int($#{$list}*$_)], 0, $prefix_len
+        } @match_points;
+
+    for my $algo (@algorithms) {
+
+        my $func = $ALGORITHM{$algo}
+            or die "$algo: unknown algorithm (see '$FindBin::Script -l').\n";
+
+        my $list_r = $algo =~ /:indirect$/ ? $list_indirect : $list;
+
+        $compare_func{$algo} = sub {
+            for my $text (@search_patterns) {
+                my @l = $func->($text, $list_r);
+            }
+        }
+    }
+
+    say "list size: ", int( @$list );
+    say "matching: @search_patterns";
+    cmpthese( $iterations, \%compare_func );
+    timethese( $iterations, \%compare_func );
+}
+
+sub mk_lists {
+    my ($list_size) = @_;
+    my (@list, @list_indirect);
+
+    my $list_iter = 0;
+
+    while (@list < $list_size) {
+        for my $c ('a' .. 'z') {
+            my $letter = chr( ord('a') + $list_iter %26 );
+            my $elt = sprintf("%s%s", $c x 8, $letter x $list_iter);
+            push @list, $elt;
+            push @list_indirect, Item->new( name => $elt );
+            last if @list >= $list_size;
+        }
+        $list_iter++;
+    }
+
+    @list = sort @list;
+    @list_indirect = sort { $a->name cmp $b->name } @list_indirect;
+    return (\@list, \@list_indirect);
 }
 
 sub grep_rindex {
@@ -31,6 +168,14 @@ sub grep_rindex {
     return @found;
 }
 
+sub grep_rindex_indirect {
+    my ($text, $list) = @_;
+
+    my @found = grep { rindex( $_->name, $text, 0 ) == 0 } @{$list};
+    return @found;
+}
+
+
 sub grep_substr {
     my ($text, $list) = @_;
 
@@ -38,6 +183,12 @@ sub grep_substr {
     return @found;
 }
 
+sub grep_substr_indirect {
+    my ($text, $list) = @_;
+
+    my @found = grep { substr( $_->name, 0, length $text ) eq $text } @{$list};
+    return @found;
+}
 
 sub search_rindex {
     my ($text, $list) = @_;
@@ -54,6 +205,22 @@ sub search_rindex {
     return @found;
 }
 
+sub search_rindex_indirect {
+    my ($text, $list) = @_;
+
+    my @found;
+    foreach (@{$list}) {
+        my $n = $_->name;
+        next if $n lt $text;
+        if (rindex( $n, $text, 0 ) == 0) {
+            push @found, $_;
+            next;
+        }
+        last if substr($n, 0, length $text) gt $text;
+    }
+    return @found;
+}
+
 sub search_substr {
     my ($text, $list) = @_;
     my @found;
@@ -66,26 +233,196 @@ sub search_substr {
     return @found;
 }
 
-say "early match:";
-cmpthese( $iter, {
-    'grep_rindex'   => sub { my @l = grep_rindex('aa', \@list) },
-    'grep_substr'   => sub { my @l = grep_substr('aa', \@list) },
-    'search_substr' => sub { my @l = search_substr('aa', \@list) },
-    'search_rindex' => sub { my @l = search_rindex('aa', \@list) },
-} );
+sub search_substr_indirect {
+    my ($text, $list) = @_;
+    my @found;
+    foreach (@{$list}) {
+        my $n = $_->name;
+        next if $n lt $text;
+        my $prefix = substr($n, 0, length($text));
+        last if $prefix gt $text;
+        push @found, $_ if $prefix eq $text;
+    }
+    return @found;
+}
 
-say "\nmiddle match:";
-cmpthese( $iter, {
-    'grep_rindex'   => sub { my @l = grep_rindex('mmm', \@list) },
-    'grep_substr'   => sub { my @l = grep_substr('mmm', \@list) },
-    'search_substr' => sub { my @l = search_substr('mmm', \@list) },
-    'search_rindex' => sub { my @l = search_rindex('mmm', \@list) },
-} );
+sub search_bin {
+    my ($text, $list) = @_;
 
-say "\nlate match:";
-cmpthese( $iter, {
-    'grep_rindex' => sub { my @l = grep_rindex('zzzz', \@list) },
-    'grep_substr' => sub { my @l = grep_substr('zzzz', \@list) },
-    'search_substr' => sub { my @l = search_substr('zzzz', \@list) },
-    'search_rindex' => sub { my @l = search_rindex('zzzz', \@list) },
-} );
+    my ( $lo, $hi ) = ( 0, $#{$list} );
+
+    while ($lo < $hi) {
+        my $mid = int( ($lo + $hi) / 2 );
+        my $cmp = $text cmp $list->[$mid];
+        if ($cmp < 0) {
+            $hi = $mid;
+            next;
+        }
+        if ($cmp > 0) {
+            if ($lo == $hi-1) {
+                $lo++;
+                last;
+            }
+            $lo = $mid;
+            next;
+        }
+        $lo = $hi = $mid;
+        last;
+    }
+
+    my @found;
+    foreach (@{$list}[$lo..$#{$list}]) {
+        if (rindex( $_, $text, 0 ) == 0) {
+            push @found, $_;
+            next;
+        }
+        last if substr($_, 0, length $text) gt $text;
+    }
+    return @found;
+}
+
+sub search_bin_indirect {
+    my ($text, $list) = @_;
+
+    my ( $lo, $hi ) = ( 0, $#{$list} );
+
+    while ($lo < $hi) {
+        my $mid = int( ($lo + $hi) / 2 );
+        my $cmp = $text cmp $list->[$mid]->name;
+        if ($cmp < 0) {
+            $hi = $mid;
+            next;
+        }
+        if ($cmp > 0) {
+            if ($lo == $hi-1) {
+                $lo++;
+                last;
+            }
+            $lo = $mid;
+            next;
+        }
+        $lo = $hi = $mid;
+        last;
+    }
+
+    my @found;
+    foreach (@{$list}[$lo..$#{$list}]) {
+        my $n = $_->name;
+        if (rindex( $n, $text, 0 ) == 0) {
+            push @found, $_;
+            next;
+        }
+        last if substr($n, 0, length $text) gt $text;
+    }
+    return @found;
+}
+
+sub search_balanced {
+    my ($text, $list) = @_;
+
+    if (@$list <= 215) {
+        my @found;
+        foreach (@{$list}) {
+            next if $_ lt $text;
+            if (rindex( $_, $text, 0 ) == 0) {
+                push @found, $_;
+                next;
+            }
+            last if substr($_, 0, length $text) gt $text;
+        }
+        return @found;
+    }
+
+    my ( $lo, $hi ) = ( 0, $#{$list} );
+
+    while ($lo < $hi) {
+        my $mid = int( ($lo + $hi) / 2 );
+        my $cmp = $text cmp $list->[$mid];
+        if ($cmp < 0) {
+            $hi = $mid;
+            next;
+        }
+        if ($cmp > 0) {
+            if ($lo == $hi-1) {
+                $lo++;
+                last;
+            }
+            $lo = $mid;
+            next;
+        }
+        $lo = $hi = $mid;
+        last;
+    }
+
+    my @found;
+    foreach (@{$list}[$lo..$#{$list}]) {
+        if (rindex( $_, $text, 0 ) == 0) {
+            push @found, $_;
+            next;
+        }
+        last if substr($_, 0, length $text) gt $text;
+    }
+    return @found;
+
+}
+
+sub search_balanced_indirect {
+    my ($text, $list) = @_;
+
+    if (@$list <= 46) {
+        my @found;
+        foreach (@{$list}) {
+            my $n = $_->name;
+            next if $n lt $text;
+            if (rindex( $n, $text, 0 ) == 0) {
+                push @found, $_;
+                next;
+            }
+            last if substr($n, 0, length $text) gt $text;
+        }
+        return @found;
+    }
+
+    my ( $lo, $hi ) = ( 0, $#{$list} );
+
+    while ($lo < $hi) {
+        my $mid = int( ($lo + $hi) / 2 );
+        my $cmp = $text cmp $list->[$mid]->name;
+        if ($cmp < 0) {
+            $hi = $mid;
+            next;
+        }
+        if ($cmp > 0) {
+            if ($lo == $hi-1) {
+                $lo++;
+                last;
+            }
+            $lo = $mid;
+            next;
+        }
+        $lo = $hi = $mid;
+        last;
+    }
+
+    my @found;
+    foreach (@{$list}[$lo..$#{$list}]) {
+        my $n = $_->name;
+        if (rindex( $n, $text, 0 ) == 0) {
+            push @found, $_;
+            next;
+        }
+        last if substr($n, 0, length $text) gt $text;
+    }
+    return @found;
+}
+
+package Item {
+    use 5.014;
+    use warnings;
+    use Moo;
+    use namespace::clean;
+
+    has name => ( is => 'rw', required => 1 );
+}
+
+Main();
