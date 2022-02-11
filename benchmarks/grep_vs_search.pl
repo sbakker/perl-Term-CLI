@@ -34,6 +34,9 @@ my $USAGE = <<EO_USAGE;
 usage: $FindBin::Script [options]
 
 Options:
+  --words=f, -w f           - Read words from file f. Default is to autogenerate
+                              the list of words (see --list-size).
+
   --prefix-len=n, -p n      - Match on prefix length n; 0 means match exact.
                               (default: $DFL_PREFIX_LEN)
 
@@ -80,6 +83,7 @@ sub Main {
     my @match_points;
     my @algorithms;
     GetOptions(
+        'words|w=s'          => \(my $word_file),
         'prefix-len|p=i'     => \(my $prefix_len = $DFL_PREFIX_LEN),
         'iterations|i=i'     => \(my $iterations = $DFL_ITERATIONS),
         'list-size|S=i'      => \(my $list_size = $DFL_LIST_SIZE),
@@ -110,7 +114,7 @@ sub Main {
         @algorithms = map { m{:indirect$} ? $_ : "$_:indirect" } @algorithms;
     }
 
-    my ($list, $list_indirect) = mk_lists($list_size);
+    my ($list, $list_indirect) = mk_lists($list_size, $word_file);
     
     my %compare_func;
 
@@ -141,24 +145,28 @@ sub Main {
 }
 
 sub mk_lists {
-    my ($list_size) = @_;
+    my ($list_size, $word_file) = @_;
     my (@list, @list_indirect);
 
     my $list_iter = 0;
 
-    while (@list < $list_size) {
-        for my $c ('a' .. 'z') {
-            my $letter = chr( ord('a') + $list_iter %26 );
-            my $elt = sprintf("%s%s", $c x 8, $letter x $list_iter);
-            push @list, $elt;
-            push @list_indirect, Item->new( name => $elt );
-            last if @list >= $list_size;
-        }
-        $list_iter++;
+    if ($word_file) {
+        open my $fh, '<', $word_file or die "$word_file: $!\n";
+        chomp( @list = (<$fh>) );
     }
-
+    else {
+        while (@list < $list_size) {
+            for my $c ('a' .. 'z') {
+                my $letter = chr( ord('a') + $list_iter %26 );
+                my $elt = sprintf("%s%s", $c x 8, $letter x $list_iter);
+                push @list, $elt;
+                last if @list >= $list_size;
+            }
+            $list_iter++;
+        }
+    }
     @list = sort @list;
-    @list_indirect = sort { $a->name cmp $b->name } @list_indirect;
+    @list_indirect = map { Item->new( name => $_ ) } @list;
     return (\@list, \@list_indirect);
 }
 
