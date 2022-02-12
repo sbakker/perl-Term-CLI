@@ -71,6 +71,7 @@ t/040-Term-CLI-Argument-Number-Int.t
 t/045-Term-CLI-Argument-Number-Float.t
 t/050-Term-CLI-Command.t
 t/055-Term-CLI.t
+t/056-Term-CLI-CodeRef.t
 t/060-Term-CLI-ReadLine.t
 t/065-Term-CLI-Command-Help.t
 t/070-Term-CLI-Role-HelpText.t
