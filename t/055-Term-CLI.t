@@ -12,7 +12,7 @@ use warnings;
 
 sub Main {
     Term_CLI_test->SKIP_CLASS(
-        ($::ENV{SKIP_COMMAND})
+        ($::ENV{SKIP_CLI})
             ? "disabled in environment"
             : 0
     );
