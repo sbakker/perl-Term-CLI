@@ -4,7 +4,7 @@
 #       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
 #      Created:  27/02/18
 #
-#   Copyright (c) 2018 Steven Bakker; All rights reserved.
+#   Copyright (c) 2018-2022 Steven Bakker; All rights reserved.
 #
 #   This module is free software; you can redistribute it and/or modify
 #   it under the same terms as Perl itself. See "perldoc perlartistic."
@@ -15,7 +15,7 @@
 #
 #=============================================================================
 
-package Term::CLI::L10N::en 0.054002;
+package Term::CLI::L10N::en 0.055001;
 
 use 5.014;
 use warnings;

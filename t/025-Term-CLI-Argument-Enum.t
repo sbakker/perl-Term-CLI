@@ -1,6 +1,6 @@
 #!/usr/bin/perl -T
 #
-# Copyright (C) 2018, Steven Bakker.
+# Copyright (c) 2018-2022, Steven Bakker.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl 5.14.0. For more details, see the full text
@@ -30,10 +30,10 @@ use FindBin 1.50;
 use Term::CLI::Argument::Enum;
 use Term::CLI::L10N;
 
-my $ARG_NAME= 'test_enum';
-my @ONE_WORDS = qw( one oneself onetime );
-my @T_WORDS = qw( two three );
-my @ENUM_VALUES = (@ONE_WORDS, @T_WORDS);
+my $ARG_NAME    = 'test_enum';
+my @ONE_WORDS   = sort qw( one oneself onetime );
+my @T_WORDS     = sort qw( two three );
+my @ENUM_VALUES = sort (@ONE_WORDS, @T_WORDS);
 
 # Untaint the PATH.
 $::ENV{PATH} = '/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin';
