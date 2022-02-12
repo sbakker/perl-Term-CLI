@@ -102,16 +102,23 @@ sub _get_command_list {
 
     return undef if !ref $command_list;
 
-    if (reftype $command_list eq 'CODE') {
-        my $command_list = $command_list->($self);
-        if (!ref $command_list || reftype $command_list ne 'ARRAY') {
-            croak "'command' CodeRef should return an ARRAY ref, not ",
-                reftype( $command_list );
-        }
-        $self->_command_list($command_list);
-        $command_list = $self->_command_list; # Ensure we get the sorted list.
+    return $command_list if reftype $command_list eq 'ARRAY';
+
+    if (reftype $command_list ne 'CODE') {
+        croak "internal error: 'command' ($command_list) is ",
+            "neither a CodeRef nor an ArrayRef!";
     }
-    return $command_list;
+
+    $command_list = $command_list->($self);
+
+    if (!ref $command_list || reftype $command_list ne 'ARRAY') {
+        croak "'command' CodeRef should return an ARRAY ref, not ",
+            ref $command_list     ? reftype( $command_list ) :
+            defined $command_list ?  "'$command_list'"       :
+            '(undef)';
+    }
+
+    return $self->_set_command_list($command_list);
 }
 
 sub commands {
