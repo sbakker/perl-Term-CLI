@@ -54,7 +54,7 @@ with qw(
 );
 
 sub option_names {
-    my $self      = shift;
+    my ($self) = @_;
     my $opt_specs = $self->options or return ();
     my @names;
     for my $spec ( @{$opt_specs} ) {

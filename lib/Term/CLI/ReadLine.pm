@@ -128,13 +128,13 @@ sub reset_ignore_keyboard_signals {
 }
 
 sub term_width {
-    my $self = shift;
+    my ($self) = @_;
     my ( $rows, $cols ) = $self->get_screen_size();
     return $cols;
 }
 
 sub term_height {
-    my $self = shift;
+    my ($self) = @_;
     my ( $rows, $cols ) = $self->get_screen_size();
     return $rows;
 }
@@ -249,7 +249,7 @@ sub readline {    ## no critic (ProhibitBuiltinHomonyms)
 #
 sub _set_signal_handlers {
     ## no critic (RequireLocalizedPunctuationVars)
-    my $self = shift;
+    my ($self) = @_;
 
     my %old_SIG = %SIG;
 

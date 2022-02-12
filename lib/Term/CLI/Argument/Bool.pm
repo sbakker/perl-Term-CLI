@@ -56,8 +56,7 @@ has 'ignore_case' => (
 );
 
 sub validate {
-    my $self  = shift;
-    my $value = shift;
+    my ($self, $value) = @_;
 
     defined $self->SUPER::validate($value) or return;
 

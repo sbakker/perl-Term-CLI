@@ -121,7 +121,7 @@ sub commands {
 }
 
 sub command_names {
-    my $self = shift;
+    my ($self) = @_;
     my $command_list = $self->_get_command_list or return;
     my @l = map { $_->name } @{$command_list};
     return @l;
@@ -180,7 +180,7 @@ sub find_matches {
 }
 
 sub root_node {
-    my $self = my $curr_node = shift;
+    my ($self) = my ($curr_node) = @_;
 
     while ( my $parent = $curr_node->parent ) {
         $curr_node = $parent;
@@ -222,7 +222,7 @@ sub try_callback {
 # custom completion.
 #
 sub _set_completion_attribs {
-    my $self = shift;
+    my ($self) = @_;
     my $root = $self->root_node;
     my $term = $root->term;
 

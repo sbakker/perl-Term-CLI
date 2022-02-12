@@ -104,8 +104,7 @@ has '+_arguments' => (
 );
 
 sub _format_pod {
-    my $self = shift;
-    my $text = shift;
+    my ($self, $text) = @_;
 
     my $output;
 
