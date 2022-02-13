@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 #
 # Copyright (c) 2018-2022, Steven Bakker.
 #
@@ -9,6 +9,9 @@
 
 use 5.014_001;
 use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/lib";
 
 sub Main {
     Term_CLI_test->SKIP_CLASS(
@@ -26,7 +29,7 @@ use parent 0.225 qw( Test::Class );
 
 use Test::More 1.001002;
 use Test::Exception 0.35;
-use Test::Output 1.02;
+use MyCapture qw( my_stderr_like my_combined_is );
 use Test::MockModule 0.16 qw( strict );
 
 use FindBin 1.50;
@@ -565,7 +568,7 @@ sub check_execute: Test(49) {
     
     $cli->callback($self->{dfl_callback});
         $line = 'file --verbose cp aap noot';
-        combined_is(
+        my_combined_is(
             sub { %result = $cli->execute($line) },
             '',
             'Successful command prints nothing'
@@ -579,7 +582,7 @@ sub check_execute: Test(49) {
 
     $cli->callback($self->{dfl_callback});
         $line = 'file --wtf cp aap noot';
-        stderr_like(
+        my_stderr_like(
             sub { %result = $cli->execute($line) },
             qr/Unknown option: wtf/,
             'default callback prints error to STDERR',

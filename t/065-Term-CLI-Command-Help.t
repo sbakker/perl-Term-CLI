@@ -9,6 +9,9 @@
 
 use 5.014_001;
 use warnings;
+use FindBin;
+
+use lib "$FindBin::Bin/lib";
 
 sub Main {
     Term_CLI_Command_Help_test->SKIP_CLASS(
@@ -27,12 +30,11 @@ use parent 0.225 qw( Test::Class );
 use charnames qw(:full :short);
 
 use Test::More 1.001002;
-use Test::Output 1.03;
 use Test::Exception 0.35;
 use FindBin 1.50;
-use Capture::Tiny 0.48 qw( capture );
 use Term::CLI;
 use Term::CLI::L10N;
+use MyCapture qw( my_capture my_stdout_like );
 
 # Untaint the PATH.
 $::ENV{PATH} = '/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin';
@@ -126,14 +128,14 @@ sub check_help_formatted : Test(2) {
 
     my $stdout;
 
-    ($stdout) = capture { $cli->execute('help') };
+    ($stdout) = my_capture( sub { $cli->execute('help') } );
     $stdout =~ s/ . \N{BACKSPACE} (.) /$1/gxms;
     like($stdout,
         qr/Commands:.*cp.*help.*mv/sm,
         'help returns command summary'
     );
 
-    ($stdout) = capture { $cli->execute('help cp') };
+    ($stdout) = my_capture ( sub { $cli->execute('help cp') } );
     $stdout =~ s/ . \N{BACKSPACE} (.) /$1/gxms;
     like($stdout,
         qr/Usage:.*cp.*--force.*src.*dst/xsm,
@@ -149,19 +151,19 @@ sub check_help_pod : Test(6) {
 
     $cli->find_command('help')->pager( [] );
 
-    stdout_like(
+    my_stdout_like(
         sub { $cli->execute('help --pod') },
         qr/=head\d Commands:.*B<cp>.*B<help>.*B<mv>/sm,
         'help --pod returns POD command summary'
     );
 
-    stdout_like(
+    my_stdout_like(
         sub { $cli->execute('help --pod cp') },
         qr/=head\d Usage:.*B<cp>.*B<--force>.*I<src>.*I<dst>/sm,
         '"help --pod cp" returns POD command help'
     );
 
-    stdout_like(
+    my_stdout_like(
         sub { $cli->execute('help --pod show') },
         qr{
            =head\d \s+ Usage: \s*\n
@@ -172,20 +174,20 @@ sub check_help_pod : Test(6) {
         "'help --pod show' returns POD command summary with sub-commands'",
     );
 
-    stdout_like(
+    my_stdout_like(
         sub { $cli->execute('help --pod show load') },
         qr/=head\d Usage:.*B<show> B<load>/sm,
         "'help --pod show load' returns POD command summary with sub-commands'",
     );
 
-    stdout_like(
+    my_stdout_like(
         sub { $cli->execute('help --pod mv') },
         qr/=head\d Usage:.*B<mv> I<path1> I<path2>/sm,
         "'help --pod mv' returns POD command summary'",
     );
 
 
-    stdout_like(
+    my_stdout_like(
         sub { $cli->execute('help --pod --all') },
         qr{
             =head\d \s COMMAND \s SUMMARY \n{2,}
