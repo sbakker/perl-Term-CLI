@@ -213,9 +213,10 @@ sub startup : Test(startup => 5) {
             'Term::CLI::Command->new' );
 
     my $cli = Term::CLI->new(
-        prompt => 'test> ',
-        commands => [],
-        skip => qr/^\s*(?:#.*)?$/,
+        prompt      => 'test> ',
+        commands    => [],
+        skip        => qr/^\s*(?:#.*)?$/,
+        filehandles => []
     );
     isa_ok( $cli, 'Term::CLI', 'Term::CLI->new' );
     ok(!$cli->has_commands, 'empty commands array -> has_commands == false');

@@ -77,9 +77,10 @@ sub startup : Test(startup => 1) {
     push @commands, $help;
 
     my $cli = Term::CLI->new(
-        prompt => 'test> ',
-        callback => undef,
-        commands => \@commands,
+        prompt      => 'test> ',
+        callback    => undef,
+        commands    => \@commands,
+        filehandles => [],
     );
     isa_ok( $cli, 'Term::CLI', 'Term::CLI->new' );
 
