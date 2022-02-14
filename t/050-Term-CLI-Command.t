@@ -102,7 +102,7 @@ sub check_constructor: Test(2) {
     return;
 }
 
-sub check_state: Test(2) {
+sub check_state: Test(3) {
     my $self = shift;
     my $cmd = $self->{cmd};
 
@@ -113,6 +113,10 @@ sub check_state: Test(2) {
 
     is( $cmd->state->{'flag'}, 123,
         'state is stored and retrieved correctly' );
+
+    $cmd->clear_state;
+    is( int(keys %{$cmd->state}), 0,
+        'state is cleared on clear_state');
 }
 
 sub check_arguments: Test(4) {
