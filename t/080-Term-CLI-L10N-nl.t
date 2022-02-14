@@ -13,6 +13,12 @@ use warnings 1.00;
 use Test::More 1.001002;
 use Term::CLI::L10N;
 
+my $TEST_NAME = 'L10N';
+
+if ( ($::ENV{SKIP_ALL} || $::ENV{"SKIP_$TEST_NAME"}) && !$::ENV{"TEST_$TEST_NAME"} ) {
+    plan skip_all => 'skipped because of environment'
+}
+
 Term::CLI::L10N->set_language('nl');
 
 my @plural_map = (

@@ -10,14 +10,16 @@
 use 5.014_001;
 use warnings;
 
-sub Main {
-    Term_CLI_test->SKIP_CLASS(
-        ($::ENV{SKIP_CLI})
-            ? "disabled in environment"
-            : 0
-    );
+use Test::More;
+
+my $TEST_NAME = 'CLI';
+
+sub Main() {
+    if ( ($::ENV{SKIP_ALL} || $::ENV{"SKIP_$TEST_NAME"}) && !$::ENV{"TEST_$TEST_NAME"} ) {
+       plan skip_all => 'skipped because of environment'
+    }
     Term_CLI_test->runtests();
-    return;
+    exit(0);
 }
 
 package Term_CLI_test {
@@ -213,9 +215,10 @@ sub startup : Test(startup => 5) {
             'Term::CLI::Command->new' );
 
     my $cli = Term::CLI->new(
-        prompt => 'test> ',
-        commands => [],
-        skip => qr/^\s*(?:#.*)?$/,
+        prompt      => 'test> ',
+        commands    => [],
+        skip        => qr/^\s*(?:#.*)?$/,
+        filehandles => []
     );
     isa_ok( $cli, 'Term::CLI', 'Term::CLI->new' );
     ok(!$cli->has_commands, 'empty commands array -> has_commands == false');

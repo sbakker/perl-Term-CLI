@@ -9,17 +9,16 @@
 
 use 5.014_001;
 use warnings;
+use Test::More 1.001002;
 
 our $ELT_NAME = 'test_elt';
 
 sub Main() {
-    Term_CLI_Element_test->SKIP_CLASS(
-        ($::ENV{SKIP_ELEMENT})
-            ? "disabled in environment"
-            : 0
-    );
+    if ( ($::ENV{SKIP_ALL} || $::ENV{SKIP_ELEMENT}) && !$::ENV{TEST_ELEMENT} ) {
+       plan skip_all => 'skipped because of environment'
+    }
     Term_CLI_Element_test->runtests();
-    return;
+    exit 0;
 }
 
 package Term_CLI_Element_test {
