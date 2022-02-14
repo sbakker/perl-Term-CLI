@@ -1,3 +1,39 @@
+0.055002 -- 2022-02-14
+
+    [Bug fixes]
+
+    - benchmarks/grep_vs_search.pl
+        Fix duplicate '-i' option in `grep_vs_search.pl`.
+
+    - t/*
+        Work around GNU readline interaction with xterm. Tests can fail if GNU
+        readline is told to use STDIN/STDOUT: it may inadvertently output a
+        `ESC-[?1034h` sequence ("interpret Meta key, enable 8-bit input"), which
+        does not play well with our `Test::Output` tests.
+        
+        To avoid this, we specify `filehandles => []` to the `Term::CLI`
+        constructor.
+
+        So far this only manifested itself on OpenBSD 7.0, and only on the
+        i386 build of that. Still, I want my tests to pass...
+
+    [Building / Testing]
+
+    - Leave POD test prereqs out of the distribution.
+    - Improve test coverage (also add tests for `Term::CLI::Util`).
+    - Fix enviroment testing for skipping tests.
+        The `Test::Class` `SKIP_ALL` method does not work as advertised.
+
+    [Enhancements]
+
+    Term::CLI::Util
+        Make find_* routines a little faster. The `last if ...` check
+        when iterating over possible matches is not necessary. A simple
+        unqualified `last` will do.
+
+    Term::CLI::Argument::Filename
+        - Promote `_glob_complete` to `glob_complete`.
+
 0.055001 -- 2022-02-12
 
     [Enhancements]
