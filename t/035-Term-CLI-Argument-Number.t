@@ -10,17 +10,19 @@
 use 5.014_001;
 use warnings;
 
-sub Main {
-    Term_CLI_Argument_Filename_test->SKIP_CLASS(
-        ($::ENV{SKIP_ARGUMENT})
-            ? "disabled in environment"
-            : 0
-    );
-    Term_CLI_Argument_Filename_test->runtests();
-    return;
+use Test::More;
+
+my $TEST_NAME = 'ARGUMENT';
+
+sub Main() {
+    if ( ($::ENV{SKIP_ALL} || $::ENV{"SKIP_$TEST_NAME"}) && !$::ENV{"TEST_$TEST_NAME"} ) {
+       plan skip_all => 'skipped because of environment'
+    }
+    Term_CLI_Argument_Number_test->runtests();
+    exit(0);
 }
 
-package Term_CLI_Argument_Filename_test {
+package Term_CLI_Argument_Number_test {
 
 use parent 0.225 qw( Test::Class );
 

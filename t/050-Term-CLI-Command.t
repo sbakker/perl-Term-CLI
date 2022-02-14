@@ -10,14 +10,16 @@
 use 5.014_001;
 use warnings;
 
-sub Main {
-    Term_CLI_Command_test->SKIP_CLASS(
-        ($::ENV{SKIP_COMMAND})
-            ? "disabled in environment"
-            : 0
-    );
+use Test::More;
+
+my $TEST_NAME = 'COMMAND';
+
+sub Main() {
+    if ( ($::ENV{SKIP_ALL} || $::ENV{"SKIP_$TEST_NAME"}) && !$::ENV{"TEST_$TEST_NAME"} ) {
+       plan skip_all => 'skipped because of environment'
+    }
     Term_CLI_Command_test->runtests();
-    return;
+    exit(0);
 }
 
 package Term_CLI_Command_test {
