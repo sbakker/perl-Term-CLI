@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Util 0.055001;
+package Term::CLI::Util 0.055002;
 
 use 5.014;
 use warnings;
@@ -104,7 +104,7 @@ sub find_obj_name_matches {
                 return @found if $exact && $n eq $text;
                 next;
             }
-            last if substr($n, 0, length $text) gt $text;
+            last;
         }
         return @found;
     }
@@ -138,7 +138,7 @@ sub find_obj_name_matches {
             push @found, $_;
             next;
         }
-        last if substr($n, 0, length $text) gt $text;
+        last;
     }
     return @found;
 }
@@ -160,7 +160,7 @@ sub find_text_matches {
                 return @found if $exact && $_ eq $text;
                 next;
             }
-            last if substr($_, 0, length $text) gt $text;
+            last;
         }
         return @found;
     }
@@ -193,7 +193,7 @@ sub find_text_matches {
             push @found, $_;
             next;
         }
-        last if substr($_, 0, length $text) gt $text;
+        last;
     }
     return @found;
 

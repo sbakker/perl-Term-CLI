@@ -13,8 +13,10 @@ use Test::More 1.001002;
 
 our $ELT_NAME = 'test_elt';
 
+my $TEST_NAME = 'ELEMENT';
+
 sub Main() {
-    if ( ($::ENV{SKIP_ALL} || $::ENV{SKIP_ELEMENT}) && !$::ENV{TEST_ELEMENT} ) {
+    if ( ($::ENV{SKIP_ALL} || $::ENV{"SKIP_$TEST_NAME"}) && !$::ENV{"TEST_$TEST_NAME"} ) {
        plan skip_all => 'skipped because of environment'
     }
     Term_CLI_Element_test->runtests();

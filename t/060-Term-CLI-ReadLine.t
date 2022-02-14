@@ -62,6 +62,15 @@ sub check_size: Test(2) {
     return;
 }
 
+sub test_ignore_keyboard_signals: Test(0) {
+    my $self = shift;
+    my $term = $self->{term};
+
+    $term->ignore_keyboard_signals('HUP', 'INT');
+    $term->no_ignore_keyboard_signals('HUP', 'INT');
+    return;
+}
+
 
 }
 

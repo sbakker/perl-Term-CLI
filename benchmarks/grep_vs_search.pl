@@ -40,7 +40,7 @@ Options:
   --prefix-len=n, -p n      - Match on prefix length n; 0 means match exact.
                               (default: $DFL_PREFIX_LEN)
 
-  --iterations=n, -i n      - Run n iterations.
+  --iterations=n, -n n      - Run n iterations.
                               (default: $DFL_ITERATIONS)
 
   --list-size=n, -S n       - Create lists of n elements.
@@ -85,7 +85,7 @@ sub Main {
     GetOptions(
         'words|w=s'          => \(my $word_file),
         'prefix-len|p=i'     => \(my $prefix_len = $DFL_PREFIX_LEN),
-        'iterations|i=i'     => \(my $iterations = $DFL_ITERATIONS),
+        'iterations|n=i'     => \(my $iterations = $DFL_ITERATIONS),
         'list-size|S=i'      => \(my $list_size = $DFL_LIST_SIZE),
         'match-points|m=s@'  => \@match_points,
         'algorithms|a=s@'    => \@algorithms,
@@ -214,7 +214,7 @@ sub search_rindex {
             return @found if $exact && $_ eq $text;
             next;
         }
-        last if substr($_, 0, length $text) gt $text;
+        last;
     }
     return @found;
 }
@@ -231,7 +231,7 @@ sub search_rindex_indirect {
             return @found if $exact && $n eq $text;
             next;
         }
-        last if substr($n, 0, length $text) gt $text;
+        last;
     }
     return @found;
 }
@@ -293,7 +293,7 @@ sub search_bin {
             push @found, $_;
             next;
         }
-        last if substr($_, 0, length $text) gt $text;
+        last;
     }
     return @found;
 }
@@ -331,7 +331,7 @@ sub search_bin_indirect {
             push @found, $_;
             next;
         }
-        last if substr($n, 0, length $text) gt $text;
+        last;
     }
     return @found;
 }
@@ -348,7 +348,7 @@ sub search_balanced {
                 return @found if $exact && $_ eq $text;
                 next;
             }
-            last if substr($_, 0, length $text) gt $text;
+            last;
         }
         return @found;
     }
@@ -381,7 +381,7 @@ sub search_balanced {
             push @found, $_;
             next;
         }
-        last if substr($_, 0, length $text) gt $text;
+        last;
     }
     return @found;
 
@@ -400,7 +400,7 @@ sub search_balanced_indirect {
                 return @found if $exact && $n eq $text;
                 next;
             }
-            last if substr($n, 0, length $text) gt $text;
+            last;
         }
         return @found;
     }
@@ -434,7 +434,7 @@ sub search_balanced_indirect {
             push @found, $_;
             next;
         }
-        last if substr($n, 0, length $text) gt $text;
+        last;
     }
     return @found;
 }
