@@ -104,8 +104,27 @@ I<STATE> is a C<HashRef> that contains the following elements:
 
 =item B<processed> =E<gt> I<ArrayRef>
 
-Refers to a list of words that have already been processed by parent
+More elaborate "parse tree": a list of hashes that represent all the
+elements on the command line that have already been processed by parent
 (C<Term::CLI::Command>) objects.
+
+Example:
+
+    [
+        {
+            element => InstanceOf['Term::CLI::Command'],
+            value   => 'show'
+        },
+        {
+            element => InstanceOf['Term::CLI::Command'],
+            value   => 'info'
+        },
+        {
+            element => InstanceOf['Term::CLI::Argument'],
+            value   => 'foo'
+        },
+        ...
+    ]
 
 =item B<unprocessed> =E<gt> I<ArrayRef>
 

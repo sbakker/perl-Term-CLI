@@ -344,7 +344,10 @@ sub complete {
 
         return () if !$new_cmd_ref;
 
-        push @{$processed}, shift @{$unprocessed};
+        push @{$processed}, {
+            element => $new_cmd_ref,
+            value   => shift @{$unprocessed},
+        };
         $cur_cmd_ref = $new_cmd_ref;
     }
 
