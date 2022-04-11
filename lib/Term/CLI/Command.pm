@@ -574,7 +574,7 @@ Example:
 =item B<execute_command> ( I<KEY> =E<gt> I<VAL>, ... )
 
 This method is called by C<Term::CLI::Role::CommandSet>'s
-L<execute|Term::CLI::Role::CommandSet/execute> method.
+L<execute_line|Term::CLI::Role::CommandSet/execute_line> method.
 It should not be called directly.
 
 It accepts the same list of parameters as the
