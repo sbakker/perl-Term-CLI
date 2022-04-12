@@ -82,7 +82,7 @@ has '+options' => ( default => sub { [ 'pod|p', 'all|a' ] }, );
 has '+description' => (
     default => sub {
         loc(      qq{Show help for any given command sequence (or a command\n}
-                . qq{overview if no argument is given.\n\n}
+                . qq{overview if no argument is given).\n\n}
                 . qq{The C<--pod> (C<-p>) option will cause raw POD\n}
                 . qq{to be shown.\n\n}
                 . qq{The C<--all> (C<-a>) option will list help text for all commands.}
