@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Role::CommandSet 0.055002;
+package Term::CLI::Role::CommandSet 0.056001;
 
 use 5.014;
 use warnings;
@@ -281,9 +281,13 @@ sub complete_line {
         @list = map { $_->name } $self->find_matches( $text );
     }
     elsif ( my $cmd = $self->find_command( $words[0] ) ) {
+        shift @words;
         @list = $cmd->complete(
             $text => {
-                processed   => [shift @words],
+                processed   => [
+                    element => $cmd,
+                    value   => $cmd->name,
+                ],
                 unprocessed => \@words,
                 options => {},
             }
@@ -338,10 +342,13 @@ sub execute_line {
         error        => q{},
         command_line => $cmd,
         command_path => [$self],
-        unparsed     => \@cmd,
+        unprocessed  => \@cmd,
+        processed    => [],
         options      => {},
         arguments    => [],
     );
+
+    $args{unparsed} = $args{unprocessed};
 
     return $self->try_callback( %args, status => $ERROR_STATUS,
         error => $error )
@@ -352,8 +359,11 @@ sub execute_line {
         $args{status} = $ERROR_STATUS;
     }
     elsif ( my $cmd_ref = $self->find_command( $cmd[0] ) ) {
+        my $cmd = shift @{$args{unprocessed}};
         %args = $cmd_ref->execute_command(
-            %args, unparsed => [ @cmd[ 1 .. $#cmd ] ] );
+            %args, 
+            processed => [ { element => $cmd_ref, value => $cmd } ],
+        );
     }
     else {
         $args{error}  = $self->error;
@@ -540,7 +550,9 @@ its corresponding L<Term::CLI::Argument>'s
 L<validate|Term::CLI::Argument/validate> method (e.g. C<3e-1> may have
 been converted to C<0.3>).
 
-=item C<unparsed>
+=item C<unparsed> (DEPRECATED)
+
+=item C<unprocessed>
 
 Reference to an array containing all the words on the command line that
 have not been parsed as arguments or sub-commands yet. In case of parse
@@ -554,7 +566,8 @@ L<Term::CLI::execute|Term::CLI/execute> method.
 =item C<command_path>
 
 Reference to an array containing the "parse tree", i.e. a list
-of object references:
+of object references that represent the commands and sub-commands
+that led up to this point:
 
     [
         InstanceOf['Term::CLI'],
@@ -567,6 +580,28 @@ L<Term::CLI> object.
 
 The I<OBJ_REF> will be somewhere in that list; it will be the last
 one if it is the "leaf" command.
+
+=item C<processed>
+
+More elaborate "parse tree": a list of hashes that represent all the
+elements on the command line that led up to this point, minus the
+L<Term::CLI> object itself.
+
+    [
+        {
+            element => InstanceOf['Term::CLI::Command'],
+            value   => String
+        },
+        {
+            element => InstanceOf['Term::CLI::Argument'],
+            value   => String
+        },
+        {
+            element => InstanceOf['Term::CLI::Argument'],
+            value   => String
+        },
+        ...
+    ]
 
 =back
 

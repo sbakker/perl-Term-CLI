@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Command::Help 0.055002;
+package Term::CLI::Command::Help 0.056001;
 
 use 5.014;
 use warnings;
@@ -344,7 +344,10 @@ sub complete {
 
         return () if !$new_cmd_ref;
 
-        push @{$processed}, shift @{$unprocessed};
+        push @{$processed}, {
+            element => $new_cmd_ref,
+            value   => shift @{$unprocessed},
+        };
         $cur_cmd_ref = $new_cmd_ref;
     }
 

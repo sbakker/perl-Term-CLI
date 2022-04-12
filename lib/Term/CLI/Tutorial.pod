@@ -1561,22 +1561,22 @@ when the list of possible values has to be expanded.
 
 So, let's rewrite the C<interface> command definition. Instead of:
 
-	arguments => [
-		Term::CLI::Argument::String->new( name => 'iface' )
-	],
+    arguments => [
+        Term::CLI::Argument::String->new( name => 'iface' )
+    ],
 
 We specify:
 
-	arguments => [
-		Term::CLI::Argument::Enum->new(
-			name => 'iface',
-			value_list => sub {
-				my $if_t = readpipe('ip link show 2>/dev/null') // '';
-				my @if_l = $if_t =~ /^ \d+ : \s (\S+): \s/gxms;
-				return \@if_l;
-			}
-		),
-	],
+    arguments => [
+        Term::CLI::Argument::Enum->new(
+            name => 'iface',
+            value_list => sub {
+                my $if_t = readpipe('ip link show 2>/dev/null') // '';
+                my @if_l = $if_t =~ /^ \d+ : \s (\S+): \s/gxms;
+                return \@if_l;
+            }
+        ),
+    ],
 
 This results in F<example_18_dynamic_enum.pl>:
 
@@ -1584,12 +1584,12 @@ This results in F<example_18_dynamic_enum.pl>:
 
     [Welcome to BSSH]
     bssh> interface <TAB><TAB>
-	lo        virbr0    virbr1    wlp113s0
+    lo        virbr0    virbr1    wlp113s0
 
 Now, when I plug in my USB-C dongle with an Ethernet adapter, I get:
 
     bssh> interface <TAB><TAB>
-	enp0s13f0u3u1  lo   virbr0    virbr1   wlp113s0
+    enp0s13f0u3u1  lo   virbr0    virbr1   wlp113s0
 
 Neat, huh?
 
