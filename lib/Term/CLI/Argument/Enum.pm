@@ -52,7 +52,13 @@ has value_list => (
 
 has cache_values => (
     is       => 'rw',
-    default  => sub {0},
+    default  =>  0,
+# Trigger for when caching gets disabled to immediately clear the
+# cache. This allows for quicker cleanup of objects, file handles, etc.
+    trigger => sub {
+        my ($self, $new) = @_;
+        $self->_clear_value_cache if ! $new;
+    }
 );
 
 has _value_cache => (
@@ -71,11 +77,9 @@ sub values {
     # Dynamic values...
 
     # Return cache if possible.
-    if ( $self->cache_values && $self->_has_value_cache ) {
+    if ( $self->_has_value_cache ) {
         return $self->_value_cache;
     }
-
-    $self->_clear_value_cache;
 
     my $list_ref = [ sort @{ $value_list->($self) } ];
 
@@ -86,15 +90,6 @@ sub values {
     return $list_ref;
 }
 
-# Trigger for when caching gets disabled to immediately clear the
-# cache. This allows for quicker cleanup of objects, file handles, etc.
-after cache_values => sub {
-    my ($self, @args) = @_;
-
-    if (@args && !$args[0]) {
-        $self->_clear_value_cache;
-    }
-};
 
 sub validate {
     my ( $self, $value ) = @_;
