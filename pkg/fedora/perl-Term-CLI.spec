@@ -1,6 +1,6 @@
 Name:           perl-Term-CLI
 Version:        0.056001
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        CLI interpreter based on Term::ReadLine
 License:        GPL+ or Artistic
 Group:          Development/Libraries
@@ -105,7 +105,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
-* Mon Apr 12 2022 Steven Bakker <sb@monkey-mind.net> 0.056001-1
+* Tue Apr 12 2022 Steven Bakker <sb@monkey-mind.net> 0.056001-2
 - New upstream release
 * Mon Feb 14 2022 Steven Bakker <sb@monkey-mind.net> 0.055002-1
 - New upstream release
