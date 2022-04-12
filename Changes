@@ -1,3 +1,35 @@
+0.056001 -- 2022-04-12
+
+    [Enhancements]
+
+    Term::CLI::Command, Term::CLI::Command::Help,
+    Term::CLI::Element, Term::CLI::Role::CommandSet
+
+    - Consistent state between `processed` and `validate`/`execute`
+        The state passed to `complete` and `execute_command` (and, by extension
+        the argument's `validate` methods) differs in subtle ways. Try to make
+        them more consistent by:
+        
+          * For `complete`: the `processed` key in the state information
+            now points to a list of hashes instead of strings.
+            The hashes have an `element` key (ref. to relevant command or
+            argument object) and a `value` key (the literal value provided
+            in the inpug).
+        
+          * For `execute_command` and `validate`: the state given to these
+            methods now also contains a `processed` key.
+            Semantics are the same as for `complete`, except that the
+            `value` keys of the elements contain the *validated* values, i.e.
+            they can be converted, expanded, or otherwise normalised.
+
+    [Bug fixes]
+
+    - Term::CLI::Command
+        POD fix: reference to "execute" -> "execute_line".
+
+    - Term::CLI::Tutorial
+        Convert TABs to spaces.
+
 0.055002 -- 2022-02-14
 
     [Bug fixes]

@@ -1,5 +1,4 @@
 *.swp
-*.tar.gz
 *.bak
 *.old
 *.lock
@@ -23,3 +22,6 @@ experiments/
 noarch/
 perl-Term-CLI-*.tar.gz
 perl-Term-CLI-*.rpm
+Term-CLI-*.tar
+Term-CLI-*.tar.gz
+nodist/
