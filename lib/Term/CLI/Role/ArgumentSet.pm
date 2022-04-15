@@ -23,6 +23,8 @@ package Term::CLI::Role::ArgumentSet 0.056001;
 use 5.014;
 use warnings;
 
+use Scalar::Util qw( reftype );
+
 use Types::Standard 1.000005 qw(
     ArrayRef
     InstanceOf
@@ -35,6 +37,7 @@ use namespace::clean 0.25;
 has _arguments => (
     is       => 'rw',
     writer   => '_set_arguments',
+    trigger  => 1,
     init_arg => 'arguments',
     isa      => Maybe [ ArrayRef [ InstanceOf ['Term::CLI::Argument'] ] ],
     coerce   => sub {
@@ -45,6 +48,24 @@ has _arguments => (
         return [ @{ $_[0] } ];
     },
 );
+
+# $self->_set_arguments($ref) => $self->_trigger__arguments($ref);
+#
+# Trigger to run whenever the object's _commands array ref is set.
+#
+sub _trigger__arguments { ## no critic (ProhibitUnusedPrivateSubroutines)
+    my ( $self, $arg_list ) = @_;
+
+    return if !$arg_list;
+
+    # Set the parent for each argument object.
+    if (ref $arg_list && reftype $arg_list eq 'ARRAY') {
+        for my $arg_obj ( @{$arg_list} ) {
+            $arg_obj->_set_parent($self);
+        }
+    }
+    return;
+}
 
 sub arguments {
     my ($self) = @_;
@@ -71,7 +92,11 @@ sub add_argument {
         $self->_set_arguments( [] );
     }
 
-    push @{ $self->_arguments }, @arguments;
+    for my $arg (@arguments) {
+        $arg->parent($self);
+        push @{ $self->_arguments }, $arg;
+    }
+
     return $self;
 }
 

@@ -2,7 +2,7 @@
 #
 #       Module:  Term::CLI::Base
 #
-#  Description:  Generic role for Term::CLI classes
+#  Description:  Generic base class for Term::CLI classes
 #
 #       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
 #      Created:  10/02/18
@@ -27,6 +27,7 @@ use Term::CLI::ReadLine;
 
 use Types::Standard 1.000005 qw(
     Str
+    Maybe InstanceOf
 );
 
 use Moo 1.000001;
@@ -34,6 +35,21 @@ use namespace::clean 0.25;
 
 has name  => ( is => 'ro',  isa => Str, required => 1 );
 has error => ( is => 'rwp', isa => Str, default  => sub {q{}} );
+
+has parent => (
+    is       => 'rwp',
+    week_ref => 1,
+    isa      => Maybe[ InstanceOf['Term::CLI::Element'] ],
+);
+
+sub root_node {
+	my ($self) = my ($curr_node) = @_;
+
+    while ( my $parent = $curr_node->parent ) {
+        $curr_node = $parent;
+    }
+    return $curr_node;
+}
 
 sub term { return Term::CLI::ReadLine->term }
 
@@ -86,14 +102,14 @@ share.
 
 =over
 
+=item B<error>
+
+Contains a diagnostic message in case of errors.
+
 =item B<name>
 
 Element name. Can be any string, but must be specified at construction
 time.
-
-=item B<error>
-
-Contains a diagnostic message in case of errors.
 
 =item B<term>
 
@@ -105,6 +121,25 @@ The active L<Term::CLI::ReadLine> object.
 
 =over
 
+=item B<clear_error>
+
+Set the L<error|/error>() attribute to the empty string and return 1.
+
+=item B<parent>
+X<parent>
+
+Return a reference to the object that "owns" this object.
+This is will be an instance of a class that inherits from
+C<Term::CLI::Element>, or C<undef>.
+
+=item B<root_node>
+X<root_node>
+
+Walks the L<parent|/parent> chain until it can go no further.
+Returns a reference to the object at the top. In a functional
+setup this is expected to be a
+L<Term::CLI|Term::CLI>(3p) object instance.
+
 =item B<set_error> ( I<STRING>, ... )
 
 Sets the L<error|/error>() attribute to the concatenation of all I<STRING>
@@ -113,10 +148,6 @@ the error field is cleared (see L<set_error|/set_error> below).
 
 Always returns a "failure" (C<undef> or the empty list, depending on
 call context).
-
-=item B<clear_error>
-
-Set the L<error|/error>() attribute to the empty string and return 1.
 
 =back
 

@@ -42,7 +42,9 @@ use namespace::clean 0.25;
 
 my $ERROR_STATUS  = -1;
 
-has parent => (
+requires qw( parent root_node );
+
+has '+parent' => (
     is       => 'rwp',
     weak_ref => 1,
     isa      => Maybe[ ConsumerOf ['Term::CLI::Role::CommandSet'] ],
@@ -184,15 +186,6 @@ sub delete_command {
 sub find_matches {
     my ( $self, $text ) = @_;
     return find_obj_name_matches($text, $self->_get_command_list);
-}
-
-sub root_node {
-    my ($self) = my ($curr_node) = @_;
-
-    while ( my $parent = $curr_node->parent ) {
-        $curr_node = $parent;
-    }
-    return $curr_node // $self;
 }
 
 sub find_command {
@@ -618,14 +611,6 @@ X<commands>
 Return the list of subordinate C<Term::CLI::Command> objects
 (i.e. "sub-commands") sorted on C<name>.
 
-=item B<parent>
-X<parent>
-
-Return a reference to the object that "owns" this object.
-This is typically another object class that consumes this
-C<Term::CLI::Role::CommandSet> role, such as
-C<Term::CLI>(3p) or C<Term::CLI::Command>(3p), or C<undef>.
-
 =back
 
 =head1 METHODS
@@ -817,13 +802,6 @@ Examples:
     # Skip empty lines and comments.
     $line = $cli->readline( skip => qr{^\s*(?:#.*)?$} );
     exit if !defined $line;
-
-=item B<root_node>
-X<root_node>
-
-Walks L<parent|/parent> chain until it can go no further. Returns a
-reference to the object at the top. In a functional setup, this
-is expected to be a L<Term::CLI>(3p) object.
 
 =item B<try_callback> ( I<ARGS> )
 X<try_callback>
