@@ -25,10 +25,8 @@ use warnings;
 
 use Term::CLI::ReadLine;
 
-use Types::Standard 1.000005 qw( Str );
-
-use Moo 1.000001;
-use namespace::clean 0.25;
+use Moo;
+use namespace::clean;
 
 extends 'Term::CLI::Base';
 
@@ -84,8 +82,8 @@ The B<name> attribute is required.
 
 =head1 METHODS
 
-The C<Term::CLI::Element> inherits from accessors
-and methods from L<Term::CLI::Base>(3p).
+The C<Term::CLI::Element> class inherits accessors
+and methods from L<Term::CLI::Base|Term::CLI::Base>(3p).
 
 In addition, it defines:
 
@@ -152,11 +150,11 @@ sensitive completion, however.
 
 =head1 SEE ALSO
 
-L<Term::CLI>(3p),
-L<Term::CLI::Argument>(3p),
-L<Term::CLI::Base>(3p),
-L<Term::CLI::Command>(3p),
-L<Term::CLI::ReadLine>(3p).
+L<Term::CLI::Argument|Term::CLI::Argument>(3p),
+L<Term::CLI::Base|Term::CLI::Base>(3p),
+L<Term::CLI::Command|Term::CLI::Command>(3p),
+L<Term::CLI::ReadLine|Term::CLI::ReadLine>(3p),
+L<Term::CLI|Term::CLI>(3p).
 
 =head1 AUTHOR
 
