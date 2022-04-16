@@ -554,28 +554,28 @@ arguments:
 =item *
 
 The C<echo> command takes zero or more arbitrary string arguments
-(L<M6::CLI::Argument::String>).
+(L<Term::CLI::Argument::String>).
 
 =item *
 
 The C<make> command takes two string arguments, each from a set
 of pre-defined values.
-(L<M6::CLI::Argument::Enum>).
+(L<Term::CLI::Argument::Enum>).
 
 =item *
 
 The C<ls> command demonstrates the use of file name arguments
-(L<M6::CLI::Argument::Filename>).
+(L<Term::CLI::Argument::Filename>).
 
 =item *
 
 The C<cp> command demonstrates how to set up a variable number
-of arguments (L<M6::CLI::Argument::Filename>).
+of arguments (L<Term::CLI::Argument::Filename>).
 
 =item *
 
 The C<sleep> command demonstrates a numerical argument
-(L<M6::CLI::Argument::Int>).
+(L<Term::CLI::Argument::Int>).
 
 =back
 

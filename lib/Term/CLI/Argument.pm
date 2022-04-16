@@ -100,7 +100,7 @@ Term::CLI::Argument - generic parent class for arguments in Term::CLI
 =head1 DESCRIPTION
 
 Generic parent class for arguments in L<Term::CLI>(3p).
-Inherits from L<M6::CLI::Element>(3p).
+Inherits from L<Term::CLI::Element>(3p).
 
 =head1 CLASS STRUCTURE
 
@@ -186,7 +186,7 @@ C<max_occur> attributes to the given value.
 =item B<type>
 
 Return the argument "type". By default, this is the object's class name
-with the C<M6::CLI::Argument::> prefix removed. Can be overloaded to
+with the C<Term::CLI::Argument::> prefix removed. Can be overloaded to
 provide a different value.
 
 =item B<validate> ( I<TEXT>, I<STATE> )
