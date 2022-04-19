@@ -93,7 +93,7 @@ sub add_argument {
     }
 
     for my $arg (@arguments) {
-        $arg->parent($self);
+        $arg->_set_parent($self);
         push @{ $self->_arguments }, $arg;
     }
 
