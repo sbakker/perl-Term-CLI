@@ -615,8 +615,6 @@ Example:
     $help_cmd->pager([]); # Print directly to STDOUT.
     $help_cmd->pager([ 'cat', '-n' ]); # Number output lines.
 
-=back
-
 =item B<prompt> ( [ I<Str> ] )
 X<prompt>
 

@@ -846,6 +846,8 @@ these methods.
 
 =over
 
+=item parent
+
 =item BUILD
 
 =item DEMOLISH
