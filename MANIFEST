@@ -13,7 +13,6 @@ README.md
 benchmarks/grep_vs_search.pl
 benchmarks/substr_vs_rindex.pl
 benchmarks/wordlist-en.txt
-cc
 cpanfile
 examples/big_enum.pl
 examples/cli_context.pl
@@ -33,7 +32,6 @@ examples/state_demo.pl
 examples/term_cli.pl
 examples/term_cli_demo.pl
 examples/wordlist-en.txt
-f.pl
 lib/Term/CLI.pm
 lib/Term/CLI/Argument.pm
 lib/Term/CLI/Argument/Bool.pm
@@ -58,7 +56,6 @@ lib/Term/CLI/Role/HelpText.pm
 lib/Term/CLI/Role/State.pm
 lib/Term/CLI/Tutorial.pod
 lib/Term/CLI/Util.pm
-parse_tree
 pkg/fedora/perl-Term-CLI.spec
 t/000-compile.t
 t/010-Term-CLI-Util.t
