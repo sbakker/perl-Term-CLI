@@ -277,10 +277,10 @@ sub complete_line {
         shift @words;
         @list = $cmd->complete(
             $text => {
-                processed   => [
+                processed   => [{
                     element => $cmd,
                     value   => $cmd->name,
-                ],
+                }],
                 unprocessed => \@words,
                 options => {},
             }
