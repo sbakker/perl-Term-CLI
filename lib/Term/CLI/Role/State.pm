@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Role::State 0.056001;
+package Term::CLI::Role::State 0.057001;
 
 use 5.014;
 use warnings;

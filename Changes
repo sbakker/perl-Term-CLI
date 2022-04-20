@@ -1,3 +1,40 @@
+0.057001 -- 2022-04-20
+
+    Acknowledgements to djerius for various fixes, enhancements, and
+    suggestions (see git log for full details).
+
+    [Enhancements]
+
+    Term::CLI::Argument::Enum [djerius]
+      - Minor optimizations to Term::CLI::Argument::Enum cache.
+
+    Term::CLI, Term::CLI::Command::Help
+      - Move pager logic from `Help` command to `CLI` object (add
+        `write_pager` method).
+
+    CLI::Base
+      - Move `parent` and `root_node` to CLI::Base.
+
+    [Bug fixes]
+
+    Term::CLI::ReadLine
+      - Fix signal restoration (`local(%SIG) = %SIG` does not work).
+
+    Term::CLI::Command::Help
+      - Fix missing ')' in help text.
+
+    [Documentation fixes]
+
+    - Change references in documentation from M6::CLI
+      to Term::CLI [djerius]
+
+    - Miscellaneous POD fixes.
+
+    [Miscellaneous]
+
+    - Lower dependencies for Test::MockModule and Capture::Tiny.
+    - Lower dependency on Term::ReadKey for older system Perls.
+
 0.056001 -- 2022-04-12
 
     [Enhancements]
