@@ -29,12 +29,12 @@ requires "version" => "0";
 requires "warnings" => "1.00";
 
 on 'test' => sub {
-  requires "Capture::Tiny" => "0.48";
+  requires "Capture::Tiny" => "0.25";
   requires "File::Temp" => "0.22";
   requires "Test::Class" => "0";
   requires "Test::Compile" => "v1.2.0";
   requires "Test::Exception" => "0.35";
-  requires "Test::MockModule" => "0.16";
+  requires "Test::MockModule" => "0.05";
   requires "Test::More" => "1.001002";
   requires "Test::Output" => "1.03";
   requires "charnames" => "0";

@@ -44,12 +44,12 @@ my %WriteMakefileArgs = (
     "warnings" => "1.00"
   },
   "TEST_REQUIRES" => {
-    "Capture::Tiny" => "0.48",
+    "Capture::Tiny" => "0.25",
     "File::Temp" => "0.22",
     "Test::Class" => 0,
     "Test::Compile" => "1.2.0",
     "Test::Exception" => "0.35",
-    "Test::MockModule" => "0.16",
+    "Test::MockModule" => "0.05",
     "Test::More" => "1.001002",
     "Test::Output" => "1.03",
     "charnames" => 0,
@@ -64,7 +64,7 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
-  "Capture::Tiny" => "0.48",
+  "Capture::Tiny" => "0.25",
   "Carp" => "1.20",
   "Exporter" => "5.64",
   "Fcntl" => 0,
@@ -87,7 +87,7 @@ my %FallbackPrereqs = (
   "Test::Class" => 0,
   "Test::Compile" => "1.2.0",
   "Test::Exception" => "0.35",
-  "Test::MockModule" => "0.16",
+  "Test::MockModule" => "0.05",
   "Test::More" => "1.001002",
   "Test::Output" => "1.03",
   "Text::ParseWords" => "3.27",
