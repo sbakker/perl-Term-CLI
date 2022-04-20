@@ -306,6 +306,7 @@ sub write_pager {
         $args{status} = -1;
         $args{error}  = $!;
     }
+    return %args;
 }
 
 1;
