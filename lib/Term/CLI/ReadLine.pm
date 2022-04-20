@@ -25,7 +25,7 @@ use warnings;
 
 use parent 0.225 qw( Term::ReadLine );
 
-use Term::ReadKey 2.34 ();
+use Term::ReadKey 2.32 ();
 
 use namespace::clean 0.25;
 
