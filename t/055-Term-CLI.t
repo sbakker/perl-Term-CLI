@@ -29,7 +29,7 @@ use parent 0.225 qw( Test::Class );
 use Test::More 1.001002;
 use Test::Exception 0.35;
 use Test::Output 1.02;
-use Test::MockModule 0.05 qw( strict );
+use Test::MockModule 0.05;
 
 use FindBin 1.50;
 use Term::CLI;
