@@ -32,7 +32,7 @@ use Test::More 1.001002;
 use Test::Output 1.03;
 use Test::Exception 0.35;
 use FindBin 1.50;
-use Capture::Tiny 0.48 qw( capture );
+use Capture::Tiny 0.25 qw( capture );
 use Term::CLI;
 use Term::CLI::L10N;
 
