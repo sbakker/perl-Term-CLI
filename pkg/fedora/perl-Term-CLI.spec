@@ -105,17 +105,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
-* Wed Apr 27 2022 Steven Bakker <sb@monkey-mind.net> 0.057001-1
+* Wed Apr 27 2022 Steven Bakker <sbakker@cpan.org> 0.057001-1
 - New upstream release
-* Tue Apr 12 2022 Steven Bakker <sb@monkey-mind.net> 0.056001-2
+* Tue Apr 12 2022 Steven Bakker <sbakker@cpan.org> 0.056001-2
 - New upstream release
-* Mon Feb 14 2022 Steven Bakker <sb@monkey-mind.net> 0.055002-1
+* Mon Feb 14 2022 Steven Bakker <sbakker@cpan.org> 0.055002-1
 - New upstream release
-* Mon Dec 27 2021 Steven Bakker <sb@monkey-mind.net> 0.054002-1
+* Mon Dec 27 2021 Steven Bakker <sbakker@cpan.org> 0.054002-1
 - New upstream release
-* Mon Dec 27 2021 Steven Bakker <sb@monkey-mind.net> 0.053006-2
+* Mon Dec 27 2021 Steven Bakker <sbakker@cpan.org> 0.053006-2
 - New upstream release (small packaging fixes).
-* Sun Dec 26 2021 Steven Bakker <sb@monkey-mind.net> 0.053006-1
+* Sun Dec 26 2021 Steven Bakker <sbakker@cpan.org> 0.053006-1
 - New upstream release.
 * Thu Dec 23 2021 Steven Bakker <sbakker@cpan.org> 0.053005-1
 - New upstream release.
