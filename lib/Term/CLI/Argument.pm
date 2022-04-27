@@ -242,12 +242,13 @@ Modifications may result in unexpected behaviour.
 
 =head1 SEE ALSO
 
-L<Term::CLI::Argument::String>(3p),
-L<Term::CLI::Argument::Number>(3p),
+L<Term::CLI>(3p),
 L<Term::CLI::Argument::Enum>(3p),
 L<Term::CLI::Argument::Filename>(3p),
-L<Term::CLI::Element>(3p),
-L<Term::CLI>(3p).
+L<Term::CLI::Argument::Number>(3p),
+L<Term::CLI::Argument::String>(3p),
+L<Term::CLI::Argument::TypeTiny>(3p),
+L<Term::CLI::Element>(3p).
 
 =head1 AUTHOR
 
