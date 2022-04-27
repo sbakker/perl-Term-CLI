@@ -5,7 +5,7 @@
 #  Description:  Class for Type::Tiny validated arguments in Term::CLI
 #
 #       Author:  Diab Jerius (DJERIUS), <djerius@cpan.org>
-#      Created:  22/Jan/2018
+#      Created:  16/Apr/2022
 #
 #   Copyright (c) 2022 Diab Jerius, Smithsonian Astrophysical Observatory
 #
@@ -105,8 +105,8 @@ None.
         coerce       => Bool,
     );
 
-See also L<Term::CLI::Argument>(3p). The B<typetiny> argument is
-mandatory and must be a L<Type::Tiny> object. It will be used to validate values.
+See also L<Term::CLI::Argument>(3p). The B<typetiny> argument is mandatory
+and must be a L<Type::Tiny> object. It will be used to validate values.
 
 If B<coerce> is true, L</validate> will call the L<Type::Tiny>
 object's coercion method to coerce the input value.
