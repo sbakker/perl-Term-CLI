@@ -145,7 +145,7 @@ Overloaded from L<Term::CLI::Argument>(3p).
 
 =item * 
 
-Only allow positive or zero numbers for # of zombies seen
+Only allow positive or zero numbers for # of zombies seen.
 Allow non integers, in case they've lost bits and pieces.
 
     use Types::Common::Numeric qw( PositiveOrZeroNum);
