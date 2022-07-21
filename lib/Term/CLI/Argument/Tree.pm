@@ -174,10 +174,10 @@ Term::CLI::Argument::Tree - class for tree arguments in Term::CLI
  # static values
  my $arg = Term::CLI::Argument::Tree->new(
      name => 'arg1',
-     values => { l1 => { l2 => 't1', l3 => undef }
+     values => { l1 => { l2 => 't1', l3 => undef } }
  );
 
- my $values = $arg->values; # returns { l1 => { l2 => 't1', l3 => undef }
+ my $values = $arg->values; # returns { l1 => { l2 => 't1', l3 => undef } }
 
  # dynamic values
  my $arg = Term::CLI::Argument::Tree->new(
@@ -199,8 +199,8 @@ argument values are accepted:
 
 The object provides completion at each level.
 
-Because this argument hoovers up an indeterminate number of input tokens it should be
-the last argument object specified.
+Because this argument hoovers up an indeterminate number of input tokens
+it should be the last argument object specified.
 
 This class inherits from the L<Term::CLI::Argument>(3p) class.
 
