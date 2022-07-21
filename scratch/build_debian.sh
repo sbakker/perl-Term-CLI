@@ -13,7 +13,7 @@ EOF
 fi
 
 TOP=$(pwd)
-#trap "cd $TOP; rm -rf $TOP/.build" 0
+trap "cd $TOP; rm -rf $TOP/.build" 0
 trap 'echo "** Interrupted">&2; exit 1' 1 2 3 15
 
 # Build a release tarball
@@ -37,8 +37,17 @@ rsync -av $TOP/pkg/debian $TOP/.build/build
 cd $TOP/.build/build
 fakeroot dpkg-buildpackage -b
 
-# Copy the built package to the parent dir of $TOP,
+# Move the built package to the parent dir of $TOP,
 # simulating a dpkg-buildpackage in the $TOP dir.
-mv $TOP/.build/libterm-cli-perl_* ..
+debfile=$(find $TOP/.build -name 'libterm-cli-perl_*.deb' -print)
+mv $debfile $TOP/$(basename $debfile)
+
+echo
+echo '============================================================'
+echo
+echo "Current WD:" $TOP
+echo "DEB file:  " $(basename $debfile)
+echo
+echo '============================================================'
 
 exit 0
