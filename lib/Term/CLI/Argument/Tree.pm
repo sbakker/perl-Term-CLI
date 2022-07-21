@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Tree 0.057001;
+package Term::CLI::Argument::Tree 0.058001;
 
 use warnings;
 
