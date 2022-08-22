@@ -78,16 +78,16 @@ Term::CLI::Argument::TypeTiny - class for Type::Tiny validated arguments in Term
 
 =head1 DESCRIPTION
 
-Class for Type::Tiny validated arguments in L<Term::CLI>(3p).
+Class for Type::Tiny validated arguments in L<Term::CLI|Term::CLI>(3p).
 
 This class inherits from
-the L<Term::CLI::Argument>(3p) class.
+the L<Term::CLI::Argument|Term::CLI::Argument>(3p) class.
 
 =head1 CLASS STRUCTURE
 
 =head2 Inherits from:
 
-L<Term::CLI::Argument>(3p).
+L<Term::CLI::Argument|Term::CLI::Argument>(3p).
 
 =head2 Consumes:
 
@@ -105,29 +105,35 @@ None.
         coerce       => Bool,
     );
 
-See also L<Term::CLI::Argument>(3p). The B<typetiny> argument is mandatory
-and must be a L<Type::Tiny> object. It will be used to validate values.
+See also L<Term::CLI::Argument|Term::CLI::Argument>(3p).  The B<typetiny>
+argument is mandatory and must be a L<Type::Tiny|Type::Tiny>(3p) object. It
+will be used to validate values.
 
-If B<coerce> is true, L</validate> will call the L<Type::Tiny>
-object's coercion method to coerce the input value.
+If B<coerce> is true, L<validate|/validate> will call the
+L<Type::Tiny|Type::Tiny> object's coercion method to coerce the input value.
 
 =back
 
 =head1 ACCESSORS
 
-See also L<Term::CLI::Argument>(3p).
+See also L<Term::CLI::Argument|Term::CLI::Argument>(3p).
 
 =over
 
 =item B<typetiny>
 
-The L<Type::Tiny> object which will validate values.
+The L<Type::Tiny|Type::Tiny> object which will validate values.
+
+=item B<coerce>
+
+Boolean that indicates whether L<validate|/validate> will call the
+L<Type::Tiny|Type::Tiny> object's coercion method to coerce the input value.
 
 =back
 
 =head1 METHODS
 
-See also L<Term::CLI::Argument>(3p).
+See also L<Term::CLI::Argument|Term::CLI::Argument>(3p).
 
 The following methods are added or overloaded:
 
@@ -135,7 +141,7 @@ The following methods are added or overloaded:
 
 =item B<validate>
 
-Overloaded from L<Term::CLI::Argument>(3p).
+Overloaded from L<Term::CLI::Argument|Term::CLI::Argument>(3p).
 
 =back
 
@@ -146,7 +152,7 @@ Overloaded from L<Term::CLI::Argument>(3p).
 =item * 
 
 Only allow positive or zero numbers for # of zombies seen.
-Allow non integers, in case they've lost bits and pieces.
+Allow non integers, in case they've lost bits and pieces:
 
     use Types::Common::Numeric qw( PositiveOrZeroNum);
     my $arg = Term::CLI::Argument::TypeTiny(
@@ -156,7 +162,7 @@ Allow non integers, in case they've lost bits and pieces.
 
 =item *
 
-Accept a URI, convert to a L<URI> object
+Accept a URI, convert to a L<URI|URI> object:
 
     use Types::URI 'URI';
     my $arg = Term::CLI::Argument::TypeTiny(
@@ -167,7 +173,8 @@ Accept a URI, convert to a L<URI> object
 
 =item *
 
-Accept a file which must exist, convert to a L<Path::Tiny> object
+Accept a file which must exist, convert to a L<Path::Tiny|Path::Tiny>
+object:
 
     use Types::Path::Tiny 'File';
     my $arg = Term::CLI::Argument::TypeTiny(
@@ -180,8 +187,9 @@ Accept a file which must exist, convert to a L<Path::Tiny> object
 
 =head1 SEE ALSO
 
-L<Term::CLI::Argument>(3p),
-L<Term::CLI>(3p).
+L<Term::CLI::Argument|Term::CLI::Argument>(3p),
+L<Term::CLI|Term::CLI>(3p),
+L<Type::Tiny|Type::Tiny>(3p).
 
 =head1 AUTHOR
 
@@ -199,4 +207,3 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 =cut
-
