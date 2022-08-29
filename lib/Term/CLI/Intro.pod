@@ -30,7 +30,7 @@ examples, see L<Term::CLI::Tutorial|Term::CLI::Tutorial>(3p).
 
 =head1 MODULE SUMMARY
 
-=head2 Language Modules
+=head2 Language modules
 
 =over 36
 
@@ -48,7 +48,7 @@ English and Dutch language localizations, resp.
 
 =back
 
-=head2 Utility Modules
+=head2 Utility modules
 
 =over 36
 
@@ -59,7 +59,7 @@ C<get_options_from_args> and C<is_prefix_str>.
 
 =back
 
-=head2 Classes
+=head2 Parser and commands
 
 =over 36
 
@@ -88,6 +88,12 @@ CLI syntax element for (sub-)commands.
 
 CLI syntax element for the C<help> command.
 
+=back
+
+=head2 Arguments and argument types
+
+=over 36
+
 =item L<Term::CLI::Argument|Term::CLI::Argument>
 
 Base CLI syntax element or command line arguments.
@@ -115,6 +121,14 @@ CLI syntax element for integer arguments.
 =item L<Term::CLI::Argument::String|Term::CLI::Argument::String>
 
 CLI syntax element for string arguments.
+
+=item L<Term::CLI::Argument::Tree|Term::CLI::Argument::Tree>
+
+CLI syntax element for hierarchical (tree) arguments.
+
+=item L<Term::CLI::Argument::TypeTiny|Term::CLI::Argument::TypeTiny>
+
+CLI syntax element for Type::Tiny validated arguments.
 
 =back
 
@@ -148,7 +162,7 @@ objects.
 
 =head1 CLASS RELATIONSHIPS
 
-=head2 Classes
+=head2 Classes (inheritance)
 
 =over 16
 
@@ -187,6 +201,10 @@ I<Y> inherits from I<X>
                         |       +--> Term::CLI::Argument::Number::Float
                         |
                         +--> Term::CLI::Argument::String
+                        |
+                        +--> Term::CLI::Argument::Tree
+                        |
+                        +--> Term::CLI::Argument::TypeTiny
 
 =head2 Roles
 
@@ -242,6 +260,12 @@ I<X> owns at most one I<Y> (i.e. "one to one").
 L<Term::CLI::Tutorial|Term::CLI::Tutorial>(3p).
 
 L<Term::CLI|Term::CLI>(3p),
+L<Term::CLI::Command|Term::CLI::Command>(3p),
+L<Term::CLI::L10N|Term::CLI::L10N>(3p),
+L<Term::CLI::L10N::en|Term::CLI::L10N::en>(3p),
+L<Term::CLI::L10N::nl|Term::CLI::L10N::nl>(3p),
+L<Term::ReadLine|Term::ReadLine>(3p).
+
 L<Term::CLI::Argument|Term::CLI::Argument>(3p),
 L<Term::CLI::Argument::Bool|Term::CLI::Argument::Bool>(3p),
 L<Term::CLI::Argument::Enum|Term::CLI::Argument::Enum>(3p),
@@ -250,14 +274,12 @@ L<Term::CLI::Argument::Number|Term::CLI::Argument::Number>(3p),
 L<Term::CLI::Argument::Number::Float|Term::CLI::Argument::Number::Float>(3p),
 L<Term::CLI::Argument::Number::Int|Term::CLI::Argument::Number::Int>(3p),
 L<Term::CLI::Argument::String|Term::CLI::Argument::String>(3p),
-L<Term::CLI::Command|Term::CLI::Command>(3p),
-L<Term::CLI::L10N|Term::CLI::L10N>(3p),
-L<Term::CLI::L10N::en|Term::CLI::L10N::en>(3p),
-L<Term::CLI::L10N::nl|Term::CLI::L10N::nl>(3p),
+L<Term::CLI::Argument::Tree|Term::CLI::Argument::Tree>(3p),
+L<Term::CLI::Argument::TypeTiny|Term::CLI::Argument::TypeTiny>(3p).
+
 L<Term::CLI::Role::ArgumentSet|Term::CLI::Role::ArgumentSet>(3p),
 L<Term::CLI::Role::CommandSet|Term::CLI::Role::CommandSet>(3p),
-L<Term::CLI::Role::State|Term::CLI::Role::State>(3p),
-L<Term::ReadLine|Term::ReadLine>(3p).
+L<Term::CLI::Role::State|Term::CLI::Role::State>(3p).
 
 =head1 AUTHOR
 
