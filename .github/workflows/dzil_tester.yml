@@ -29,7 +29,7 @@ jobs:
           uname -a
           dpkg -l readline-common libreadline-dev
           pwd
-      - name: Explicitly install Term:: modules
+      - name: 'Explicitly install Term:: modules'
         env:
           TERM: none
         run: |
