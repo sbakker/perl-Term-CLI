@@ -1,0 +1,92 @@
+---
+# GitHub actions for Term::CLI Dist::Zilla build.
+#
+# Copied from https://perlmaven.com/setup-github-actions (by Gabor Szabo).
+#
+# Note the environment setting of `TERM` to `none`.
+#
+# When GitHub runs this pipeline, it sets `TERM` to the empty string
+# by default. The `Term::ReadLine::Gnu` and `Term::ReadKey` libraries
+# _really_ don't like that and start behaving weirdly. So weirdly, in
+# fact, that `Term::ReadLine::Gnu` fails to build if you try to install
+# it with `cpanm` without the `--notest` option.
+#
+# The "fix" is to set `TERM` to something that won't make the module choke.
+# Strangely, the value `dumb` does not work (even though it has a valid
+# `terminfo` entry), neither does `unknown` (which does not). For some
+# reason, value `none` does work, even though it has no `terminfo` entry.
+# Don't ask me why. ¯\_(ツ)_/¯
+#
+name: Term::CLI CI
+
+on:
+    push:
+        branches: '*'
+    pull_request:
+        branches: '*'
+    schedule:
+        - cron: '13 6 * * 0'
+
+jobs:
+  perl-job:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        perl-version:
+          - '5.14'
+          - 'latest'
+    container:
+      # https://hub.docker.com/r/perldocker/perl-tester
+      image: perldocker/perl-tester:${{ matrix.perl-version }}
+    name: Perl ${{ matrix.perl-version }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Perl version
+        run: perl -v
+
+      - name: System information
+        run: |
+          uname -a
+          dpkg -l readline-common libreadline-dev
+          pwd
+
+      - name: 'Explicitly install Term::ReadLine::Gnu'
+        env:
+          TERM: none
+        run: cpanm Term::ReadLine::Gnu
+
+      - name: Dist::Zilla run
+        # Only run Dist::Zilla if Perl version is >= 5.20.
+        if: ${{ ! startsWith( matrix.perl-version, '5.1' ) }}
+        env:
+          TERM: none
+        run: |
+          dzil authordeps --missing | cpanm --notest
+          dzil listdeps --author --missing | cpanm --notest
+          dzil test --author --release
+
+      - name: Makefile.PL testing
+        # Resort to run Makefile.PL if Perl version is < 5.20.
+        if: ${{ startsWith( matrix.perl-version, '5.1' ) }}
+        env:
+          TERM: none
+        run: |
+          cpanm --installdeps --notest .
+          perl Makefile.PL
+          make
+          make test
+
+      - name: Makefile.PL release testing
+        # Resort to run Makefile.PL if Perl version is < 5.20.
+        if: ${{ startsWith( matrix.perl-version, '5.1' ) }}
+        env:
+          TERM: none
+          RELEASE_TESTING: 1
+        run: |
+          cpanm --installdeps --notest .
+          cpanm --notest Test::CheckManifest Test::Pod::Coverage Pod::Coverage Test::Pod
+          perl Makefile.PL
+          make
+          make test
