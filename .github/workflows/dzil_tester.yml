@@ -17,7 +17,7 @@
 # reason, value `none` does work, even though it has no `terminfo` entry.
 # Don't ask me why. ¯\_(ツ)_/¯
 #
-name: CI Dzil
+name: Term::CLI CI
 
 on:
     push:
@@ -56,15 +56,6 @@ jobs:
         env:
           TERM: none
         run: cpanm Term::ReadLine::Gnu
-
-      - name: Dist::Zilla run
-        env:
-          TERM: none
-        if: ${{ ! startsWith( matrix.perl-version, '5.1' ) }}
-        run: |
-          dzil authordeps --missing | cpanm --notest
-          dzil listdeps --author --missing | cpanm --notest
-          dzil test --author --release
 
       - name: Dist::Zilla run
         # Only run Dist::Zilla if Perl version is >= 5.20.
