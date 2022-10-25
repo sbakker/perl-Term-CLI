@@ -29,11 +29,12 @@ jobs:
           uname -a
           dpkg -l readline-common libreadline-dev
           pwd
-      - name: Install Term::ReadLine::Gnu
+      - name: Explicitly install Term:: modules
         env:
           TERM: none
-        run: cpanm Term::ReadLine::Gnu
-      - name: Install Term::ReadKey
+        run: |
+          cpanm Term::ReadLine::Gnu
+          cpanm Term::ReadKey
       - name: Ensure Dist::Zilla is installed
         run: cpanm --notest Dist::Zilla
       - name: Regular tests
