@@ -34,7 +34,7 @@ jobs:
       fail-fast: false
       matrix:
         perl-version:
-          - '5.14'
+          - '5.20'
           - 'latest'
     container:
       # https://hub.docker.com/r/perldocker/perl-tester
@@ -42,24 +42,60 @@ jobs:
     name: Perl ${{ matrix.perl-version }}
     steps:
       - uses: actions/checkout@v2
+
       - name: Perl version
         run: perl -v
+
       - name: System information
         run: |
           uname -a
           dpkg -l readline-common libreadline-dev
           pwd
+
       - name: 'Explicitly install Term::ReadLine::Gnu'
         env:
           TERM: none
         run: cpanm Term::ReadLine::Gnu
-      - name: Ensure Dist::Zilla is installed
-        run: cpanm --notest Dist::Zilla
-      - name: Regular tests
+
+      - name: Dist::Zilla run
         env:
           TERM: none
+        if: ${{ ! startsWith( matrix.perl-version, '5.1' ) }}
         run: |
-          cpanm --notest Dist::Zilla
           dzil authordeps --missing | cpanm --notest
           dzil listdeps --author --missing | cpanm --notest
           dzil test --author --release
+
+      - name: Dist::Zilla run
+        # Only run Dist::Zilla if Perl version is >= 5.20.
+        if: ${{ ! startsWith( matrix.perl-version, '5.1' ) }}
+        env:
+          TERM: none
+        run: |
+          dzil authordeps --missing | cpanm --notest
+          dzil listdeps --author --missing | cpanm --notest
+          dzil test --author --release
+
+      - name: Makefile.PL testing
+        # Resort to run Makefile.PL if Perl version is < 5.20.
+        if: ${{ startsWith( matrix.perl-version, '5.1' ) }}
+        env:
+          TERM: none
+        run: |
+          cpanm --installdeps --notest .
+          perl Makefile.PL
+          make
+          make test
+
+      - name: Makefile.PL release testing
+        # Resort to run Makefile.PL if Perl version is < 5.20.
+        if: ${{ startsWith( matrix.perl-version, '5.1' ) }}
+        env:
+          TERM: none
+          RELEASE_TESTING: 1
+        run: |
+          cpanm --installdeps --notest .
+          cpanm --notest Test::CheckManifest Test::Pod::Coverage Pod::Coverage Test::Pod
+          perl Makefile.PL
+          make
+          make test
