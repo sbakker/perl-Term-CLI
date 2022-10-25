@@ -24,6 +24,16 @@ jobs:
       - uses: actions/checkout@v2
       - name: Perl version
         run: perl -v
+      - name: System information
+        run: |
+          uname -a
+          dpkg -l readline-common libreadline-dev
+      - name: Install Term::ReadLine::Gnu
+        run: cpanm Term::ReadLine::Gnu
+      - name: Install Term::ReadKey
+        run: cpanm Term::ReadKey
+      - name: Ensure Dist::Zilla is installed
+        run: cpanm --notest Dist::Zilla
       - name: Regular tests
         run: |
           cpanm --notest Dist::Zilla
