@@ -16,8 +16,8 @@ jobs:
       matrix:
         perl-version:
           - '5.14'
-          - '5.34'
-          - 'latest'
+          #- '5.34'
+          #- 'latest'
     container:
       # https://hub.docker.com/r/perldocker/perl-tester
       image: perldocker/perl-tester:${{ matrix.perl-version }}
@@ -26,6 +26,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Regular tests
         run: |
+          cpanm --notest Dist::Zilla
           dzil authordeps --missing | cpanm --notest
           dzil listdeps --author --missing | cpanm --notest
           dzil test --author --release
