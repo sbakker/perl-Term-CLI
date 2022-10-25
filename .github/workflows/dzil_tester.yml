@@ -34,7 +34,7 @@ jobs:
       fail-fast: false
       matrix:
         perl-version:
-          - '5.20'
+          - '5.14'
           - 'latest'
     container:
       # https://hub.docker.com/r/perldocker/perl-tester
