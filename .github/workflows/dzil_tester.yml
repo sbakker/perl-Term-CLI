@@ -1,3 +1,22 @@
+---
+# GitHub actions for Term::CLI Dist::Zilla build.
+#
+# Copied from https://perlmaven.com/setup-github-actions (by Gabor Szabo).
+#
+# Note the environment setting of `TERM` to `none`.
+#
+# When GitHub runs this pipeline, it sets `TERM` to the empty string
+# by default. The `Term::ReadLine::Gnu` and `Term::ReadKey` libraries
+# _really_ don't like that and start behaving weirdly. So weirdly, in
+# fact, that `Term::ReadLine::Gnu` fails to build if you try to install
+# it with `cpanm` without the `--notest` option.
+#
+# The "fix" is to set `TERM` to something that won't make the module choke.
+# Strangely, the value `dumb` does not work (even though it has a valid
+# `terminfo` entry), neither does `unknown` (which does not). For some
+# reason, value `none` does work, even though it has no `terminfo` entry.
+# Don't ask me why. ¯\_(ツ)_/¯
+#
 name: CI Dzil
 
 on:
@@ -29,12 +48,10 @@ jobs:
           uname -a
           dpkg -l readline-common libreadline-dev
           pwd
-      - name: 'Explicitly install Term:: modules'
+      - name: 'Explicitly install Term::ReadLine::Gnu'
         env:
           TERM: none
-        run: |
-          cpanm Term::ReadLine::Gnu
-          cpanm Term::ReadKey
+        run: cpanm Term::ReadLine::Gnu
       - name: Ensure Dist::Zilla is installed
         run: cpanm --notest Dist::Zilla
       - name: Regular tests
