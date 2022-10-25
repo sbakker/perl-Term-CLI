@@ -31,6 +31,8 @@ jobs:
           #- name: Install Term::ReadLine::Gnu
           #run: cpanm Term::ReadLine::Gnu
       - name: Install Term::ReadLine::Gnu
+        env:
+          TERM: none
         run: |
           wget http://www.cpan.org/authors/id/H/HA/HAYASHI/Term-ReadLine-Gnu-1.43.tar.gz
           tar xzf Term-ReadLine-Gnu-1.43.tar.gz
@@ -43,6 +45,8 @@ jobs:
       - name: Ensure Dist::Zilla is installed
         run: cpanm --notest Dist::Zilla
       - name: Regular tests
+        env:
+          TERM: none
         run: |
           cpanm --notest Dist::Zilla
           dzil authordeps --missing | cpanm --notest
