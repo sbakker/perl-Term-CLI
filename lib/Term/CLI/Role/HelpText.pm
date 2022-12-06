@@ -76,6 +76,8 @@ sub get_options_summary {
                     (?: ([:=]) (.*) )?
                 }xms;
 
+            my $negatable = index($spec, '!') >= 0;
+
             my $long_arg = my $short_arg = q{};
             if ( defined $opt_arg ) {
                 $long_arg  = "=I<$opt_arg>";
@@ -97,7 +99,13 @@ sub get_options_summary {
                     next;
                 }
                 if ( $with_options & 0x02 ) {
-                    push @options, "[B<--$optname>$long_arg]";
+                    if ($negatable) {
+                        #push @options, "[B<-->[B<no>]B<-$optname>]";
+                        push @options, "[B<--$optname>|B<--no-$optname>]";
+                    }
+                    else {
+                        push @options, "[B<--$optname>$long_arg]";
+                    }
                 }
             }
         }
