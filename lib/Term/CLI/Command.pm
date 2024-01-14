@@ -58,8 +58,16 @@ sub option_names {
     my $opt_specs = $self->options or return ();
     my @names;
     for my $spec ( @{$opt_specs} ) {
-        for my $optname ( split( qr{\|}x, $spec =~ s/^([^!+=:]+).*/$1/rx ) ) {
-            push @names, length($optname) == 1 ? "-$optname" : "--$optname";
+        my ($name_spec, $opts) = $spec =~ m{^ ([^!+=:]+) (.*) $}xms;
+        my $negatable = index($opts, '!') >= 0;
+        for my $opt_name ( split( qr{\|}x, $name_spec) ) {
+            if (length $opt_name > 1) {
+                push @names, "--$opt_name";
+                push @names, "--no-$opt_name" if $negatable;
+            }
+            else {
+                push @names, "-$opt_name";
+            }
         }
     }
     return @names;
