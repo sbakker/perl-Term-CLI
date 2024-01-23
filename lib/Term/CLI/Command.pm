@@ -244,8 +244,8 @@ sub _check_arguments {
                 return (
                     %args,
                     status => -1,
-                    error  => "arg#$argno (" . $arg_spec->name . "), '$arg': "
-                        . $arg_spec->error . q{ }
+                    error  => qq{arg#$argno (" . $arg_spec->name . "), "$arg": "
+                        . $arg_spec->error
                 );
             }
             push @{ $args{arguments} }, $arg_value;
