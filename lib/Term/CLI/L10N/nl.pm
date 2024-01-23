@@ -169,7 +169,7 @@ msgstr "te lang (max. lengte %1)"
 #: lib/Term/CLI/Command/Help.pm
 msgid ""
 "Show help for any given command sequence (or a command\n"
-"overview if no argument is given.\n\n"
+"overview if no argument is given).\n\n"
 "The C<--pod> (C<-p>) option will cause raw POD\n"
 "to be shown.\n\n"
 "The C<--all> (C<-a>) option will list help text for all commands."
