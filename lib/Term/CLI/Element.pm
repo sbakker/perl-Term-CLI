@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Element 0.059000;
+package Term::CLI::Element 0.060000;
 
 use 5.014;
 use warnings;
