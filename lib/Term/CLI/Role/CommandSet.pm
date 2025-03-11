@@ -270,6 +270,8 @@ sub complete_line {
 
     my @list;
 
+    $text = $root->unescape_input($text, $quote_char);
+
     if ( @words == 0 ) {
         @list = map { $_->name } $self->find_matches( $text );
     }
@@ -287,11 +289,8 @@ sub complete_line {
         );
     }
 
-    return @list if length $quote_char; # No need to worry about spaces.
-
-    # Escape spaces in reply if necessary.
-    my $delim = $root->word_delimiters;
-    return map {s/([$delim])/\\$1/rgx} @list;
+    # Escape spaces/delimiters in reply again if necessary.
+    return map { $self->escape_input($_, $quote_char) } @list;
 }
 
 sub readline {    ## no critic (ProhibitBuiltinHomonyms)
@@ -663,7 +662,7 @@ Parse and execute the command line consisting of I<Str>
 (see the return value of L<readline|/readline> above).
 
 The command line is split into words using
-the L<split_function|/split_function>.
+the L<Term::CLI's split_function|Term::CLI/split_function>.
 If that succeeds, then the resulting list of words is
 parsed and executed, otherwise a parse error is generated
 (i.e. the object's L<callback|Term::CLI::Role::CommandSet/callback>
@@ -671,7 +670,7 @@ function is called with a C<status> of C<-1> and a suitable C<error>
 field).
 
 For specifying a custom word splitting method, see
-L<split_function|/split_function>.
+L<Term::CLI's split_function|Term::CLI/split_function>.
 
 Example:
 
