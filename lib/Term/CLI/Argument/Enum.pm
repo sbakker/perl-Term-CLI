@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::Enum 0.060000;
+package Term::CLI::Argument::Enum 0.061000;
 
 use 5.014;
 use warnings;
