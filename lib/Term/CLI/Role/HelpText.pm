@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Role::HelpText 0.060000;
+package Term::CLI::Role::HelpText 0.061000;
 
 use 5.014;
 use warnings;
