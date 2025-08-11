@@ -797,7 +797,7 @@ Non-zero value indicates an error.
 
 =item C<error> =E<gt> I<Str>
 
-Erorr diagnostic.
+Error diagnostic.
 
 =back
 
