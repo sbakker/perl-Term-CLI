@@ -1,6 +1,6 @@
 Name:           perl-Term-CLI
 Version:        0.061000
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        CLI interpreter based on Term::ReadLine
 License:        GPL+ or Artistic
 Group:          Development/Libraries
@@ -66,7 +66,6 @@ Requires:       perl(Term::ReadLine::Gnu) >= 1.24
 Requires:       perl(Text::ParseWords) >= 3.27
 Requires:       perl(Types::Standard) >= 1.000005
 Requires:       perl(warnings) >= 1.00
-Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
 %description
 Implement an easy-to-use command line interpreter based on
@@ -105,6 +104,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Sun Nov 30 2025 Steven Bakker <sbakker@cpan.org> 0.061000-2
+- Get rid of "perl(:MODULE_COMPAT_...)" dependency
 * Fri May 16 2025 Steven Bakker <sbakker@cpan.org> 0.061000-1
 - New upstream release
 * Fri Sep 6 2024 Steven Bakker <sbakker@cpan.org> 0.060000-1
