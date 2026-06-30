@@ -1,6 +1,6 @@
 Name:           perl-Term-CLI
-Version:        0.061000
-Release:        2%{?dist}
+Version:        0.061001
+Release:        1%{?dist}
 Summary:        CLI interpreter based on Term::ReadLine
 License:        GPL+ or Artistic
 Group:          Development/Libraries
@@ -104,6 +104,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Tue Jun 30 2026 Steven Bakker <cpanman@monkey-mind.net> 0.061001-1
+- New upstream release
 * Sun Nov 30 2025 Steven Bakker <cpanman@monkey-mind.net> 0.061000-2
 - Get rid of "perl(:MODULE_COMPAT_...)" dependency
 * Fri May 16 2025 Steven Bakker <cpanman@monkey-mind.net> 0.061000-1

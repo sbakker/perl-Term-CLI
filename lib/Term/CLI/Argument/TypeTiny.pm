@@ -18,7 +18,7 @@
 #
 #=============================================================================
 
-package Term::CLI::Argument::TypeTiny 0.061000;
+package Term::CLI::Argument::TypeTiny 0.061001;
 
 use Types::Standard 1.000005 qw(
   Bool
