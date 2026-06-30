@@ -4,7 +4,7 @@
 #
 #  Description:  Class for (sub-)commands in Term::CLI
 #
-#       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
+#       Author:  Steven Bakker (SBAKKER), <cpanman@monkey-mind.net>
 #      Created:  30/01/18
 #
 #   Copyright (c) 2018-2022 Steven Bakker
@@ -628,7 +628,7 @@ L<Getopt::Long|Getopt::Long>(3p).
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sbakker@cpan.orgE<gt>, 2018.
+Steven Bakker E<lt>cpanman@monkey-mind.netE<gt>, 2018.
 
 =head1 COPYRIGHT AND LICENSE
 

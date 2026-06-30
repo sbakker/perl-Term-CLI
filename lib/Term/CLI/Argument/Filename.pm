@@ -4,7 +4,7 @@
 #
 #  Description:  Class for file name arguments in Term::CLI
 #
-#       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
+#       Author:  Steven Bakker (SBAKKER), <cpanman@monkey-mind.net>
 #      Created:  23/01/18
 #
 #   Copyright (c) 2022 Steven Bakker
@@ -162,7 +162,7 @@ L<Term::CLI|Term::CLI>(3p).
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sbakker@cpan.orgE<gt>, 2022.
+Steven Bakker E<lt>cpanman@monkey-mind.netE<gt>, 2022.
 
 =head1 COPYRIGHT AND LICENSE
 

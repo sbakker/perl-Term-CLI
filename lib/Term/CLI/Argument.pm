@@ -4,7 +4,7 @@
 #
 #  Description:  Generic parent class for arguments in Term::CLI
 #
-#       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
+#       Author:  Steven Bakker (SBAKKER), <cpanman@monkey-mind.net>
 #      Created:  22/01/18
 #
 #   Copyright (c) 2018-2022 Steven Bakker
@@ -286,7 +286,7 @@ L<Term::CLI::Element>(3p).
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sbakker@cpan.orgE<gt>, 2018-2022.
+Steven Bakker E<lt>cpanman@monkey-mind.netE<gt>, 2018-2022.
 
 =head1 COPYRIGHT AND LICENSE
 

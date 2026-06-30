@@ -5,7 +5,7 @@
 #
 #        Usage:  get_rpm_provides.pl lib/**/*.pm
 #
-#       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
+#       Author:  Steven Bakker (SBAKKER), <cpanman@monkey-mind.net>
 #      Created:  10/03/18
 #
 #   Copyright (c) 2018 Steven Bakker; All rights reserved.

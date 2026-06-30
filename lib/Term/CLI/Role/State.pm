@@ -4,7 +4,7 @@
 #
 #  Description:  Role for keeping state in Term::CLI objects.
 #
-#       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
+#       Author:  Steven Bakker (SBAKKER), <cpanman@monkey-mind.net>
 #      Created:  09/02/2022
 #
 #   Copyright (c) 2022 Steven Bakker
@@ -150,7 +150,7 @@ Example script that demonstrates how to keep in the C<Term::CLI> object.
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sbakker@cpan.orgE<gt>, 2022.
+Steven Bakker E<lt>cpanman@monkey-mind.netE<gt>, 2022.
 
 =head1 COPYRIGHT AND LICENSE
 

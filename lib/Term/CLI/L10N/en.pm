@@ -1,7 +1,7 @@
 #=============================================================================
 #
 #       Module:  Term::CLI::L10N::en
-#       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
+#       Author:  Steven Bakker (SBAKKER), <cpanman@monkey-mind.net>
 #      Created:  27/02/18
 #
 #   Copyright (c) 2018-2022 Steven Bakker; All rights reserved.
@@ -69,7 +69,7 @@ L<Term::CLI::L10N>(3p).
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sbakker@cpan.orgE<gt>.
+Steven Bakker E<lt>cpanman@monkey-mind.netE<gt>.
 
 =head1 COPYRIGHT AND LICENSE
 

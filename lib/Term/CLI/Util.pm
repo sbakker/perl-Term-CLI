@@ -4,7 +4,7 @@
 #
 #  Description:  Utility functions for Term::CLI
 #
-#       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
+#       Author:  Steven Bakker (SBAKKER), <cpanman@monkey-mind.net>
 #      Created:  21/01/2022
 #
 #   Copyright (c) 2022 Steven Bakker

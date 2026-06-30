@@ -4,7 +4,7 @@
 #
 #  Description:  Class for Term::CLI and Term::ReadLine glue
 #
-#       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
+#       Author:  Steven Bakker (SBAKKER), <cpanman@monkey-mind.net>
 #      Created:  23/Jan/2018
 #
 #   Copyright (c) 2018-2022 Steven Bakker
@@ -887,7 +887,7 @@ L<Term::ReadLine::Perl>(3p).
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sbakker@cpan.orgE<gt>, 2018-2021.
+Steven Bakker E<lt>cpanman@monkey-mind.netE<gt>, 2018-2021.
 
 =head1 COPYRIGHT AND LICENSE
 

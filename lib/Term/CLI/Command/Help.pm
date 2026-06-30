@@ -4,7 +4,7 @@
 #
 #  Description:  Class for Term::CLI 'help' command.
 #
-#       Author:  Steven Bakker (SBAKKER), <sbakker@cpan.org>
+#       Author:  Steven Bakker (SBAKKER), <cpanman@monkey-mind.net>
 #      Created:  18/Feb/2018
 #
 #   Copyright (c) 2018-2022 Steven Bakker
@@ -542,7 +542,7 @@ L<Term::CLI::Command>(3p).
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sbakker@cpan.orgE<gt>, 2018.
+Steven Bakker E<lt>cpanman@monkey-mind.netE<gt>, 2018.
 
 =head1 COPYRIGHT AND LICENSE
 

@@ -283,7 +283,7 @@ L<Term::CLI::Role::State|Term::CLI::Role::State>(3p).
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sbakker@cpan.orgE<gt>
+Steven Bakker E<lt>cpanman@monkey-mind.netE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 

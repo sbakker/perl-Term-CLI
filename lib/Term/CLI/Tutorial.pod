@@ -2010,7 +2010,7 @@ The tutorial code.
 
 =head1 AUTHOR
 
-Steven Bakker E<lt>sbakker@cpan.orgE<gt>
+Steven Bakker E<lt>cpanman@monkey-mind.netE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
